@@ -1,0 +1,22 @@
+" Hide the address bar
+set gui=nonavigation
+
+" Reload configuration
+nnoremap ,. :source ~/.vimperatorrc<cr>
+
+" Swap : and ;
+nnoremap ; :
+nnoremap : ;
+
+" Switch to previous tab
+map ,, <C-^>
+
+" Open current page with mpv
+nnoremap ,m :silent execute "!mpv \"" + content.location.href + "\" &"<cr>
+
+" Ignore all keys for fastmail.com
+autocmd LocationChange .* js modes.passAllKeys = /fastmail.com/.test(buffer.URL)
+
+
+command! proxy :set! network.proxy.type=1
+command! noproxy :set! network.proxy.type=0
