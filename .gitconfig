@@ -1,0 +1,24 @@
+[user]
+name = mephory
+email = mephory@mephory.com
+
+[alias]
+st = status -sb
+co = checkout
+ignore = update-index --assume-unchanged
+unignore = update-index --no-assume-unchanged
+ignores = !git ls-files -v | grep "^[[:lower:]]"
+pom = push origin master
+curbranch = rev-parse --abbrev-ref HEAD
+mod      = !cd ${GIT_PREFIX:-.} && git status -sb | grep -E '^ ?M' | cut -d' ' -f3 | sort | uniq
+modified = !cd ${GIT_PREFIX:-.} && git status -sb | grep -E '^ ?M' | cut -d' ' -f3 | sort | uniq
+con      = !cd ${GIT_PREFIX:-.} && git status -sb | grep -E '^ ?UU' | cut -d' ' -f2 | sort | uniq
+conf     = !cd ${GIT_PREFIX:-.} && git status -sb | grep -E '^ ?UU' | cut -d' ' -f2 | sort | uniq
+conflict = !cd ${GIT_PREFIX:-.} && git status -sb | grep -E '^ ?UU' | cut -d' ' -f2 | sort | uniq
+unst     = !cd ${GIT_PREFIX:-.} && git status -sb | grep -E '^\\?\\?' | cut -d' ' -f2 | sort | uniq
+unstaged = !cd ${GIT_PREFIX:-.} && git status -sb | grep -E '^\\?\\?' | cut -d' ' -f2 | sort | uniq
+dif = diff
+tf = touchedfiles
+
+[color]
+ui = true
