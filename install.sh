@@ -1,6 +1,6 @@
 #!/bin/zsh
 DOTFILES=$(
-    echo .{*(.),**/*(.)} |
+    echo .{*(.),*/**/*(.)} |
         tr " " "\n" |
         grep -v "^\.git/" |
         grep -v "^\.$" |
