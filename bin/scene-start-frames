@@ -1,0 +1,5 @@
+#!/bin/sh
+# scene-start-frames <file> <threshold> - print the numbers of frames starting a new scene
+
+THRESHOLD=${1:0.3}
+ffprobe -show_frames -f lavfi "movie=$1,select=gt(scene\,$THRESHOLD)" | grep pkt_pos | cut -d= -f2

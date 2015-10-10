@@ -1,0 +1,4 @@
+#!/bin/sh
+# batteryp - print the current battery percentage for all batteries
+
+acpi | grep -o "[[:digit:]]\+%" | tr "\n" " "

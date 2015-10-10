@@ -1,0 +1,25 @@
+#!/bin/bash
+# netbw - print incoming and outgoing traffic in KB/s
+
+IF=$1
+if [ -z "$IF" ]; then
+        IF=$(ls -1 /sys/class/net/ | head -1)
+fi
+RXPREV=-1
+TXPREV=-1
+while true; do
+        RX=$(cat /sys/class/net/${IF}/statistics/rx_bytes)
+        TX=$(cat /sys/class/net/${IF}/statistics/tx_bytes)
+        if [ $RXPREV -ne -1 ] ; then
+                let BWRX=($RX-$RXPREV)
+                let BWTX=($TX-$TXPREV)
+                echo "$BWRX $BWTX" | awk '{ 
+                    rx = $1 / 1024;
+                    tx = $2 / 1024;
+                    printf "%.2f %.2f\n", rx, tx;
+                }'
+        fi
+        RXPREV=$RX
+        TXPREV=$TX
+        sleep 1
+done

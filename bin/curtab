@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+# curtab - print the currently selected Firefox tab
+
+require 'rubygems'
+require 'json'
+
+session = JSON.load(File.read(Dir[
+   File.expand_path("~/.mozilla/firefox/*.default/sessionstore-backups/recovery.js"
+      )].first))
+
+      window = session["windows"][session["selectedWindow"]-1]
+      tab    = window["tabs"][window["selected"]-1]
+      page   = tab["entries"][tab["index"]-1]
+
+      puts page["url"]
+

@@ -1,0 +1,35 @@
+#!/bin/sh
+# upload - upload file to upload.mephory.com
+#
+# Usage:
+#     upload -l     -   list uploaded files
+#     upload -c <n> -   copy url for uploaded file
+#     upload <file> -   upload a file
+#
+# You need to set the UPLOAD_PASSWORD environment variable
+
+
+if [ $# -ne 1 ]; then
+    if [ $# -eq 2 ]; then
+        if [ $1 = '-c' ]; then
+            head -$2 $HOME/.uploads | tail -1 | awk '{ print $3 }' | xsel -b -i
+        fi
+    else
+        echo "usage: $0 -l <n> | -c <file>
+-c: copy link of line n to clipboard
+-l: list uploads"
+
+    fi
+elif [ $1 = '-l' ]; then
+    cat $HOME/.uploads | nl -w 2 -s '| '
+elif [ $1 = '-c' ]; then
+    echo "usage: $0 -l|-c <n>|<file>
+-c: copy link of line n to clipboard
+-l: list uploads"
+else
+    echo "uploading to upload.mephory.com..."
+    ULINK=`curl -s -F key=gggbb -F file=@$1 "http://upload.mephory.com/upload/"`
+    echo "$1    ->    $ULINK" >> $HOME/.uploads
+    echo $ULINK
+    echo $ULINK | xsel -b -i
+fi

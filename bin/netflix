@@ -1,0 +1,4 @@
+#!/bin/sh
+# netflix - start netflix in chrome kiosk mode
+
+google-chrome-stable --new-window --start-fullscreen --kiosk "http://netflix.com"

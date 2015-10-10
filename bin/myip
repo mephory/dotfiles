@@ -1,0 +1,4 @@
+#!/bin/sh
+# myip - print external ip address
+
+curl -q "http://mephory.com/ip/"
