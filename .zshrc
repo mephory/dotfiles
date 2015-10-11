@@ -3,6 +3,7 @@ setopt prompt_subst
 setopt auto_pushd
 setopt pushd_ignore_dups
 setopt extended_glob
+setopt glob_complete
 
 
 # settings and environment
@@ -96,6 +97,22 @@ export LS_COLORS='rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;
 zstyle ':completion:*' list-colors ''
 zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
 
+
+# Complete from tmux pane.
+_tmux_pane_words() {
+  local expl
+  local -a w
+  if [[ -z "$TMUX_PANE" ]]; then
+    _message "not running inside tmux!"
+    return 1
+  fi
+  w=( ${(u)=$(tmux capture-pane \; show-buffer \; delete-buffer)} )
+  _wanted values expl 'words from current tmux pane' compadd -a w
+}
+zle -C tmux-pane-words-prefix   complete-word _generic
+bindkey '^ ' tmux-pane-words-prefix
+zstyle ':completion:tmux-pane-words-prefix:*' completer _tmux_pane_words
+zstyle ':completion:tmux-pane-words-prefix:*' ignore-line current
 
 source ~/.alias
 
