@@ -1,0 +1,222 @@
+# Colors                                                                     {{{
+alias ls="ls --color=auto"
+alias grep="grep --color=auto"
+alias tmux="TERM=screen-256color-bce tmux"
+
+#                                                                            }}}
+# Shortcuts                                                                  {{{
+alias l="ls -lsh"
+alias la="l -a"
+alias py="python2"
+alias k="setxkbmap"
+alias todo="cat ~/.todo"
+alias vitodo="$EDITOR ~/.todo"
+alias vianime="$EDITOR ~/.anime_list"
+alias tm="tmux"
+alias ..="cd .."
+alias 2..="cd ../.."
+alias 3..="cd ../../.."
+alias 4..="cd ../../../.."
+alias 5..="cd ../../../../.."
+alias t="tail"
+alias h="head"
+alias d="drop"
+alias g="grep"
+alias j="jobs"
+alias mshare="sshfs mephory:shared ~/shared"
+alias psg="ps -e | grep"
+alias tc="teamocil --here"
+alias ]="git diff"
+alias ]]="git diff --staged"
+alias st="git st"
+alias mupen="mupen64plus --fullscreen"
+alias oot="mupen $HOME/data/rom/*Ocarina*"
+alias enc="gpg --encrypt"
+alias dec="gpg --decrypt"
+alias s.="du -hs"
+
+alias notouchpad="synclient TouchpadOff=1"
+alias touchpad="synclient TouchpadOff=0"
+
+#                                                                            }}}
+# dice                                                                       {{{
+alias w2='echo $((RANDOM%2+1))'
+alias w3='echo $((RANDOM%3+1))'
+alias w4='echo $((RANDOM%4+1))'
+alias w5='echo $((RANDOM%5+1))'
+alias w6='echo $((RANDOM%6+1))'
+alias w7='echo $((RANDOM%7+1))'
+alias w8='echo $((RANDOM%8+1))'
+alias w9='echo $((RANDOM%9+1))'
+alias w10='echo $((RANDOM%10+1))'
+alias w11='echo $((RANDOM%11+1))'
+alias w12='echo $((RANDOM%12+1))'
+alias w13='echo $((RANDOM%13+1))'
+alias w14='echo $((RANDOM%14+1))'
+alias w15='echo $((RANDOM%15+1))'
+alias w16='echo $((RANDOM%16+1))'
+alias w17='echo $((RANDOM%17+1))'
+alias w18='echo $((RANDOM%18+1))'
+alias w19='echo $((RANDOM%19+1))'
+alias w20='echo $((RANDOM%20+1))'
+
+#                                                                            }}}
+# Typos                                                                      {{{
+alias sl="ls"
+alias Grep="grep"
+alias Mpc="mpc"
+alias les="less"
+alias Less="less"
+
+#                                                                            }}}
+# Other                                                                      {{{
+alias p="xsel -b"
+alias record="ffmpeg -f x11grab -s 1920x1080 -r 25 -i :0"
+alias wocs="tr -cs A-Za-z '\n' | tr A-Z a-z | sort | uniq -c | sort -rn" # Prints number of occurences of words
+alias histat="cat ~/.history | sed 's/^[0-9 ]*//' | sed 's/ *| */\n/g' | sort | uniq -c | sort -rn | head -n 100"
+alias temp="acpi -t"
+
+#                                                                            }}}
+# Extensions                                                                 {{{
+alias -s png="feh"
+alias -s jpg="feh"
+alias -s bmp="feh"
+alias -s gif="feh"
+alias -s mov="mplayer"
+alias -s mp4="mplayer"
+alias -s avi="mplayer"
+alias -s mp3="mplayer"
+alias -s wav="mplayer"
+alias -s ogg="mplayer"
+alias -s pdf="firefox"
+alias -s exe="wine"
+alias -s txt="$EDITOR"
+
+#                                                                            }}}
+# Functions                                                                  {{{
+function drop() {
+    tail -n +$(($1+1)) ${@: 2}
+}
+
+function take() {
+    head -n +$(($1)) ${@: 2}
+}
+
+function pick() {
+    head -n$1 | tail -n1
+}
+
+# Swap two files
+function swapfiles() {
+    if [ $# -ne 2 ]; then
+        echo "USAGE: $0 <file1> <file2>";
+    else
+        mv $1 $1.SWAP;
+        mv $2 $1;
+        mv $1.SWAP $2;
+    fi
+}
+
+# Prepend N to a command to get notified when the command has finished
+function N() {
+    $1 ${@: 2} && \
+        notify-send "$1 finished" "Your job has finished successfully." || \
+        notify-send "$1 failed" "Your job has failed."
+}
+
+# Shorten a url via google url shortener
+function shorturl() {
+    if [[ -z $1 ]]; then
+        print "USAGE: $0 <URL>"
+        return 1
+    fi
+
+    url=$1
+
+    # Prepend 'http://' to given URL where necessary for later output.
+    if [[ ${url} != http(s|)://* ]]; then
+        url='http://'${url}
+    fi
+
+    api='https://www.googleapis.com/urlshortener/v1/url'
+    contenttype="Content-Type: application/json"
+    json="{\"longUrl\": \"${url}\"}"
+    data=(${"$(curl --silent -H ${contenttype} -d ${json} $api)"})
+    echo $data | grep "id" | cut -d\" -f4
+}
+
+# Backup a file
+function backup() {
+    cp $1 $1.$(date +"%Y-%m-%d_%H-%M-%S")
+}
+
+function backup-mv() {
+    mv $1 $1.$(date +"%Y-%m-%d_%H-%M-%S")
+}
+
+function rec() {
+    record "/home/mephory/data/video/recorded/$(uuidgen).mkv"
+}
+
+function mwatch() {
+    if [ $# -eq 1 ]
+    then
+        mpv --script $HOME/.config/mpv/watch_later.lua $1/*
+    else
+        mpv --script $HOME/.config/mpv/watch_later.lua ./*
+    fi
+}
+
+
+# total [-F<sep>] [FIELDNUM] - sum up numbers in a column
+total() {
+  local F
+  expr "$1" : -F >/dev/null && F=$1 && shift
+  awk $F -v f=${1:-1} '{s+=$f} END{print s}'
+}
+
+function twitch() {
+    mpv "http://twitch.tv/$1"
+}
+
+# up [|N|pat] -- go up 1, N or until basename matches pat many directories
+#   just output directory when not used interactively, e.g. in backticks
+up() {
+  local op=print
+  [[ -t 1 ]] && op=cd
+  case "$1" in
+    '') up 1;;
+    -*|+*) $op ~$1;;
+    <->) $op $(printf '../%.0s' {1..$1});;
+    *) local -a seg; seg=(${(s:/:)PWD%/*})
+       local n=${(j:/:)seg[1,(I)$1*]}
+       if [[ -n $n ]]; then
+         $op /$n
+       else
+         print -u2 up: could not find prefix $1 in $PWD
+         return 1
+       fi
+  esac
+}
+
+# xless - run less in seperate terminal
+xless() {
+  {
+    exec {stdin}<&0 {stderr}>&2
+    exec xterm -e sh -c "less ${(j: :)${(qq)@}} </dev/fd/$stdin 2>/dev/fd/$stderr"
+  } &!
+}
+
+
+# Directly cd into ~/code with cdc. It even has tab completion! :-)
+function cdc() { cd ~/code/$1; }
+function _cdc() { _files -W ~/code -/; }
+compdef _cdc cdc
+
+#                                                                            }}}
+# Unused                                                                     {{{
+
+
+#                                                                            }}}
+
+alias vialias="$EDITOR ~/.alias && source ~/.alias"
