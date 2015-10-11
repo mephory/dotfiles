@@ -24,7 +24,7 @@ import XMonad.Prompt.Ssh
 import XMonad.Prompt.RunOrRaise
 import Data.Monoid
 import Data.Ratio ((%))
-import Data.List (elemIndex)
+import Data.List (elemIndex, isPrefixOf)
 import Data.Maybe (fromJust)
 import System.IO.Unsafe (unsafePerformIO)
 import System.Exit
@@ -33,9 +33,11 @@ import System.FilePath ((</>))
 import System.FilePath.Posix (takeBaseName)
 import System.Environment (getEnv)
 import System.Directory (getDirectoryContents)
-import Passwords (passwordPrompt, genPasswordPrompt)
 import System.IO
 import Graphics.X11.ExtraTypes.XF86
+
+import Passwords (passwordPrompt, genPasswordPrompt)
+import UnicodeUtils (writeFileUtf8)
 
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
@@ -87,7 +89,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Restart xmonad
     , ((modm              , xK_q     ), spawn "xmonad --recompile; xmonad --restart")
     , ((modm              , xK_o     ), sendMessage ToggleStruts)
-    , ((modm .|. shiftMask, xK_f     ), toggleFloatNext)
+    , ((modm .|. shiftMask, xK_f     ), toggleFloatNext >> runLogHook)
 
     -- Prompts
     , ((modm              , xK_grave ), sshPrompt defaultXPConfig)
@@ -192,19 +194,50 @@ myLogHook = dynamicLogWithPP $ defaultPP {
     , ppHidden          = clickable [dzenColor "#586e75" "#eee8d5" . addPadding . wsNum]
     , ppHiddenNoWindows = clickable [dzenColor "#93a1a1" "#eee8d5" . addPadding . wsNum]
     , ppUrgent          = clickable [dzenColor "red"     "#212121" . addPadding . wsNum]
-    , ppSep             = "^fg(#e7e7bf)^r(1x16)^fg(#efefef)^r(1x16)^bg()^fg()"
+    , ppSep             = "^fg(#e0e0bb)^r(1x16)^fg(#efefef)^r(1x16)^bg()^fg()"
     , ppWsSep           = ""
-    , ppLayout          = dzenColor "#657b83" "#eee8d5" . addPadding
+    , ppLayout          = dzenColor "#657b83" "#eee8d5" . addPadding . layoutName
     , ppTitle           = dzenColor "#657b83" "#eee8d5" . addPadding
-    , ppOutput          = (writeFile $ "/tmp/.workspace-info") . (++"\n")
+    , ppExtras          = [willFloatNextPP (addPadding . floatNextStr)]
+    , ppOrder           = \(w:l:t:es) -> [w, l] ++ es ++ [t]
+    , ppOutput          = (writeFileUtf8 $ "/tmp/.workspace-info") . (++"\n")
     }
-    where icon wid       = "^i(" ++ homeDir ++ "/.workspace-icons/" ++ wid ++ ".xbm)"
-          wsNum wid      = show . (+1) . fromJust $ elemIndex wid myWorkspaces
-          addPadding     = ("    " ++) . (++ "    ")
-          startCa wid    = "^ca(1, xdotool key 'alt+" ++ wsNum wid ++ "')"
-          endCa _        = "^ca()"
-          clickable fs x = applyAll ([startCa] ++ fs ++ [endCa]) x
-          applyAll fs x  = fs >>= ($ x)
+    where
+        -- general transformations
+        addPadding      = ("    " ++) . (++ "    ")
+
+        -- workspace name transformations
+        wsIcon wid        = "^i(" ++ homeDir ++ "/.workspace-icons/" ++ wid ++ ".xbm)"
+        wsUnicodeIcon wid = maybe "N" id (M.lookup wid workspaceIcons)
+        wsNum wid       = show . (+1) . fromJust $ elemIndex wid myWorkspaces
+
+        -- layout name transformation
+        layoutName s
+            | s == "Tall"             = "◧"
+            | s == "Mirror Tall"      = "⬒"
+            | s == "Full"             = "□"
+            | "OneBig" `isPrefixOf` s = "◰"
+            | otherwise               = "▦"
+
+        -- other transformations
+        floatNextStr _ = "◈"
+
+        -- helpers
+        dzenStartCa wid = "^ca(1, xdotool key 'alt+" ++ wsNum wid ++ "')"
+        dzenEndCa _         = "^ca()"
+        clickable fs x  = applyAll ([dzenStartCa] ++ fs ++ [dzenEndCa]) x
+        applyAll fs x   = fs >>= ($ x)
+        workspaceIcons = M.fromList $
+              [ ("web"   , "☀")
+              , ("dev"   , "♛")
+              , ("music" , "♬")
+              , ("term"  , "⌚")
+              , ("game"  , "♞")
+              , ("vm"    , "♟")
+              , ("im"    , "✉")
+              , ("other" , "ℹ")
+              , ("float" , "💾")
+                ]
 
 -- Startup hook
 myStartupHook = return ()
@@ -212,7 +245,7 @@ myStartupHook = return ()
 ------------------------------------------------------------------------
 main = do xmonad $ withUrgencyHook NoUrgencyHook defaultConfig {
       -- simple stuff
-        terminal           = "urxvt",
+        terminal           = "xterm",
         focusFollowsMouse  = True,
         borderWidth        = 1,
         modMask            = mod1Mask,
