@@ -242,6 +242,9 @@ myLogHook = dynamicLogWithPP $ defaultPP {
 -- Startup hook
 myStartupHook = return ()
 
+
+floatPlacement = placeHook (withGaps (20, 0, 0, 0) $ fixed (0, 0))
+
 ------------------------------------------------------------------------
 main = do xmonad $ withUrgencyHook NoUrgencyHook defaultConfig {
       -- simple stuff
@@ -259,7 +262,10 @@ main = do xmonad $ withUrgencyHook NoUrgencyHook defaultConfig {
 
       -- hooks, layouts
         layoutHook         = myLayout,
-        manageHook         = floatNextHook <+> myManageHook <+> insertPosition Below Newer,
+        manageHook         = myManageHook
+                             <+> floatPlacement
+                             <+> floatNextHook
+                             <+> insertPosition Below Newer,
         handleEventHook    = myEventHook,
         logHook            = myLogHook,
         startupHook        = myStartupHook
