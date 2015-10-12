@@ -17,6 +17,10 @@ conf     = !cd ${GIT_PREFIX:-.} && git status -sb | grep -E '^ ?UU' | cut -d' ' 
 conflict = !cd ${GIT_PREFIX:-.} && git status -sb | grep -E '^ ?UU' | cut -d' ' -f2 | sort | uniq
 unst     = !cd ${GIT_PREFIX:-.} && git status -sb | grep -E '^\\?\\?' | cut -d' ' -f2 | sort | uniq
 unstaged = !cd ${GIT_PREFIX:-.} && git status -sb | grep -E '^\\?\\?' | cut -d' ' -f2 | sort | uniq
+mm       = !cd ${GIT_PREFIX:-.} && git status -sb | grep -E '^ ?(AM|MM)' | sed -E 's/^ ?(AM|MM)? //g' | sort | uniq
+loglocal = !git log $(git curbranch) ^origin/$(git curbranch)
+tree = log --oneline --decorate --graph
+sl = stash list --name-status --pretty='format:%gd [%ar]: %s'
 dif = diff
 tf = touchedfiles
 
