@@ -1,5 +1,5 @@
 #!/bin/zsh
-SCRIPTS=$(echo bin/**/* | tr " " "\n")
+SCRIPTS=$(echo bin/**/*(.) | tr " " "\n")
 
 echo 'This will install the following scripts to ~/bin:'
 echo "$SCRIPTS"
