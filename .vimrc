@@ -561,4 +561,15 @@ function! HiInterestingWord(n)
     normal! `z
 endfunction
 
+function! HiPattern(n)
+  let mid = 86760 + a:n
+
+  silent! let has_previous_match = matchdelete(mid)
+
+  if has_previous_match == -1
+    let re = input("Pattern: ")
+    call matchadd("InterestingWord" . a:n, re, 1, mid)
+  end
+endfunction
+
 "============================================================================}}}
