@@ -15,6 +15,7 @@ export PATH="$PATH:$HOME/.gem/ruby/2.2.0/bin"
 export PATH="$PATH:$HOME/.cabal/bin"
 export PATH="$PATH:$HOME/bin"
 export PATH="$PATH:$HOME/bin/git-plugins"
+export PATH="$PATH:$HOME/bin/tmux-plugins"
 
 for f in ~/.zsh-env/*(.N); do
     source $f;
