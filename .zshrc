@@ -116,6 +116,17 @@ zle -C tmux-pane-words-anywhere complete-word _generic
 bindkey '^ ' tmux-pane-words-anywhere
 bindkey '^t' tmux-pane-words-prefix
 
+
+# Move cursor after the first word
+move-after-first-word() {
+    zle beginning-of-line
+    zle forward-word
+}
+
+zle -N move-after-first-word
+bindkey '^B' move-after-first-word
+
+
 zstyle ':completion:tmux-pane-words-(prefix|anywhere):*' completer _tmux_pane_words
 zstyle ':completion:tmux-pane-words-(prefix|anywhere):*' ignore-line current
 zstyle ':completion:tmux-pane-words-anywhere:*' matcher-list 'b:=* m:{A-Za-z}={a-zA-Z}'
