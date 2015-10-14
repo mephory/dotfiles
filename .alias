@@ -67,6 +67,7 @@ alias Grep="grep"
 alias Mpc="mpc"
 alias les="less"
 alias Less="less"
+alias gt="git"
 
 #                                                                            }}}
 # Other                                                                      {{{
