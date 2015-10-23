@@ -3,3 +3,6 @@ extra/python2
 extra/ruby
 extra/gvim
 community/tmux
+
+# Fonts
+extra/xorg-fonts-type1
