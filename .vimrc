@@ -572,4 +572,13 @@ function! HiPattern(n)
   end
 endfunction
 
+function! AutoScp(...)
+    let b:destination = a:0 ? a:1 : 'mephory.com:/var/www/mephory.com/www/upload/%:t'
+
+    augroup autoscp
+        autocmd!
+        autocmd BufWritePost <buffer> exe "silent !scp '%' '" . b:destination .  "' 1>/dev/null 2>/dev/null &" | redraw!
+    augroup END
+endfunction
+
 "============================================================================}}}
