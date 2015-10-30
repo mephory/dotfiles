@@ -1,4 +1,5 @@
 #!/bin/sh
 # tail -F /tmp/.workspace-info 2>/dev/null
+touch /tmp/.workspace-info
 while true; do inotifywait -qq -e close_write /tmp/.workspace-info; cat /tmp/.workspace-info; done
 

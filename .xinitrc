@@ -14,7 +14,6 @@ synclient TapButton3=3
 feh --bg-scale ~/.background.png
 dunst &
 # compton &
-touch /tmp/.workspace-info
 wm restartall
 
 exec xmonad
