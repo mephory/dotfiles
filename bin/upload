@@ -28,7 +28,7 @@ elif [ $1 = '-c' ]; then
 -l: list uploads"
 else
     echo "uploading to upload.mephory.com..."
-    ULINK=`curl -s -F key=gggbb -F file=@$1 "http://upload.mephory.com/upload/"`
+    ULINK=$(curl -\# -F key=gggbb -F file=@$1 "http://upload.mephory.com/upload/")
     echo "$1    ->    $ULINK" >> $HOME/.uploads
     echo $ULINK
     echo $ULINK | xsel -b -i
