@@ -1,35 +1,88 @@
 #!/bin/sh
 # upload - upload file to upload.mephory.com
+# You need to set the UPLOAD_KEY environment variable.
 #
-# Usage:
-#     upload -l     -   list uploaded files
-#     upload -c <n> -   copy url for uploaded file
-#     upload <file> -   upload a file
+# Usage: upload [OPTION]... [FILE]
 #
-# You need to set the UPLOAD_PASSWORD environment variable
+# Options:
+#   -l, --list          list uploaded file
+#   -c, --copy=NUM      copy url for uploaded file
+#   -n, --name=NAME     use NAME as filename
+#   -h, --help          display this help
 
 
-if [ $# -ne 1 ]; then
-    if [ $# -eq 2 ]; then
-        if [ $1 = '-c' ]; then
-            head -$2 $HOME/.uploads | tail -1 | awk '{ print $3 }' | xsel -b -i
-        fi
-    else
-        echo "usage: $0 -l <n> | -c <file>
--c: copy link of line n to clipboard
--l: list uploads"
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        -l) ARG_LIST=true; shift 1;;
+        --list) ARG_LIST=true; shift 1;;
 
-    fi
-elif [ $1 = '-l' ]; then
-    cat $HOME/.uploads | nl -w 2 -s '| '
-elif [ $1 = '-c' ]; then
-    echo "usage: $0 -l|-c <n>|<file>
--c: copy link of line n to clipboard
--l: list uploads"
-else
-    echo "uploading to upload.mephory.com..."
-    ULINK=$(curl -\# -F key=gggbb -F file=@$1 "http://upload.mephory.com/upload/")
-    echo "$1    ->    $ULINK" >> $HOME/.uploads
-    echo $ULINK
-    echo $ULINK | xsel -b -i
+        -c) ARG_COPY="$2"; shift 2;;
+        -c*) ARG_COPY="${1:2}"; shift 1;;
+        --copy=*) ARG_COPY="${1#*=}"; shift 1;;
+
+        -n) ARG_NAME="$2"; shift 2;;
+        -n*) ARG_NAME="${1:2}"; shift 1;;
+        --name=*) ARG_NAME="${1#*=}"; shift 1;;
+
+        -h) ARG_HELP=true; shift 1;;
+        --help) ARG_HELP=true; shift 1;;
+
+        -*) echo "unkown option $1"; exit 1;;
+        *) ARG_FILE="$1"; shift 1;;
+    esac
+done
+
+function print_usage() {
+    echo "Usage: upload [OPTION]... [FILE]
+
+Options:
+  -l, --list          list uploaded files
+  -c, --copy=NUM      copy url for uploaded file
+  -n, --name=NAME     use NAME as filename
+  -h, --help          display this help
+
+You need to set the UPLOAD_KEY environment variable."
+}
+
+if [ "$ARG_HELP" = true ]; then
+    print_usage;
+    exit 0;
 fi
+
+if [ "$ARG_LIST" = true ]; then
+    cat $HOME/.uploads | nl -w2 -s'| '
+    exit 0;
+fi
+
+if [ -n "$ARG_COPY" ]; then
+    URL="$(head -$ARG_COPY $HOME/.uploads | tail -1 | awk '{ print $3 }')"
+    echo $URL | xsel -pi
+    echo $URL | xsel -bi
+    exit 0;
+fi
+
+if [ -z "$ARG_FILE" ]; then
+    print_usage;
+    exit 1;
+fi;
+
+echo "uploading to upload.mephory.com..."
+if [ -n "$ARG_NAME" ]; then
+    URL="$(curl \
+        --fail -# \
+        -F "key=$UPLOAD_KEY" \
+        -F "file=@\"$ARG_FILE\";filename=\"$ARG_NAME\"" \
+        "http://upload.mephory.com/")" || exit
+else
+    URL="$(curl \
+        --fail -# \
+        -F "key=$UPLOAD_KEY" \
+        -F "file=@\"$ARG_FILE\"" \
+        "http://upload.mephory.com/")" || exit
+fi
+
+echo "$1    ->    $URL" >> $HOME/.uploads
+echo $URL
+echo $URL | xsel -pi
+echo $URL | xsel -bi
+exit 0;
