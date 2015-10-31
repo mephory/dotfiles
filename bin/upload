@@ -92,7 +92,7 @@ else
         "http://upload.mephory.com/")" || exit
 fi
 
-echo "$1    ->    $URL" >> $HOME/.uploads
+echo "$ARG_FILE    ->    $URL" >> $HOME/.uploads
 echo $URL
 echo $URL | xsel -pi
 echo $URL | xsel -bi
