@@ -8,6 +8,7 @@
 #   -l, --list          list uploaded file
 #   -c, --copy=NUM      copy url for uploaded file
 #   -n, --name=NAME     use NAME as filename
+#   -p, --private       upload a private file
 #   -h, --help          display this help
 
 
@@ -24,6 +25,9 @@ while [ "$#" -gt 0 ]; do
         -n*) ARG_NAME="${1:2}"; shift 1;;
         --name=*) ARG_NAME="${1#*=}"; shift 1;;
 
+        -p) ARG_PRIVATE=true; shift 1;;
+        --private) ARG_PRIVATE=true; shift 1;;
+
         -h) ARG_HELP=true; shift 1;;
         --help) ARG_HELP=true; shift 1;;
 
@@ -39,6 +43,7 @@ Options:
   -l, --list          list uploaded files
   -c, --copy=NUM      copy url for uploaded file
   -n, --name=NAME     use NAME as filename
+  -p, --private       upload a private file
   -h, --help          display this help
 
 You need to set the UPLOAD_KEY environment variable."
@@ -66,16 +71,22 @@ if [ -z "$ARG_FILE" ]; then
     exit 1;
 fi;
 
+if [ -n "$ARG_PRIVATE" ]; then
+    PRIVATE_FLAG='-F is_private=ok';
+fi;
+
 echo "uploading to upload.mephory.com..."
 if [ -n "$ARG_NAME" ]; then
     URL="$(curl \
         --fail -# \
+        $PRIVATE_FLAG \
         -F "key=$UPLOAD_KEY" \
         -F "file=@\"$ARG_FILE\";filename=\"$ARG_NAME\"" \
         "http://upload.mephory.com/")" || exit
 else
     URL="$(curl \
         --fail -# \
+        $PRIVATE_FLAG \
         -F "key=$UPLOAD_KEY" \
         -F "file=@\"$ARG_FILE\"" \
         "http://upload.mephory.com/")" || exit
