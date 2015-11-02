@@ -1,0 +1,96 @@
+#!/bin/sh
+# sinppet - upload snippet to paste.mephory.com
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        -l) ARG_LIST=true; shift 1;;
+        --list) ARG_LIST=true; shift 1;;
+
+        -c) ARG_COPY="$2"; shift 2;;
+        -c*) ARG_COPY="${1:2}"; shift 1;;
+        --copy=*) ARG_COPY="${1#*=}"; shift 1;;
+
+        -n) ARG_NAME="$2"; shift 2;;
+        -n*) ARG_NAME="${1:2}"; shift 1;;
+        --name=*) ARG_NAME="${1#*=}"; shift 1;;
+
+        -p) ARG_PUBLIC=true; shift 1;;
+        --public) ARG_PUBLIC=true; shift 1;;
+
+        -s) ARG_SYNTAX="$2"; shift 2;;
+        -s*) ARG_SYNTAX="${1:2}"; shift 1;;
+        --syntax=*) ARG_SYNTAX="${1#*=}"; shift 1;;
+
+        -h) ARG_HELP=true; shift 1;;
+        --help) ARG_HELP=true; shift 1;;
+
+        *) ARG_FILE="$1"; shift 1;;
+    esac
+done
+
+function print_usage() {
+    echo "Usage: snippet [OPTION]... [FILE]
+
+Options:
+  -l, --list          list uploaded files
+  -c, --copy=NUM      copy url for uploaded file
+  -s, --syntax=SYN    use syntax highlighting for SYN
+  -n, --name=NAME     use NAME as filename
+  -p, --public        make the snippet public
+  -h, --help          display this help
+
+You need to set the UPLOAD_KEY environment variable."
+}
+
+if [ "$ARG_HELP" = true ]; then
+    print_usage;
+    exit 0;
+fi
+
+if [ "$ARG_LIST" = true ]; then
+    cat $HOME/.snippets | nl -w2 -s'| '
+    exit 0;
+fi
+
+if [ -n "$ARG_COPY" ]; then
+    URL="$(head -$ARG_COPY $HOME/.snippets | tail -1 | awk '{ print $3 }')"
+    echo $URL | xsel -pi
+    echo $URL | xsel -bi
+    exit 0;
+fi
+
+if [ -z "$ARG_FILE" ]; then
+    print_usage;
+    exit 1;
+fi;
+
+if [ -n "$ARG_SYNTAX" ]; then
+    SYNTAX_FLAG="-F syntax=$ARG_SYNTAX";
+fi;
+
+if [ -n "$ARG_PUBLIC" ]; then
+    PUBLIC_FLAG="-F is_public=ok";
+fi;
+
+if [ -n "$ARG_NAME" ]; then
+    URL="$(curl \
+        --fail -s -S \
+        $SYNTAX_FLAG \
+        $PUBLIC_FLAG \
+        -F "file=@\"$ARG_FILE\";filename=\"$ARG_NAME\"" \
+        "http://paste.mephory.com/")" || exit
+else
+    URL="$(curl \
+        --fail -s -S \
+        $SYNTAX_FLAG \
+        $PUBLIC_FLAG \
+        -F "file=@\"$ARG_FILE\"" \
+        "http://paste.mephory.com/")" || exit
+fi
+
+
+echo "$ARG_FILE    ->    $URL" >> $HOME/.snippets
+echo $URL
+echo $URL | xsel -pi
+echo $URL | xsel -bi
+exit 0;
