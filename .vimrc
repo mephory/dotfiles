@@ -258,6 +258,7 @@ nnoremap <leader>t :TlistToggle<cr>
 
 " Paste to http://mephory.com/paste
 vnoremap <leader>p :call PostSnippet()<cr>
+vnoremap <leader>P :call PostSnippet('public')<cr>
 
 " View diff of buffer against original file
 nnoremap <leader>d :w !diff -u % -<cr>
@@ -440,14 +441,19 @@ function! GrepRecursive()
     copen
 endfunction
 
-" Post a snipper to http://mephory.com/paste/
-function! PostSnippet() range
+" Post a snippet to http://paste.mephory.com
+" Call with parameter to post public snippet
+function! PostSnippet(...) range
     let tempFile = tempname()
     call writefile(getline(a:firstline, a:lastline), tempFile)
 
-    let PS_Url = system('curl -s -F ss='.&syntax.' -F sc=@'.tempFile.' "http://mephory.com/paste/"')
-    echo PS_Url
-    let @+ = PS_Url
+    if a:0
+        let PS_Url = system('snippet -p -s '.&syntax.' -n "excerpt from ' .  expand('%:t') . '" '.tempFile)
+    else
+        let PS_Url = system('snippet -s '.&syntax.' -n "excerpt from ' .  expand('%:t') . '" '.tempFile)
+    end
+
+    echom PS_Url
 endfunction
 
 " Toggle Hex Edit Mode
