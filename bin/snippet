@@ -1,5 +1,5 @@
 #!/bin/sh
-# sinppet - upload snippet to paste.mephory.com
+# snippet - upload snippet to paste.mephory.com
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
@@ -32,14 +32,12 @@ function print_usage() {
     echo "Usage: snippet [OPTION]... [FILE]
 
 Options:
-  -l, --list          list uploaded files
-  -c, --copy=NUM      copy url for uploaded file
+  -l, --list          list uploaded snippets
+  -c, --copy=NUM      copy url for uploaded snippet
   -s, --syntax=SYN    use syntax highlighting for SYN
   -n, --name=NAME     use NAME as filename
   -p, --public        make the snippet public
-  -h, --help          display this help
-
-You need to set the UPLOAD_KEY environment variable."
+  -h, --help          display this help"
 }
 
 if [ "$ARG_HELP" = true ]; then
