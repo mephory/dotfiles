@@ -293,9 +293,9 @@ nnoremap  ;  :
 vnoremap . :norm.<cr>
 
 " hilight words in different colors
-hi def InterestingWord1 guifg=#000000 ctermfg=16 guibg=#ffa724 ctermbg=214
-hi def InterestingWord2 guifg=#000000 ctermfg=16 guibg=#aeee00 ctermbg=154
-hi def InterestingWord3 guifg=#000000 ctermfg=16 guibg=#8cffba ctermbg=121
+hi def InterestingWord1 guifg=#000000 ctermfg=16 guibg=#ffa724 ctermbg=208
+hi def InterestingWord2 guifg=#000000 ctermfg=16 guibg=#aeee00 ctermbg=040
+hi def InterestingWord3 guifg=#000000 ctermfg=16 guibg=#8cffba ctermbg=087
 hi def InterestingWord4 guifg=#000000 ctermfg=16 guibg=#b88853 ctermbg=137
 hi def InterestingWord5 guifg=#000000 ctermfg=16 guibg=#ff9eb8 ctermbg=211
 hi def InterestingWord6 guifg=#000000 ctermfg=16 guibg=#ff2c4b ctermbg=195
@@ -326,6 +326,8 @@ nmap - :tabnew<cr>:e.<cr>
 
 vmap <cr>j :<C-u>call MoveToEndOfParagraphSameCol()<cr>
 vmap <cr>k :<C-u>call MoveToBeginningOfParagraphSameCol()<cr>
+nmap <cr>j v<cr>jv
+nmap <cr>k v<cr>kv
 
 "----------------------------------------------------------------------------}}}
 " Filter through external programs                                           {{{
