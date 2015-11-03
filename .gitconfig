@@ -24,6 +24,7 @@ sl = stash list --name-status --pretty='format:%gd [%ar]: %s'
 dif = diff
 tf = touchedfiles
 root = !pwd
+tracking = rev-parse --abbrev-ref --symbolic-full-name @{u}
 
 [color]
 ui = true
