@@ -589,4 +589,22 @@ function! AutoScp(...)
     augroup END
 endfunction
 
+function! PandocMode()
+    let b:pandoc_command = a:0 ? a:1 : 'pandoc % -s -c ~/.config/pandoc.css -o /tmp/pandoc-mode/%:t.html'
+    let b:refresh_command = 'xdotool search --name Vimperator key r'
+
+    setlocal tw=80
+    setlocal fo+=t
+
+    silent! exe '!mkdir -p /tmp/pandoc-mode'
+    silent! exe '!touch /tmp/pandoc-mode/%:t.html'
+    silent! exe '!firefox /tmp/pandoc-mode/%:t.html'
+    redraw!
+
+    augroup pandocmode
+        autocmd!
+        autocmd BufWritePost <buffer> exe "silent !(" . b:pandoc_command . ' && ' . b:refresh_command . ') &'
+    augroup END
+endfunction
+
 "============================================================================}}}
