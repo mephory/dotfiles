@@ -28,3 +28,6 @@ tracking = rev-parse --abbrev-ref --symbolic-full-name @{u}
 
 [color]
 ui = true
+
+[push]
+default = simple
