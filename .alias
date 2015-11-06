@@ -139,7 +139,7 @@ function shorturl() {
         url='http://'${url}
     fi
 
-    api='https://www.googleapis.com/urlshortener/v1/url'
+    api="https://www.googleapis.com/urlshortener/v1/url?key=$GOOGLE_API_KEY"
     contenttype="Content-Type: application/json"
     json="{\"longUrl\": \"${url}\"}"
     data=(${"$(curl --silent -H ${contenttype} -d ${json} $api)"})
