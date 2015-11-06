@@ -31,7 +31,6 @@ while [ "$#" -gt 0 ]; do
         -h) ARG_HELP=true; shift 1;;
         --help) ARG_HELP=true; shift 1;;
 
-        -*) echo "unkown option $1"; exit 1;;
         *) ARG_FILE="$1"; shift 1;;
     esac
 done
