@@ -17,6 +17,7 @@ import XMonad.Hooks.InsertPosition
 import XMonad.Hooks.Place
 import XMonad.Util.Run (spawnPipe, hPutStrLn)
 import XMonad.Util.Loggers
+import XMonad.Util.NamedScratchpad
 import XMonad.Prompt
 import XMonad.Prompt.Shell
 import XMonad.Prompt.Email
@@ -44,7 +45,7 @@ import qualified Data.Map        as M
 
 homeDir = unsafePerformIO $ getEnv "HOME"
 
-myWorkspaces    = ["web","dev","music","term","game","vm","im","other","float"]
+myWorkspaces    = ["web","dev","music","term","game","vm","im","other","float"] ++ ["NSP"]
 
 -- Key bindings. Add, modify or remove key bindings here.
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
@@ -100,7 +101,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_s     ), spawn "slock")
     , ((modm .|. shiftMask, xK_p     ), spawn "gcolor2")
     , ((modm .|. shiftMask, xK_x     ), spawn "xkill")
-    , ((modm .|. shiftMask, xK_t    ), spawn "mpv http://twitch.tv/stevicules")
+    , ((modm .|. shiftMask, xK_t     ), spawn "mpv http://twitch.tv/stevicules")
+
+    -- Scratchpads
+    , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
 
     -- Thinkpad Function Keys
     , ((0, xF86XK_AudioMute), spawn "amixer sset Master toggle")
@@ -173,7 +177,6 @@ myLayout = onWorkspace "web"   (full ||| fullscreen ||| tiled ||| mtiled) $
 -- Window rules:
 myManageHook = composeAll
     [ className =? "MPlayer"          --> doFloat
-    , className =? "mpv"              --> doFloat
     , className =? "Gimp"             --> doFloat
     , resource  =? "desktop_window"   --> doIgnore
     , resource  =? "kdesktop"         --> doIgnore 
@@ -182,6 +185,7 @@ myManageHook = composeAll
     , className =? "explorer.exe"     --> doShift "float"
     , title     =? "Wine System Tray" --> doShift "float"
     , title     =? "gcolor2"          --> placeHook (fixed (0.5, 0.5))
+    -- , className =? "mpv"              --> doFloat
     ]
 
 -- Event handling
@@ -242,31 +246,44 @@ myLogHook = dynamicLogWithPP $ defaultPP {
 -- Startup hook
 myStartupHook = return ()
 
+-- Scratchpads
+myScratchpads = [ NS "terminal" spawnTerminal findTerminal manageSP
+                ]
+    where
+        spawnTerminal = "xterm -name scratchpad -e 'tmux-attach-or-new scratchpad'"
+        findTerminal  = resource =? "scratchpad"
+        manageSP = customFloating $ W.RationalRect x y w h
+            where
+                x = 0.25
+                y = 0.375
+                w = 0.5
+                h = 0.5
 
 floatPlacement = placeHook (withGaps (20, 0, 0, 0) $ fixed (0, 0))
 
 ------------------------------------------------------------------------
 main = do xmonad $ withUrgencyHook NoUrgencyHook defaultConfig {
       -- simple stuff
-        terminal           = "xterm",
-        focusFollowsMouse  = True,
-        borderWidth        = 1,
-        modMask            = mod1Mask,
-        workspaces         = myWorkspaces,
-        normalBorderColor  = "#666666",
-        focusedBorderColor = "#dddddd",
+        terminal           = "xterm"
+      , focusFollowsMouse  = True
+      , borderWidth        = 1
+      , modMask            = mod1Mask
+      , workspaces         = myWorkspaces
+      , normalBorderColor  = "#666666"
+      , focusedBorderColor = "#dddddd"
 
       -- key bindings
-        keys               = myKeys,
-        mouseBindings      = myMouseBindings,
+      , keys               = myKeys
+      , mouseBindings      = myMouseBindings
 
       -- hooks, layouts
-        layoutHook         = myLayout,
-        manageHook         = myManageHook
+      , layoutHook         = myLayout
+      , manageHook         = myManageHook
+                             <+> namedScratchpadManageHook myScratchpads
                              <+> floatPlacement
                              <+> floatNextHook
-                             <+> insertPosition Below Newer,
-        handleEventHook    = myEventHook,
-        logHook            = myLogHook,
-        startupHook        = myStartupHook
+                             <+> insertPosition Below Newer
+      , handleEventHook    = myEventHook
+      , logHook            = myLogHook
+      , startupHook        = myStartupHook
     }
