@@ -95,7 +95,7 @@ Xft.rgba: rgb
 ! *faceName: terminus:size=12
 ! *faceName: Meyrin:size=11
 ! *faceName: monaco:size=11
-xterm*termName: xterm-256color
+*termName: xterm-256color
 
 ! rxvt-specific (not used)
 urxvt*fading: 0
