@@ -105,6 +105,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- Scratchpads
     , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
+    , ((modm              , xK_z     ), namedScratchpadAction myScratchpads "music")
 
     -- Thinkpad Function Keys
     , ((0, xF86XK_AudioMute), spawn "amixer sset Master toggle")
@@ -195,8 +196,8 @@ myEventHook = mempty
 myLogHook = dynamicLogWithPP $ defaultPP {
       ppCurrent         = clickable [dzenColor "#fffffd" "#268bd2" . addPadding . wsNum]
     , ppVisible         = clickable [dzenColor "#fffffd" "#8a8a8a" . addPadding . wsNum]
-    , ppHidden          = clickable [dzenColor "#586e75" "#eee8d5" . addPadding . wsNum]
-    , ppHiddenNoWindows = clickable [dzenColor "#93a1a1" "#eee8d5" . addPadding . wsNum]
+    , ppHidden          = onlyIf (/= "NSP") $ clickable [dzenColor "#586e75" "#eee8d5" . addPadding . wsNum]
+    , ppHiddenNoWindows = onlyIf (/= "NSP") $ clickable [dzenColor "#93a1a1" "#eee8d5" . addPadding . wsNum]
     , ppUrgent          = clickable [dzenColor "red"     "#212121" . addPadding . wsNum]
     , ppSep             = "^fg(#e0e0bb)^r(1x16)^fg(#efefef)^r(1x16)^bg()^fg()"
     , ppWsSep           = ""
@@ -231,6 +232,7 @@ myLogHook = dynamicLogWithPP $ defaultPP {
         dzenEndCa _         = "^ca()"
         clickable fs x  = applyAll ([dzenStartCa] ++ fs ++ [dzenEndCa]) x
         applyAll fs x   = fs >>= ($ x)
+        onlyIf p f x    = if p x then f x else ""
         workspaceIcons = M.fromList $
               [ ("web"   , "☀")
               , ("dev"   , "♛")
@@ -248,14 +250,17 @@ myStartupHook = return ()
 
 -- Scratchpads
 myScratchpads = [ NS "terminal" spawnTerminal findTerminal manageSP
+                , NS "music"    spawnMusic    findMusic    manageSP
                 ]
     where
         spawnTerminal = "xterm -name scratchpad -e 'tmux-attach-or-new scratchpad'"
         findTerminal  = resource =? "scratchpad"
+        spawnMusic    = "xterm -name music -e 'tmux-attach-or-new music ncmpcpp'"
+        findMusic     = resource =? "music"
         manageSP = customFloating $ W.RationalRect x y w h
             where
                 x = 0.25
-                y = 0.375
+                y = 0.25
                 w = 0.5
                 h = 0.5
 
