@@ -253,7 +253,7 @@ myScratchpads = [ NS "terminal" spawnTerminal findTerminal manageSP
                 , NS "music"    spawnMusic    findMusic    manageSP
                 ]
     where
-        spawnTerminal = "xterm -name scratchpad -e 'tmux-attach-or-new scratchpad'"
+        spawnTerminal = "xterm -name scratchpad"
         findTerminal  = resource =? "scratchpad"
         spawnMusic    = "xterm -name music -e 'tmux-attach-or-new music ncmpcpp'"
         findMusic     = resource =? "music"
