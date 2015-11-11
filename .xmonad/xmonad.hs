@@ -93,7 +93,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_f     ), toggleFloatNext >> runLogHook)
 
     -- Prompts
-    , ((modm              , xK_grave ), sshPrompt defaultXPConfig)
+    , ((modm              , xK_s     ), sshPrompt defaultXPConfig)
     , ((modm              , xK_x     ), passwordPrompt defaultXPConfig)
     , ((modm              , xK_c     ), genPasswordPrompt defaultXPConfig)
 
@@ -102,6 +102,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_p     ), spawn "gcolor2")
     , ((modm .|. shiftMask, xK_x     ), spawn "xkill")
     , ((modm .|. shiftMask, xK_t     ), spawn "mpv http://twitch.tv/stevicules")
+    , ((modm              , xK_grave ), toggleWS' ["NSP"])
 
     -- Scratchpads
     , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
