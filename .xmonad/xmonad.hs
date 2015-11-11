@@ -93,7 +93,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_f     ), toggleFloatNext >> runLogHook)
 
     -- Prompts
-    , ((modm              , xK_s     ), sshPrompt defaultXPConfig)
+    , ((modm .|. shiftMask, xK_grave ), sshPrompt defaultXPConfig)
     , ((modm              , xK_x     ), passwordPrompt defaultXPConfig)
     , ((modm              , xK_c     ), genPasswordPrompt defaultXPConfig)
 
@@ -107,6 +107,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Scratchpads
     , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
     , ((modm              , xK_z     ), namedScratchpadAction myScratchpads "music")
+    , ((modm              , xK_s     ), namedScratchpadAction myScratchpads "htop")
 
     -- Thinkpad Function Keys
     , ((0, xF86XK_AudioMute), spawn "amixer sset Master toggle")
@@ -252,12 +253,15 @@ myStartupHook = return ()
 -- Scratchpads
 myScratchpads = [ NS "terminal" spawnTerminal findTerminal manageSP
                 , NS "music"    spawnMusic    findMusic    manageSP
+                , NS "htop"     spawnHtop     findHtop     manageSP
                 ]
     where
         spawnTerminal = "xterm -name scratchpad"
         findTerminal  = resource =? "scratchpad"
         spawnMusic    = "xterm -name music -e 'tmux-attach-or-new music ncmpcpp'"
         findMusic     = resource =? "music"
+        spawnHtop     = "xterm -name htop -e htop"
+        findHtop      = resource =? "htop"
         manageSP = customFloating $ W.RationalRect x y w h
             where
                 x = 0.25
