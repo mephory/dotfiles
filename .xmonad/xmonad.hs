@@ -101,18 +101,18 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_c     ), genPasswordPrompt defaultXPConfig)
 
     -- Custom
-    , ((modm .|. shiftMask, xK_s     ), spawn "slock")
+    , ((modm              , xK_Escape), spawn "slock")
     , ((modm .|. shiftMask, xK_p     ), spawn "gcolor2")
     , ((modm .|. shiftMask, xK_x     ), spawn "xkill")
     , ((modm .|. shiftMask, xK_t     ), spawn "mpv http://twitch.tv/stevicules")
     , ((modm              , xK_grave ), toggleWS' ["NSP"])
-    , ((modm              , xK_a     ), submap $ searchMap (S.promptSearchBrowser defaultXPConfig myBrowser))
-    , ((modm .|. shiftMask, xK_a     ), submap $ searchMap (S.selectSearchBrowser myBrowser))
+    , ((modm              , xK_s     ), submap $ searchMap (S.promptSearchBrowser defaultXPConfig myBrowser))
+    , ((modm .|. shiftMask, xK_s     ), submap $ searchMap (S.selectSearchBrowser myBrowser))
 
     -- Scratchpads
     , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
     , ((modm              , xK_z     ), namedScratchpadAction myScratchpads "music")
-    , ((modm              , xK_s     ), namedScratchpadAction myScratchpads "htop")
+    , ((modm              , xK_a     ), namedScratchpadAction myScratchpads "htop")
 
     -- Thinkpad Function Keys
     , ((0, xF86XK_AudioMute), spawn "amixer sset Master toggle")
@@ -161,7 +161,7 @@ searchMap method = M.fromList $
     , ((0, xK_w), method S.wikipedia)
     , ((0, xK_y), method S.youtube)
     , ((0, xK_h), method S.hoogle)
-    , ((0, xK_a), method S.multi)
+    , ((0, xK_s), method S.multi)
     ]
 
 
