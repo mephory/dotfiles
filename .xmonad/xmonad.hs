@@ -1,5 +1,7 @@
 import XMonad
 import XMonad.Actions.CycleWS
+import XMonad.Actions.Submap
+import qualified XMonad.Actions.Search as S
 import XMonad.Layout.Spacing
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.SimpleFloat
@@ -46,6 +48,7 @@ import qualified Data.Map        as M
 homeDir = unsafePerformIO $ getEnv "HOME"
 
 myWorkspaces    = ["web","dev","music","term","game","vm","im","other","float"] ++ ["NSP"]
+myBrowser    = "firefox"
 
 -- Key bindings. Add, modify or remove key bindings here.
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
@@ -103,6 +106,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_x     ), spawn "xkill")
     , ((modm .|. shiftMask, xK_t     ), spawn "mpv http://twitch.tv/stevicules")
     , ((modm              , xK_grave ), toggleWS' ["NSP"])
+    , ((modm              , xK_a     ), submap $ searchMap (S.promptSearchBrowser defaultXPConfig myBrowser))
+    , ((modm .|. shiftMask, xK_a     ), submap $ searchMap (S.selectSearchBrowser myBrowser))
 
     -- Scratchpads
     , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
@@ -134,9 +139,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
         , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
 
 
-------------------------------------------------------------------------
 -- Mouse bindings: default actions bound to mouse events
---
 myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
     -- mod-button1, Set the window to floating mode and move by dragging
     [ ((modm, button1), (\w -> focus w >> mouseMoveWindow w))
@@ -149,6 +152,18 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- you may also bind events to the mouse scroll wheel (button4 and button5)
     ]
+
+-- Search bindings
+searchMap method = M.fromList $
+    [ ((0, xK_d), method S.dictionary)
+    , ((0, xK_g), method S.google)
+    , ((0, xK_i), method S.images)
+    , ((0, xK_w), method S.wikipedia)
+    , ((0, xK_y), method S.youtube)
+    , ((0, xK_h), method S.hoogle)
+    , ((0, xK_a), method S.multi)
+    ]
+
 
 -- Layouts:
 myLayout = onWorkspace "web"   (full ||| fullscreen ||| tiled ||| mtiled) $
