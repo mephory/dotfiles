@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+# lstab - print all open Firefox tabs
+
+require 'rubygems'
+require 'json'
+
+session = JSON.load(File.read(Dir[
+   File.expand_path("~/.mozilla/firefox/*.default/sessionstore-backups/recovery.js"
+   )].first))
+
+session["windows"].each { |window|
+  window["tabs"].each { |tabs|
+    entry = tabs["entries"].first
+    puts "#{entry["url"]} # #{entry["title"]}"  if entry
+  }
+}
+
