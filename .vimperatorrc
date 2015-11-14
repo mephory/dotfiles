@@ -8,6 +8,11 @@ nnoremap ,. :source ~/.vimperatorrc<cr>
 nnoremap ; :
 nnoremap : ;
 
+" Go back / forth one tab
+nnoremap gl gt
+nnoremap gh gT
+nnoremap gr gT
+
 " Switch to previous tab
 map ,, <C-^>
 
