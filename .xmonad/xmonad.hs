@@ -155,13 +155,14 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 
 -- Search bindings
 searchMap method = M.fromList $
-    [ ((0, xK_d), method S.dictionary)
-    , ((0, xK_g), method S.google)
+    [ ((0, xK_g), method S.google)
     , ((0, xK_i), method S.images)
     , ((0, xK_w), method S.wikipedia)
     , ((0, xK_y), method S.youtube)
     , ((0, xK_h), method S.hoogle)
     , ((0, xK_s), method S.multi)
+    , ((0, xK_d), method $ S.searchEngine "dict" "http://dict.cc/")
+    , ((0, xK_a), method $ S.searchEngine "amazon" "http://www.amazon.de/s/ref=nb_sb_noss?__mk_de_DE=ÅMÅŽÕÑ&url=search-alias=aps&field-keywords=")
     ]
 
 
