@@ -204,6 +204,7 @@ myManageHook = composeAll
     , className =? "explorer.exe"     --> doShift "float"
     , title     =? "Wine System Tray" --> doShift "float"
     , title     =? "gcolor2"          --> placeHook (fixed (0.5, 0.5))
+    , title     =? "vselect"          --> placeHook (fixed (0.5, 0.5)) <+> doFloat
     -- , className =? "mpv"              --> doFloat
     ]
 
