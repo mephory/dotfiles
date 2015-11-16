@@ -1,0 +1,8 @@
+#!/bin/bash
+AREA="$(vselect <(import -window root png:-) -f '%x %y %w %h')"
+AREA_X="$(echo $AREA | cut -d' ' -f1)"
+AREA_Y="$(echo $AREA | cut -d' ' -f2)"
+AREA_W="$(echo $AREA | cut -d' ' -f3)"
+AREA_H="$(echo $AREA | cut -d' ' -f4)"
+
+ffmpeg -f x11grab -video_size "$AREA_W"x"$AREA_H" -framerate 25 -show_region 1 -i :0+$AREA_X,$AREA_Y $@

@@ -1,0 +1,3 @@
+#!/bin/sh
+convert $1 -fill transparent -strokewidth 2 -stroke red \
+-draw "rectangle $(vselect $1 -f '%l,%t %r,%b')" $2
