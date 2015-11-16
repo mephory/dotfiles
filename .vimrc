@@ -172,6 +172,7 @@ nnoremap ''c :CtrlP /home/mephory/code/crescent/<cr>
 nnoremap ''n :CtrlP /home/mephory/code/nexus/<cr>
 nnoremap ''a :CtrlP /home/mephory/code/alexandria/<cr>
 nnoremap ''v :e `=resolve(expand("~/.vimrc"))`<cr>
+nnoremap ''x :e `=resolve(expand("~/.xmonad/xmonad.hs"))`<cr>
 nnoremap ''' :cd %:p:h<cr>
 
 "----------------------------------------------------------------------------}}}
