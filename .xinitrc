@@ -17,10 +17,10 @@ dunst &
 wm restartall
 
 # UIM Setup
-# export GTK_IM_MODULE='xim'
-# export QT_IM_MODULE='xim'
-# uim-xim &
-# export XMODIFIERS='@im=uim'
+export GTK_IM_MODULE='xim'
+export QT_IM_MODULE='xim'
+uim-xim &
+export XMODIFIERS='@im=uim'
 
 exec xmonad
 wm stopall
