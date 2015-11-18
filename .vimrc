@@ -95,6 +95,8 @@ let g:airline_right_sep                                       = ''
 
 let g:user_emmet_mode = 'i'
 
+let g:syntastic_ruby_exec = '/usr/bin/ruby'
+let g:syntastic_ruby_checkers = ['mri']
 
 "============================================================================}}}
 " Key Configuration                                                          {{{
@@ -591,7 +593,7 @@ function! AutoScp(...)
 endfunction
 
 function! PandocMode()
-    let b:pandoc_command = a:0 ? a:1 : 'pandoc % -s -c ~/.config/pandoc.css -o /tmp/pandoc-mode/%:t.html'
+    let b:pandoc_command = a:0 ? a:1 : 'pandoc % --self-contained -c ~/.config/pandoc.css -o /tmp/pandoc-mode/%:t.html'
     let b:refresh_command = 'xdotool search --name Vimperator key r'
 
     setlocal tw=80
