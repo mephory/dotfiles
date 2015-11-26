@@ -4,7 +4,6 @@ git@github.com:mattn/emmet-vim.git
 git@github.com:tpope/vim-rails
 git@github.com:xolox/vim-misc.git
 git@mephory.com:todo.vim.git
-git@github.com:Lokaltog/vim-easymotion.git
 git@github.com:altercation/vim-colors-solarized.git
 git@github.com:benmills/vimux.git
 git@github.com:dhruvasagar/vim-table-mode.git
