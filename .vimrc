@@ -59,6 +59,7 @@ augroup filetypes
     autocmd FileType php set ai sw=2 sts=2 et
     autocmd FileType ruby set ai sw=2 sts=2 et
     autocmd FileType lisp set ai sw=2 sts=2 et
+    autocmd FileType javascript set ai sw=2 sts=2 et
     autocmd FileType xml setlocal equalprg=xmllint\ --format\ --recover\ -\ 2>/dev/null    " = for xml
     autocmd BufEnter *.hy set filetype=lisp
     autocmd BufRead COMMIT_EDITMSG setlocal spell!    " enable spell checking for commit msgs
@@ -332,6 +333,8 @@ vmap <cr>k :<C-u>call MoveToBeginningOfParagraphSameCol()<cr>
 nmap <cr>j v<cr>jv
 nmap <cr>k v<cr>kv
 
+map <leader>R ,^^.*React.createClass.*$<cr>,$^.*: function() {$<cr>
+
 "----------------------------------------------------------------------------}}}
 " Filter through external programs                                           {{{
 "-------------------------------------------------------------------------------
@@ -344,6 +347,8 @@ nnoremap <leader>p !!python2 -<cr>
 vnoremap <leader>p :!python2 -<cr>
 nnoremap <leader>r !!ruby -<cr>
 vnoremap <leader>r :!ruby -<cr>
+
+nmap <leader><space> ml<space>su`l
 
 nnoremap <leader>R :call PipeToProgram('ruby', 'rb')<cr>
 vnoremap <leader>R :<C-u>call VisualPipeToProgram('ruby', 'rb')<cr>
