@@ -83,38 +83,31 @@ Xft.hintstyle:  hintfull
 Xft.hinting: 1
 Xft.antialias: 1
 Xft.rgba: rgb
+
 *urgentOnBell: true
 *bellIsUrgent: true
 
-*faceName: monaco:size=10
-*faceNameDoublesize: WenQuanYi Bitmap Song
 ! xterm-specific
+*faceName: monaco:size=10
+*faceNameDoublesize: Source Han Sans JP
 ! *faceName: Meslo:size=11
 ! *faceName: inconsolata:size=12
 ! *faceName: terminus:size=12
 ! *faceName: Meyrin:size=11
 ! *faceName: monaco:size=11
-
+*termName: xterm-256color
 
 ! rxvt-specific (not used)
 urxvt*fading: 0
 urxvt*scrollBar: false
-URxvt*font: xft:Roboto Mono:size=10
+urxvt.letterSpace: -1
+urxvt*termName: rxvt
+urvt*font: xft:Roboto Mono:size=10,xft:Source Han Sans JP:size=10
 ! *font: xft:Terminus:size=12
 ! *font: xft:Source Code Pro:size=13
 ! *font: xft:Inconsolata:size=13
 ! *font: xft:Inconsolata for Powerline:size=13
 ! *font: Meslo:size=40
-!
-urxvt.letterSpace: -1
-urxvt*termName: rxvt
-!!*font: xft:Andale Mono:size=12
-
-! *customization: -color
-XTerm*termName: xterm-256color
-! Let Ctrl-Tab through
-! *vt100.translations: #override \n\
-! Ctrl <Key>Tab:string(0xffe3) string(0x0072)  \n
 
 ! User Super as the meta key
 *VT100.Translations: #override \
