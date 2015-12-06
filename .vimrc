@@ -349,6 +349,11 @@ nnoremap <leader>r !!ruby -<cr>
 vnoremap <leader>r :!ruby -<cr>
 
 nmap <leader><space> ml<space>su`l
+vmap <leader><space> ml<space>su`l
+nmap <leader>v mlvip<space>su`l
+
+" ... execute visual selection, but not line-wise
+vmap <leader>c dmlo<esc>p<space>s"lDdd`lh"lp
 
 nnoremap <leader>R :call PipeToProgram('ruby', 'rb')<cr>
 vnoremap <leader>R :<C-u>call VisualPipeToProgram('ruby', 'rb')<cr>
