@@ -28,7 +28,7 @@ align = right
 enabled = True
 x = RIGHTOF battery
 width = 136
-events = button4=exec:amixer -c1 sset Master 1dB+ >/dev/null;button5=exec:amixer -c1 sset Master 1dB- >/dev/null;button1=exec:amixer -c1 sset Master toggle >/dev/null
+events = button4=exec:amixer -c1 sset Master 1dB+ >/dev/null;button5=exec:amixer -c1 sset Master 1dB- >/dev/null;button1=exec:amixer sset Master toggle >/dev/null
 
 [clock]
 enabled = True
