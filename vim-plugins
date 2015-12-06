@@ -19,3 +19,4 @@ git@github.com:tpope/vim-unimpaired.git
 git@github.com:vim-pandoc/vim-pandoc-syntax.git
 git@github.com:vim-pandoc/vim-pandoc.git
 git@github.com:vim-scripts/taglist.vim.git
+git@github.com:vim-scripts/ZoomWin.git
