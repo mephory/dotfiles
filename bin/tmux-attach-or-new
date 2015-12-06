@@ -1,2 +1,11 @@
 #!/bin/sh
-tmux attach -t $1 || tmux new-session -s $1 ${@: 2}
+tmux attach -t $1
+
+if [ $? -ne 0 ]; then
+    tmux new-session -s $1 -d $2
+    for arg in ${@: 3}; do
+        tmux new-window -t $1 $arg
+    done;
+    tmux select-window -t$1:0
+    tmux attach -t $1
+fi;

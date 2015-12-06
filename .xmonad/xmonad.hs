@@ -275,7 +275,7 @@ myScratchpads = [ NS "terminal" spawnTerminal findTerminal manageSP
     where
         spawnTerminal = "xterm -name scratchpad"
         findTerminal  = resource =? "scratchpad"
-        spawnMusic    = "xterm -name music -e 'tmux-attach-or-new music ncmpcpp'"
+        spawnMusic    = "xterm -name music -e 'tmux-attach-or-new music ncmpcpp pulsemixer'"
         findMusic     = resource =? "music"
         spawnHtop     = "xterm -name htop -e htop"
         findHtop      = resource =? "htop"
