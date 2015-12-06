@@ -26,6 +26,9 @@ hash -d acc="$HOME/data/account"
 hash -d vid="$HOME/data/video"
 hash -d img="$HOME/data/images"
 hash -d cam="$HOME/data/images/webcam"
+hash -d ext="/mnt/external"
+hash -d eimg="/mnt/external/image"
+hash -d evid="/mnt/external/video"
 
 
 # autocompletion settings

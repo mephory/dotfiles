@@ -214,6 +214,17 @@ function cdc() { cd ~/code/$1; }
 function _cdc() { _files -W ~/code -/; }
 compdef _cdc cdc
 
+# Directly cd into /mnt/external/{image,video,} with cdX. It even has tab completion! :-)
+function cde() { cd /mnt/external/$1; }
+function _cde() { _files -W /mnt/external -/; }
+compdef _cde cde
+function cdv() { cd /mnt/external/video/$1; }
+function _cdv() { _files -W /mnt/external/video -/; }
+compdef _cdv cdv
+function cdi() { cd /mnt/external/image/$1; }
+function _cdi() { _files -W /mnt/image -/; }
+compdef _cdi cdi
+
 #                                                                            }}}
 # Unused                                                                     {{{
 
