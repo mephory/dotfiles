@@ -13,3 +13,4 @@ playlist_display_mode = "columns"
 # Various
 browser_display_mode = "columns"
 search_engine_display_mode = "columns"
+external_editor = "vim"

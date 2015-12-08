@@ -30,3 +30,6 @@ def_key "6"
 
 def_key "7"
     show_tag_editor
+
+def_key "l"
+    show_lyrics
