@@ -1,6 +1,7 @@
 import XMonad
 import XMonad.Actions.CycleWS
 import XMonad.Actions.Submap
+import XMonad.Actions.NoBorders
 import qualified XMonad.Actions.Search as S
 import XMonad.Layout.Spacing
 import XMonad.Layout.PerWorkspace
@@ -25,6 +26,7 @@ import XMonad.Prompt.Shell
 import XMonad.Prompt.Email
 import XMonad.Prompt.Ssh
 import XMonad.Prompt.RunOrRaise
+import XMonad.Prompt.XMonad
 import Data.Monoid
 import Data.Ratio ((%))
 import Data.List (elemIndex, isPrefixOf)
@@ -63,7 +65,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     --  Reset the layouts on the current workspace to default
     , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
     -- Resize viewed windows to the correct size
-    , ((modm,               xK_n     ), refresh)
+    , ((modm .|. shiftMask, xK_n     ), refresh)
     -- Move focus to the next window
     -- , ((modm,               xK_Tab   ), windows W.focusDown)
     -- Move focus to the next window
@@ -92,13 +94,17 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess))
     -- Restart xmonad
     , ((modm              , xK_q     ), spawn "xmonad --recompile; xmonad --restart")
-    , ((modm              , xK_o     ), sendMessage ToggleStruts)
     , ((modm .|. shiftMask, xK_f     ), toggleFloatNext >> runLogHook)
+    -- Toggle struts
+    , ((modm              , xK_o     ), sendMessage ToggleStruts)
+    -- Toggle border
+    , ((modm              , xK_u     ), withFocused toggleBorder)
 
     -- Prompts
     , ((modm .|. shiftMask, xK_grave ), sshPrompt defaultXPConfig)
     , ((modm              , xK_x     ), passwordPrompt defaultXPConfig)
     , ((modm              , xK_c     ), genPasswordPrompt defaultXPConfig)
+    , ((modm              , xK_n     ), xmonadPrompt defaultXPConfig)
 
     -- Custom
     , ((modm              , xK_Escape), spawn "slock")
@@ -113,6 +119,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
     , ((modm              , xK_z     ), namedScratchpadAction myScratchpads "music")
     , ((modm              , xK_a     ), namedScratchpadAction myScratchpads "htop")
+    , ((modm              , xK_b     ), namedScratchpadAction myScratchpads "irc")
 
     -- Thinkpad Function Keys
     , ((0, xF86XK_AudioMute), spawn "amixer sset Master toggle")
@@ -271,6 +278,7 @@ myStartupHook = return ()
 myScratchpads = [ NS "terminal" spawnTerminal findTerminal manageSP
                 , NS "music"    spawnMusic    findMusic    manageSP
                 , NS "htop"     spawnHtop     findHtop     manageSP
+                , NS "irc"      spawnIrc      findIrc      manageSP
                 ]
     where
         spawnTerminal = "xterm -name scratchpad"
@@ -279,6 +287,8 @@ myScratchpads = [ NS "terminal" spawnTerminal findTerminal manageSP
         findMusic     = resource =? "music"
         spawnHtop     = "xterm -name htop -e htop"
         findHtop      = resource =? "htop"
+        spawnIrc      = "xterm -name irc -e 'tmux-attach-or-new irc weechat'"
+        findIrc       = resource =? "irc"
         manageSP = customFloating $ W.RationalRect x y w h
             where
                 x = 0.25
