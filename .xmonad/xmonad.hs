@@ -30,13 +30,12 @@ import XMonad.Prompt.XMonad
 import Data.Monoid
 import Data.Ratio ((%))
 import Data.List (elemIndex, isPrefixOf)
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, fromMaybe)
 import System.IO.Unsafe (unsafePerformIO)
 import System.Exit
 import System.Environment
 import System.FilePath ((</>))
 import System.FilePath.Posix (takeBaseName)
-import System.Environment (getEnv)
 import System.Directory (getDirectoryContents)
 import System.IO
 import Graphics.X11.ExtraTypes.XF86
@@ -91,7 +90,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Deincrement the number of windows in the master area
     , ((modm              , xK_period), sendMessage (IncMasterN (-1)))
     -- Quit xmonad
-    , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess))
+    , ((modm .|. shiftMask, xK_q     ), io exitSuccess)
     -- Restart xmonad
     , ((modm              , xK_q     ), spawn "xmonad --recompile; xmonad --restart")
     , ((modm .|. shiftMask, xK_f     ), toggleFloatNext >> runLogHook)
@@ -239,7 +238,7 @@ myLogHook = dynamicLogWithPP $ defaultPP {
 
         -- workspace name transformations
         wsIcon wid        = "^i(" ++ homeDir ++ "/.workspace-icons/" ++ wid ++ ".xbm)"
-        wsUnicodeIcon wid = maybe "N" id (M.lookup wid workspaceIcons)
+        wsUnicodeIcon wid = fromMaybe "N" (M.lookup wid workspaceIcons)
         wsNum wid       = show . (+1) . fromJust $ elemIndex wid myWorkspaces
 
         -- layout name transformation
@@ -256,7 +255,7 @@ myLogHook = dynamicLogWithPP $ defaultPP {
         -- helpers
         dzenStartCa wid = "^ca(1, xdotool key 'alt+" ++ wsNum wid ++ "')"
         dzenEndCa _         = "^ca()"
-        clickable fs x  = applyAll ([dzenStartCa] ++ fs ++ [dzenEndCa]) x
+        clickable fs = applyAll ([dzenStartCa] ++ fs ++ [dzenEndCa])
         applyAll fs x   = fs >>= ($ x)
         onlyIf p f x    = if p x then f x else ""
         workspaceIcons = M.fromList $
@@ -299,7 +298,7 @@ myScratchpads = [ NS "terminal" spawnTerminal findTerminal manageSP
 floatPlacement = placeHook (withGaps (20, 0, 0, 0) $ fixed (0, 0))
 
 ------------------------------------------------------------------------
-main = do xmonad $ withUrgencyHook NoUrgencyHook defaultConfig {
+main = xmonad $ withUrgencyHook NoUrgencyHook defaultConfig {
       -- simple stuff
         terminal           = "xterm"
       , focusFollowsMouse  = True
