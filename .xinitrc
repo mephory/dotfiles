@@ -1,7 +1,7 @@
 xrdb ~/.Xresources
 # xmodmap ~/.Xmodmap
 xsetroot -cursor_name left_ptr
-setxkbmap -option compose:caps
+setxkbmap -option compose:ralt
 
 synclient HorizEdgeScroll=0
 synclient VertEdgeScroll=0
