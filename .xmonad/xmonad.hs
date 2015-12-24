@@ -284,7 +284,7 @@ myStartupHook = return ()
 myScratchpads = [ NS "terminal" spawnTerminal findTerminal manageSP
                 , NS "music"    spawnMusic    findMusic    manageSP
                 , NS "htop"     spawnHtop     findHtop     manageSP
-                , NS "irc"      spawnIrc      findIrc      manageSP
+                , NS "irc"      spawnIrc      findIrc      manageIrcSP
                 ]
     where
         spawnTerminal = "xterm -name scratchpad"
@@ -295,12 +295,11 @@ myScratchpads = [ NS "terminal" spawnTerminal findTerminal manageSP
         findHtop      = resource =? "htop"
         spawnIrc      = "xterm -name irc -e 'tmux-attach-or-new irc weechat'"
         findIrc       = resource =? "irc"
-        manageSP = customFloating $ W.RationalRect x y w h
-            where
-                x = 0.25
-                y = 0.25
-                w = 0.5
-                h = 0.5
+        manageSP = customFloating $ centeredRect 0.5 0.5
+        manageIrcSP = customFloating $ centeredRect 0.6 0.6
+
+centeredRect :: Rational -> Rational -> W.RationalRect
+centeredRect w h = W.RationalRect ((1 - w) / 2) ((1 - h) / 2) w h
 
 floatPlacement = placeHook (withGaps (20, 0, 0, 0) $ fixed (0, 0))
 
