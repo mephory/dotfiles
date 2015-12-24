@@ -27,6 +27,7 @@ import XMonad.Prompt.Email
 import XMonad.Prompt.Ssh
 import XMonad.Prompt.RunOrRaise
 import XMonad.Prompt.XMonad
+import XMonad.Prompt.Input
 import Data.Monoid
 import Data.Ratio ((%))
 import Data.List (elemIndex, isPrefixOf)
@@ -50,6 +51,12 @@ homeDir = unsafePerformIO $ getEnv "HOME"
 
 myWorkspaces    = ["web","dev","music","term","game","vm","im","other","float"] ++ ["NSP"]
 myBrowser    = "firefox"
+
+--- Twitch Prompt
+twitchChannels = ["stevicules"]
+twitchPrompt = inputPromptWithCompl defaultXPConfig "Twitch Channel"
+                    (mkComplFunFromList twitchChannels) ?+ watchTwitchChannel
+    where watchTwitchChannel x = spawn $ "mpv http://twitch.tv/" ++ x
 
 -- Key bindings. Add, modify or remove key bindings here.
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
@@ -109,7 +116,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_Escape), spawn "slock")
     , ((modm .|. shiftMask, xK_p     ), spawn "gcolor2")
     , ((modm .|. shiftMask, xK_x     ), spawn "xkill")
-    , ((modm .|. shiftMask, xK_t     ), spawn "mpv http://twitch.tv/stevicules")
+    , ((modm .|. shiftMask, xK_t     ), twitchPrompt)
     , ((modm              , xK_grave ), toggleWS' ["NSP"])
     , ((modm              , xK_s     ), submap $ searchMap (S.promptSearchBrowser defaultXPConfig myBrowser))
     , ((modm .|. shiftMask, xK_s     ), submap $ searchMap (S.selectSearchBrowser myBrowser))
