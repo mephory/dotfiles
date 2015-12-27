@@ -49,12 +49,22 @@ import qualified Data.Map        as M
 
 homeDir = unsafePerformIO $ getEnv "HOME"
 
+myXPConfig = defaultXPConfig
+    { bgColor     = "#002b36"
+    , fgColor     = "#fdf6e3"
+    , borderColor = "#fdf6e3"
+    , fgHLight    = "#002b36"
+    , bgHLight    = "#fdf6e3"
+    , font        = "xft:monaco:size=10"
+    , height      = 22
+    }
+
 myWorkspaces    = ["web","dev","music","term","game","vm","im","other","float"] ++ ["NSP"]
 myBrowser    = "firefox"
 
 --- Twitch Prompt
 twitchChannels = ["stevicules"]
-twitchPrompt = inputPromptWithCompl defaultXPConfig "Twitch Channel"
+twitchPrompt = inputPromptWithCompl myXPConfig "Twitch Channel"
                     (mkComplFunFromList twitchChannels) ?+ watchTwitchChannel
     where watchTwitchChannel x = spawn $ "mpv http://twitch.tv/" ++ x
 
@@ -107,10 +117,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_u     ), withFocused toggleBorder)
 
     -- Prompts
-    , ((modm .|. shiftMask, xK_grave ), sshPrompt defaultXPConfig)
-    , ((modm              , xK_x     ), passwordPrompt defaultXPConfig)
-    , ((modm              , xK_c     ), genPasswordPrompt defaultXPConfig)
-    , ((modm              , xK_n     ), xmonadPrompt defaultXPConfig)
+    , ((modm .|. shiftMask, xK_grave ), sshPrompt myXPConfig)
+    , ((modm              , xK_x     ), passwordPrompt myXPConfig)
+    , ((modm              , xK_c     ), genPasswordPrompt myXPConfig)
+    , ((modm              , xK_n     ), xmonadPrompt myXPConfig)
 
     -- Custom
     , ((modm              , xK_Escape), spawn "slock")
@@ -118,7 +128,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_x     ), spawn "xkill")
     , ((modm .|. shiftMask, xK_t     ), twitchPrompt)
     , ((modm              , xK_grave ), toggleWS' ["NSP"])
-    , ((modm              , xK_s     ), submap $ searchMap (S.promptSearchBrowser defaultXPConfig myBrowser))
+    , ((modm              , xK_s     ), submap $ searchMap (S.promptSearchBrowser myXPConfig myBrowser))
     , ((modm .|. shiftMask, xK_s     ), submap $ searchMap (S.selectSearchBrowser myBrowser))
 
     -- Scratchpads
