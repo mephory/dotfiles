@@ -620,4 +620,24 @@ function! PandocMode()
     augroup END
 endfunction
 
+function! NoPandocMode()
+  augroup pandocmode
+    autocmd!
+  augroup END
+endfunction
+
+function! AutoRefresh()
+  let b:command = 'xdotool search --name Vimperator key r'
+  augroup autorefresh
+    autocmd!
+    autocmd BufWritePost <buffer> exe "silent !" . b:command . " &"
+  augroup END
+endfunction
+
+function! NoAutoRefresh()
+  augroup autorefresh
+    autocmd!
+  augroup END
+endfunction
+
 "============================================================================}}}
