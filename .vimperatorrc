@@ -22,6 +22,7 @@ nnoremap ,b :bmarks
 " Open current page with mpv
 nnoremap ,m :silent execute "!mpv \"" + content.location.href + "\" &"<cr>
 nnoremap ,s :silent execute "!(xterm -e \'youtube-dl \"" + content.location.href + "\" -o \"/mnt/external/video/downloads/%(title)s-%(id)s.%(ext)s\" | less -r\') &"<cr>
+nnoremap ,S :silent execute "!(xterm -e \'youtube-dl \"" + content.location.href + "\" -o \"\" | less -r\') &"<left><left><left><left><left><left><left><left><left><left><left><left><left><left><left><left><left><left>
 
 " Ignore all keys for fastmail.com
 autocmd LocationChange .* js modes.passAllKeys = /fastmail.com/.test(buffer.URL)
