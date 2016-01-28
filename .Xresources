@@ -88,10 +88,10 @@ Xft.rgba: rgb
 *bellIsUrgent: true
 
 ! xterm-specific
-*faceName: monaco:size=10
+*faceName: monaco:size=11
 *faceNameDoublesize: Source Han Sans JP
 ! *faceName: Meslo:size=11
-! *faceName: inconsolata:size=12
+! *faceName: inconsolata:size=14
 ! *faceName: terminus:size=12
 ! *faceName: Meyrin:size=11
 ! *faceName: monaco:size=11
