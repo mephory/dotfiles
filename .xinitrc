@@ -1,6 +1,7 @@
 xrdb ~/.Xresources
 # xmodmap ~/.Xmodmap
 xsetroot -cursor_name left_ptr
+setxkbmap us
 setxkbmap -option compose:ralt
 
 synclient HorizEdgeScroll=0
@@ -11,7 +12,7 @@ synclient TapButton1=1
 synclient TapButton2=2
 synclient TapButton3=3
 
-feh --bg-scale ~/.background.png
+feh --bg-scale ~/.background.jpg
 dunst &
 # compton &
 wm restartall

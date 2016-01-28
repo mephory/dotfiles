@@ -143,3 +143,5 @@ if [[ ! -f /tmp/todoread ]]; then
     touch /tmp/todoread
     ((sleep 3600 && rm /tmp/todoread) &)
 fi
+
+# eval "$(rbenv init -)"

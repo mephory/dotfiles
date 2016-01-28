@@ -3,6 +3,7 @@
 "   maybe   <C-k> move line up
 "   maybe   <C-h> move character left
 "   maybe   <C-l> move chatarter right
+"   maybe   vnoremap qq :norm! qq
 "   <cr> is free!
 
 set nocompatible

@@ -63,7 +63,7 @@ myWorkspaces    = ["web","dev","music","term","game","vm","im","other","float"] 
 myBrowser    = "firefox"
 
 --- Twitch Prompt
-twitchChannels = ["stevicules"]
+twitchChannels = ["stevicules", "amazhs", "rsgloryandgold"]
 twitchPrompt = inputPromptWithCompl myXPConfig "Twitch Channel"
                     (mkComplFunFromList twitchChannels) ?+ watchTwitchChannel
     where watchTwitchChannel x = spawn $ "mpv http://twitch.tv/" ++ x
@@ -158,7 +158,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- mod-shift-{w,e,r}, Move client to screen 1, 2, or 3
     --
     [((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f))
-        | (key, sc) <- zip [xK_e, xK_w, xK_r] [0..]
+        | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
         , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
 
 
@@ -185,7 +185,9 @@ searchMap method = M.fromList $
     , ((0, xK_h), method S.hoogle)
     , ((0, xK_s), method S.multi)
     , ((0, xK_d), method $ S.searchEngine "dict" "http://dict.cc/")
-    , ((0, xK_a), method $ S.searchEngine "amazon" "http://www.amazon.de/s/ref=nb_sb_noss?__mk_de_DE=ÅMÅŽÕÑ&url=search-alias=aps&field-keywords=")
+    , ((0, xK_a), method $ S.searchEngine "amazon" "http://www.amazon.de/s/?field-keywords=")
+    , ((0, xK_p), method $ S.searchEngine "proxer" "http://proxer.me/search?name=")
+    , ((0, xK_m), method $ S.searchEngine "myanimelist" "http://myanimelist.net/anime.php?q=")
     ]
 
 
@@ -228,8 +230,10 @@ myManageHook = composeAll
     , title     =? "Wine System Tray" --> doShift "float"
     , title     =? "gcolor2"          --> placeHook (fixed (0.5, 0.5))
     , title     =? "vselect"          --> placeHook (fixed (0.5, 0.5)) <+> doFloat
+    , title     =? "dztemp"           --> doShift "game" <+> placeHook dztempPosition <+> doFloat
     -- , className =? "mpv"              --> doFloat
     ]
+    where dztempPosition = withGaps (0, 1, 1, 0) (fixed (1, 1))
 
 -- Event handling
 myEventHook = mempty

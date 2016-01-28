@@ -77,6 +77,8 @@ alias record="ffmpeg -f x11grab -s 1920x1080 -r 25 -i :0"
 alias wocs="tr -cs A-Za-z '\n' | tr A-Z a-z | sort | uniq -c | sort -rn" # Prints number of occurences of words
 alias histat="cat ~/.history | sed 's/^[0-9 ]*//' | sed 's/ *| */\n/g' | sort | uniq -c | sort -rn | head -n 100"
 alias temp="acpi -t"
+alias twoscreen="xrandr --output eDP1 --auto --output DP2 --auto --right-of eDP1"
+alias onescreen="xrandr --output DP2 --off"
 
 #                                                                            }}}
 # Extensions                                                                 {{{
