@@ -75,6 +75,8 @@ bindkey '^h' backward-delete-char
 bindkey '^w' backward-kill-word
 bindkey '^r' history-incremental-search-backward
 bindkey '^o' insert-last-word
+bindkey '^f' forward-word
+bindkey '^b' backward-word
 bindkey -M viins '^x' vi-cmd-mode
 bindkey -M vicmd '^x' vi-insert
 bindkey -M vicmd '^e' edit-command-line
@@ -127,7 +129,7 @@ move-after-first-word() {
 }
 
 zle -N move-after-first-word
-bindkey '^B' move-after-first-word
+bindkey '^g' move-after-first-word
 
 
 zstyle ':completion:tmux-pane-words-(prefix|anywhere):*' completer _tmux_pane_words
