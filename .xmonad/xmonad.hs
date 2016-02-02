@@ -124,7 +124,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- Custom
     , ((modm              , xK_Escape), spawn "slock")
-    , ((modm .|. shiftMask, xK_p     ), spawn "gcolor2")
     , ((modm .|. shiftMask, xK_x     ), spawn "xkill")
     , ((modm .|. shiftMask, xK_t     ), twitchPrompt)
     , ((modm              , xK_grave ), toggleWS' ["NSP"])
@@ -136,6 +135,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_z     ), namedScratchpadAction myScratchpads "music")
     , ((modm              , xK_a     ), namedScratchpadAction myScratchpads "htop")
     , ((modm              , xK_b     ), namedScratchpadAction myScratchpads "irc")
+    , ((modm .|. shiftMask, xK_p     ), namedScratchpadAction myScratchpads "color")
 
     -- Thinkpad Function Keys
     , ((0, xF86XK_AudioMute), spawn "amixer sset Master toggle")
@@ -228,7 +228,6 @@ myManageHook = composeAll
     , className =? "Pidgin"           --> doShift "im"
     , className =? "explorer.exe"     --> doShift "float"
     , title     =? "Wine System Tray" --> doShift "float"
-    , title     =? "gcolor2"          --> placeHook (fixed (0.5, 0.5))
     , title     =? "vselect"          --> placeHook (fixed (0.5, 0.5)) <+> doFloat
     , title     =? "dztemp"           --> doShift "game" <+> placeHook dztempPosition <+> doFloat
     -- , className =? "mpv"              --> doFloat
@@ -299,6 +298,7 @@ myScratchpads = [ NS "terminal" spawnTerminal findTerminal manageSP
                 , NS "music"    spawnMusic    findMusic    manageSP
                 , NS "htop"     spawnHtop     findHtop     manageSP
                 , NS "irc"      spawnIrc      findIrc      manageIrcSP
+                , NS "color"    spawnColor    findColor    manageColorSP
                 ]
     where
         spawnTerminal = "xterm -name scratchpad"
@@ -309,8 +309,11 @@ myScratchpads = [ NS "terminal" spawnTerminal findTerminal manageSP
         findHtop      = resource =? "htop"
         spawnIrc      = "xterm -name irc -e 'tmux-attach-or-new irc weechat'"
         findIrc       = resource =? "irc"
+        spawnColor    = "gcolor2"
+        findColor     = resource =? "gcolor2"
         manageSP = customFloating $ centeredRect 0.5 0.5
         manageIrcSP = customFloating $ centeredRect 0.6 0.6
+        manageColorSP = placeHook (fixed (0.5, 0.5)) <+> doFloat
 
 centeredRect :: Rational -> Rational -> W.RationalRect
 centeredRect w h = W.RationalRect ((1 - w) / 2) ((1 - h) / 2) w h
