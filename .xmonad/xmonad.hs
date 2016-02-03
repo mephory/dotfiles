@@ -81,7 +81,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     --  Reset the layouts on the current workspace to default
     , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
     -- Resize viewed windows to the correct size
-    , ((modm .|. shiftMask, xK_n     ), refresh)
+    , ((modm .|. shiftMask, xK_r     ), refresh)
     -- Move focus to the next window
     -- , ((modm,               xK_Tab   ), windows W.focusDown)
     -- Move focus to the next window
@@ -120,7 +120,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_grave ), sshPrompt myXPConfig)
     , ((modm              , xK_x     ), passwordPrompt myXPConfig)
     , ((modm              , xK_c     ), genPasswordPrompt myXPConfig)
-    , ((modm              , xK_n     ), xmonadPrompt myXPConfig)
 
     -- Custom
     , ((modm              , xK_Escape), spawn "slock")
@@ -129,6 +128,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_grave ), toggleWS' ["NSP"])
     , ((modm              , xK_s     ), submap $ searchMap (S.promptSearchBrowser myXPConfig myBrowser))
     , ((modm .|. shiftMask, xK_s     ), submap $ searchMap (S.selectSearchBrowser myBrowser))
+    , ((modm              , xK_n     ), spawn "upload-screenshot -window root")
+    , ((modm .|. shiftMask, xK_n     ), spawn "upload-screenshot")
 
     -- Scratchpads
     , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
