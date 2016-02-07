@@ -236,7 +236,7 @@ myManageHook = composeAll
     where dztempPosition = withGaps (0, 1, 1, 0) (fixed (1, 1))
 
 -- Event handling
-myEventHook = mempty
+myEventHook = fullscreenEventHook
 
 -- Status bars and logging
 myLogHook = dynamicLogWithPP $ defaultPP {
