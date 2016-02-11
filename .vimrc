@@ -223,6 +223,7 @@ imap <C-l> <C-y>,
 "-------------------------------------------------------------------------------
 " Blame in visual mode (taken from https://github.com/r00k/dotfiles/blob/master/vimrc)
 vmap <leader>gb :<C-U>!git blame <C-R>=expand("%:p") <CR> \| sed -n <C-R>=line("'<") <CR>,<C-R>=line("'>") <CR>p <CR>
+vmap <leader>gh :<C-U>!git log -L <C-R>=line("'<")<cr>,<C-R>=line("'>")<cr>:<C-R>=expand("%:p")<cr><cr>
 nmap <leader>gb :!git checkout ''<left>
 
 nnoremap <leader>gs :!git st<cr>
@@ -256,7 +257,7 @@ nnoremap <leader>;/ :execute 'vimgrep /'.@/.'/g %'<cr>:copen<cr>
 nnoremap <leader>;? :execute 'grep "'.@/.'" ./ -ir'<cr>:copen<cr>
 
 " :W to save as root
-command! W :w !sudo tee %
+command!-nargs=? W :call SaveAsRoot(<args>)
 
 " Toggle taglist with <leader>t
 nnoremap <leader>t :TlistToggle<cr>
@@ -363,7 +364,6 @@ vnoremap <leader>P :<C-u>call VisualPipeToProgram('python2', 'py')<cr>
 nnoremap <leader>S :call PipeToProgram('/bin/zsh', 'sh')<cr>
 vnoremap <leader>S :<C-u>call VisualPipeToProgram('/bin/zsh', 'sh')<cr>
 " }}}
-
 
 "============================================================================}}}
 " Custom Functions                                                           {{{
@@ -595,7 +595,7 @@ function! HiPattern(n)
 endfunction
 
 function! AutoScp(...)
-    let b:destination = a:0 ? a:1 : 'mephory.com:/var/www/mephory.com/www/upload/%:t'
+    let b:destination = a:0 ? a:1 : 'mephory.com:shared/public/%:t'
 
     augroup autoscp
         autocmd!
@@ -639,6 +639,14 @@ function! NoAutoRefresh()
   augroup autorefresh
     autocmd!
   augroup END
+endfunction
+
+function! SaveAsRoot() abort
+  " TODO: Wenn args, dann dahin speichern statt nach %
+
+  :silent! w !env SUDO_EDITOR=tee sudo -e % >/dev/null
+  let &modified = v:shell_error
+  :e %
 endfunction
 
 "============================================================================}}}
