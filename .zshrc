@@ -16,6 +16,8 @@ export PATH="$PATH:$HOME/bin"
 export PATH="$PATH:$HOME/bin/git-plugins"
 export PATH="$PATH:$HOME/bin/tmux-plugins"
 
+export FZF_COMPLETION_TRIGGER="~~"
+
 for f in ~/.zsh-env/*(@,.N); do
     source $f;
 done
