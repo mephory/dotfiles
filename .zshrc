@@ -121,7 +121,7 @@ _tmux_pane_words() {
 zle -C tmux-pane-words-prefix   complete-word _generic
 zle -C tmux-pane-words-anywhere complete-word _generic
 bindkey '^ ' tmux-pane-words-anywhere
-bindkey '^t' tmux-pane-words-prefix
+# bindkey '^t' tmux-pane-words-prefix
 
 
 # Move cursor after the first word
