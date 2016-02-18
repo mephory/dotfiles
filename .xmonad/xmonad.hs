@@ -128,8 +128,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_grave ), toggleWS' ["NSP"])
     , ((modm              , xK_s     ), submap $ searchMap (S.promptSearchBrowser myXPConfig myBrowser))
     , ((modm .|. shiftMask, xK_s     ), submap $ searchMap (S.selectSearchBrowser myBrowser))
-    , ((modm              , xK_n     ), spawn "upload-screenshot -window root")
-    , ((modm .|. shiftMask, xK_n     ), spawn "upload-screenshot")
+    , ((modm              , xK_0     ), spawn "upload-screenshot -window root")
+    , ((modm .|. shiftMask, xK_0     ), spawn "upload-screenshot")
 
     -- Scratchpads
     , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")

@@ -57,4 +57,3 @@ bindkey '^T' fzf-file-widget
 # bindkey '^R' fzf-history-widget
 
 fi
-
