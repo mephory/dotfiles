@@ -9,6 +9,7 @@
 #   -c, --copy=NUM      copy url for uploaded file
 #   -n, --name=NAME     use NAME as filename
 #   -p, --private       upload a private file
+#   -t, --temporary     upload a temporary file
 #   -h, --help          display this help
 
 
@@ -28,6 +29,12 @@ while [ "$#" -gt 0 ]; do
         -p) ARG_PRIVATE=true; shift 1;;
         --private) ARG_PRIVATE=true; shift 1;;
 
+        -t) ARG_TEMPORARY=true; shift 1;;
+        --temporary) ARG_TEMPORARY=true; shift 1;;
+
+        -s) ARG_SILENT=true; shift 1 ;;
+        --silent) ARG_SILENT=true; shift 1;;
+
         -h) ARG_HELP=true; shift 1;;
         --help) ARG_HELP=true; shift 1;;
 
@@ -43,6 +50,7 @@ Options:
   -c, --copy=NUM      copy url for uploaded file
   -n, --name=NAME     use NAME as filename
   -p, --private       upload a private file
+  -t, --temporary     upload a temporary file
   -h, --help          display this help
 
 You need to set the UPLOAD_KEY environment variable."
@@ -74,11 +82,16 @@ if [ -n "$ARG_PRIVATE" ]; then
     PRIVATE_FLAG='-F is_private=ok';
 fi;
 
+if [ -n "$ARG_TEMPORARY" ]; then
+    TEMPORARY_FLAG='-F is_temporary=ok';
+fi;
+
 echo "uploading to upload.mephory.com..."
 if [ -n "$ARG_NAME" ]; then
     URL="$(curl \
         --fail -# \
         $PRIVATE_FLAG \
+        $TEMPORARY_FLAG \
         -F "key=$UPLOAD_KEY" \
         -F "file=@\"$ARG_FILE\";filename=\"$ARG_NAME\"" \
         "http://upload.mephory.com/")" || exit
@@ -86,6 +99,7 @@ else
     URL="$(curl \
         --fail -# \
         $PRIVATE_FLAG \
+        $TEMPORARY_FLAG \
         -F "key=$UPLOAD_KEY" \
         -F "file=@\"$ARG_FILE\"" \
         "http://upload.mephory.com/")" || exit
