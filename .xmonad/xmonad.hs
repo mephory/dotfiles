@@ -165,7 +165,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
 
 runIfNotIgnored action w = runQuery mouseIgnore w >>= \b -> if b then mempty else action w
-    where mouseIgnore = title =? "dota2"
+    where mouseIgnore = className =? "dota2"
 
 -- Mouse bindings: default actions bound to mouse events
 myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
