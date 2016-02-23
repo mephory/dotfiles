@@ -163,17 +163,17 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
         , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
 
 
+runIfNotIgnored action w = runQuery mouseIgnore w >>= \b -> if b then mempty else action w
+    where mouseIgnore = title =? "dota2"
+
 -- Mouse bindings: default actions bound to mouse events
 myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
     -- mod-button1, Set the window to floating mode and move by dragging
-    [ ((modm, button1), (\w -> focus w >> mouseMoveWindow w))
+    [ ((modm, button1), runIfNotIgnored (\w -> focus w >> mouseMoveWindow w))
     -- mod-button2, Raise the window to the top of the stack
-    , ((modm, button2), (\w -> focus w >> windows W.shiftMaster))
+    , ((modm, button2), runIfNotIgnored (\w -> focus w >> windows W.shiftMaster))
     -- mod-button3, Set the window to floating mode and resize by dragging
-    , ((modm, button3), (\w -> focus w >> mouseResizeWindow w))
-    -- close focused window by pressing all mouse buttons
-    , ((button1Mask .|. button2Mask, button3), (\_ -> kill))
-
+    , ((modm, button3), runIfNotIgnored (\w -> focus w >> mouseResizeWindow w))
     -- you may also bind events to the mouse scroll wheel (button4 and button5)
     ]
 
