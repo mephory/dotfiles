@@ -198,7 +198,7 @@ myLayout = onWorkspace "web"   (full ||| fullscreen ||| tiled ||| mtiled) $
            onWorkspace "dev"   (devLayout ||| tiled ||| mtiled ||| full) $
            onWorkspace "music" defaultConf $
            onWorkspace "term"  defaultConf $
-           onWorkspace "game"  (fullscreen ||| tiled ||| mtiled ||| full) $
+           onWorkspace "game"  fullscreen $
            onWorkspace "vm"    (fullscreen ||| full ||| tiled ||| mtiled) $
            onWorkspace "im"    defaultConf $
            onWorkspace "other" (tiled ||| full) $
