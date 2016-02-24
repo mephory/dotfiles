@@ -1,0 +1,4 @@
+#!/bin/sh
+SCREENSHOT_URL="$(import png:- | upload -nscreenshot.png -t - | grep -E '^http')"
+echo $SCREENSHOT_URL
+firefox "http://www.google.com/searchbyimage?image_url=$SCREENSHOT_URL"
