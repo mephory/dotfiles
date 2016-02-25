@@ -3,12 +3,8 @@ import XMonad.Actions.CycleWS
 import XMonad.Actions.Submap
 import XMonad.Actions.NoBorders
 import qualified XMonad.Actions.Search as S
-import XMonad.Layout.Spacing
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.SimpleFloat
-import XMonad.Layout.Circle
-import XMonad.Layout.IM
-import XMonad.Layout.Grid
 import XMonad.Layout.Fullscreen
 import XMonad.Layout.NoBorders
 import XMonad.Layout.OneBig
@@ -18,27 +14,15 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.FloatNext
 import XMonad.Hooks.InsertPosition
 import XMonad.Hooks.Place
-import XMonad.Util.Run (spawnPipe, hPutStrLn)
-import XMonad.Util.Loggers
 import XMonad.Util.NamedScratchpad
 import XMonad.Prompt
-import XMonad.Prompt.Shell
-import XMonad.Prompt.Email
 import XMonad.Prompt.Ssh
-import XMonad.Prompt.RunOrRaise
-import XMonad.Prompt.XMonad
 import XMonad.Prompt.Input
-import Data.Monoid
-import Data.Ratio ((%))
 import Data.List (elemIndex, isPrefixOf)
 import Data.Maybe (fromJust, fromMaybe)
 import System.IO.Unsafe (unsafePerformIO)
 import System.Exit
 import System.Environment
-import System.FilePath ((</>))
-import System.FilePath.Posix (takeBaseName)
-import System.Directory (getDirectoryContents)
-import System.IO
 import Graphics.X11.ExtraTypes.XF86
 
 import Passwords (passwordPrompt, genPasswordPrompt)
@@ -47,9 +31,7 @@ import UnicodeUtils (writeFileUtf8)
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 
-homeDir = unsafePerformIO $ getEnv "HOME"
-
-myXPConfig = defaultXPConfig
+myXPConfig = def
     { bgColor     = "#002b36"
     , fgColor     = "#fdf6e3"
     , borderColor = "#fdf6e3"
@@ -168,7 +150,7 @@ runIfNotIgnored action w = runQuery mouseIgnore w >>= \b -> if b then mempty els
     where mouseIgnore = className =? "dota2"
 
 -- Mouse bindings: default actions bound to mouse events
-myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
+myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList
     -- mod-button1, Set the window to floating mode and move by dragging
     [ ((modm, button1), runIfNotIgnored (\w -> focus w >> mouseMoveWindow w))
     -- mod-button2, Raise the window to the top of the stack
@@ -179,7 +161,7 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
     ]
 
 -- Search bindings
-searchMap method = M.fromList $
+searchMap method = M.fromList
     [ ((0, xK_g), method S.google)
     , ((0, xK_i), method S.images)
     , ((0, xK_w), method S.wikipedia)
@@ -202,15 +184,15 @@ myLayout = onWorkspace "web"   (full ||| fullscreen ||| tiled ||| mtiled) $
            onWorkspace "vm"    (fullscreen ||| full ||| tiled ||| mtiled) $
            onWorkspace "im"    defaultConf $
            onWorkspace "other" (tiled ||| full) $
-           onWorkspace "float" (simpleFloat ||| tiled ||| full) $
+           onWorkspace "float" (simpleFloat ||| tiled ||| full)
            mtiled
     where
         -- default tiling algorithm partitions the screen into two panes
         tiled      = avoidStruts $ Tall nmaster delta ratio
         mtiled     = avoidStruts $ Mirror (Tall 1 (3/100) (1/2))
         devLayout  = avoidStruts $ OneBig (3/4) (4/5)
-        full       = avoidStruts $ Full
-        fullscreen = noBorders $ Full
+        full       = avoidStruts Full
+        fullscreen = noBorders Full
         defaultConf = tiled ||| mtiled ||| full
 
         -- The default number of windows in the master pane
@@ -240,7 +222,7 @@ myManageHook = composeAll
 myEventHook = fullscreenEventHook
 
 -- Status bars and logging
-myLogHook = dynamicLogWithPP $ defaultPP {
+myLogHook homeDir = dynamicLogWithPP $ def {
       ppCurrent         = clickable [dzenColor "#fffffd" "#268bd2" . addPadding . wsNum]
     , ppVisible         = clickable [dzenColor "#fffffd" "#8a8a8a" . addPadding . wsNum]
     , ppHidden          = onlyIf (/= "NSP") $ clickable [dzenColor "#586e75" "#eee8d5" . addPadding . wsNum]
@@ -252,7 +234,7 @@ myLogHook = dynamicLogWithPP $ defaultPP {
     , ppTitle           = dzenColor "#657b83" "#eee8d5" . addPadding
     , ppExtras          = [willFloatNextPP (addPadding . floatNextStr)]
     , ppOrder           = \(w:l:t:es) -> [w, l] ++ es ++ [t]
-    , ppOutput          = (writeFileUtf8 $ "/tmp/.workspace-info") . (++"\n")
+    , ppOutput          = writeFileUtf8 "/tmp/.workspace-info" . (++"\n")
     }
     where
         -- general transformations
@@ -280,7 +262,7 @@ myLogHook = dynamicLogWithPP $ defaultPP {
         clickable fs = applyAll ([dzenStartCa] ++ fs ++ [dzenEndCa])
         applyAll fs x   = fs >>= ($ x)
         onlyIf p f x    = if p x then f x else ""
-        workspaceIcons = M.fromList $
+        workspaceIcons = M.fromList
               [ ("web"   , "☀")
               , ("dev"   , "♛")
               , ("music" , "♬")
@@ -323,7 +305,9 @@ centeredRect w h = W.RationalRect ((1 - w) / 2) ((1 - h) / 2) w h
 floatPlacement = placeHook (withGaps (20, 0, 0, 0) $ fixed (0, 0))
 
 ------------------------------------------------------------------------
-main = xmonad $ withUrgencyHook NoUrgencyHook defaultConfig {
+main = do
+    homeDir <- getEnv "HOME"
+    xmonad $ withUrgencyHook NoUrgencyHook def {
       -- simple stuff
         terminal           = "xterm"
       , focusFollowsMouse  = True
@@ -345,6 +329,6 @@ main = xmonad $ withUrgencyHook NoUrgencyHook defaultConfig {
                              <+> floatNextHook
                              <+> insertPosition Below Newer
       , handleEventHook    = myEventHook
-      , logHook            = myLogHook
+      , logHook            = myLogHook homeDir
       , startupHook        = myStartupHook
     }
