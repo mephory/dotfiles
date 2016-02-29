@@ -3,6 +3,7 @@ setopt prompt_subst
 setopt auto_pushd
 setopt pushd_ignore_dups
 setopt extended_glob
+setopt histignorespace
 
 
 # settings and environment
