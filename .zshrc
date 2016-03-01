@@ -76,6 +76,7 @@ bindkey '^?' backward-delete-char
 bindkey '^h' backward-delete-char
 bindkey '^w' backward-kill-word
 bindkey '^r' history-incremental-search-backward
+bindkey '^y' yank
 bindkey '^o' insert-last-word
 bindkey '^f' forward-word
 bindkey '^b' backward-word
