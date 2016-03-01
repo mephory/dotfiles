@@ -1,0 +1,4 @@
+#!/bin/sh
+branches=$(git branch -vv) &&
+branch=$(echo "$branches" | fzf +m --tiebreak=begin,length) &&
+git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
