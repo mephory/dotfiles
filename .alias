@@ -82,6 +82,9 @@ alias histat="cat ~/.history | sed 's/^[0-9 ]*//' | sed 's/ *| */\n/g' | sort | 
 alias temp="acpi -t"
 alias twoscreen="xrandr --output eDP1 --auto --output DP2 --auto --right-of eDP1"
 alias onescreen="xrandr --output DP2 --off"
+# Trailing space causes first argument to also be checked
+# for alias substition
+alias watch="watch "
 
 #                                                                            }}}
 # Extensions                                                                 {{{
