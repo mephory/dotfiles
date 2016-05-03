@@ -46,7 +46,7 @@ if [ "$ARG_HELP" = true ]; then
 fi
 
 if [ "$ARG_LIST" = true ]; then
-    cat $HOME/.snippets | nl -w2 -s'| '
+    cat $HOME/.snippets | column -ts '|' |  nl -w2 -s'| '
     exit 0;
 fi
 
@@ -87,7 +87,7 @@ else
 fi
 
 
-echo "$ARG_FILE    ->    $URL" >> $HOME/.snippets
+echo "$ARG_FILE | $URL" >> $HOME/.snippets
 echo $URL
 echo $URL | xsel -pi
 echo $URL | xsel -bi

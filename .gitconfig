@@ -1,6 +1,7 @@
 [user]
 name = mephory
 email = mephory@mephory.com
+signingkey = 1AC4BC85
 
 [alias]
 st = status -sb
@@ -25,6 +26,9 @@ dif = diff
 tf = touchedfiles
 root = !pwd
 tracking = rev-parse --abbrev-ref --symbolic-full-name @{u}
+
+[commit]
+gpgsign = true
 
 [color]
 ui = true

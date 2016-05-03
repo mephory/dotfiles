@@ -5,14 +5,15 @@ import XMonad.Actions.NoBorders
 import qualified XMonad.Actions.Search as S
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.SimpleFloat
-import XMonad.Layout.Fullscreen
 import XMonad.Layout.NoBorders
 import XMonad.Layout.OneBig
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.FloatNext
 import XMonad.Hooks.InsertPosition
+import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.Place
 import XMonad.Util.NamedScratchpad
 import XMonad.Prompt
@@ -146,17 +147,17 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
         , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
 
 
-runIfNotIgnored action w = runQuery mouseIgnore w >>= \b -> if b then mempty else action w
+runUnlessIgnored action w = runQuery mouseIgnore w >>= \b -> if b then mempty else action w
     where mouseIgnore = className =? "dota2"
 
 -- Mouse bindings: default actions bound to mouse events
 myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList
     -- mod-button1, Set the window to floating mode and move by dragging
-    [ ((modm, button1), runIfNotIgnored (\w -> focus w >> mouseMoveWindow w))
+    [ ((modm, button1), runUnlessIgnored (\w -> focus w >> mouseMoveWindow w))
     -- mod-button2, Raise the window to the top of the stack
-    , ((modm, button2), runIfNotIgnored (\w -> focus w >> windows W.shiftMaster))
+    , ((modm, button2), runUnlessIgnored (\w -> focus w >> windows W.shiftMaster))
     -- mod-button3, Set the window to floating mode and resize by dragging
-    , ((modm, button3), runIfNotIgnored (\w -> focus w >> mouseResizeWindow w))
+    , ((modm, button3), runUnlessIgnored (\w -> focus w >> mouseResizeWindow w))
     -- you may also bind events to the mouse scroll wheel (button4 and button5)
     ]
 
@@ -188,10 +189,10 @@ myLayout = onWorkspace "web"   (full ||| fullscreen ||| tiled ||| mtiled) $
            mtiled
     where
         -- default tiling algorithm partitions the screen into two panes
-        tiled      = avoidStruts $ Tall nmaster delta ratio
-        mtiled     = avoidStruts $ Mirror (Tall 1 (3/100) (1/2))
-        devLayout  = avoidStruts $ OneBig (3/4) (4/5)
-        full       = avoidStruts Full
+        tiled      = smartBorders $ avoidStruts $ Tall nmaster delta ratio
+        mtiled     = smartBorders $ avoidStruts $ Mirror (Tall 1 (3/100) (1/2))
+        devLayout  = smartBorders $ avoidStruts $ OneBig (3/4) (4/5)
+        full       = smartBorders $ avoidStruts Full
         fullscreen = noBorders Full
         defaultConf = tiled ||| mtiled ||| full
 
@@ -214,6 +215,7 @@ myManageHook = composeAll
     , title     =? "Wine System Tray" --> doShift "float"
     , title     =? "vselect"          --> placeHook (fixed (0.5, 0.5)) <+> doFloat
     , title     =? "dztemp"           --> doShift "game" <+> placeHook dztempPosition <+> doFloat
+    -- , isFullscreen                    --> doFullFloat
     -- , className =? "mpv"              --> doFloat
     ]
     where dztempPosition = withGaps (0, 1, 1, 0) (fixed (1, 1))
@@ -307,7 +309,7 @@ floatPlacement = placeHook (withGaps (20, 0, 0, 0) $ fixed (0, 0))
 ------------------------------------------------------------------------
 main = do
     homeDir <- getEnv "HOME"
-    xmonad $ withUrgencyHook NoUrgencyHook def {
+    xmonad $ ewmh $ withUrgencyHook NoUrgencyHook def {
       -- simple stuff
         terminal           = "xterm"
       , focusFollowsMouse  = True

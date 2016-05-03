@@ -4,6 +4,7 @@ setopt auto_pushd
 setopt pushd_ignore_dups
 setopt extended_glob
 setopt histignorespace
+setopt incappendhistory
 
 
 # settings and environment
@@ -149,4 +150,4 @@ if [[ ! -f /tmp/todoread ]]; then
     ((sleep 3600 && rm /tmp/todoread) &)
 fi
 
-# eval "$(rbenv init -)"
+eval "$(rbenv init -)"

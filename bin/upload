@@ -62,7 +62,7 @@ if [ "$ARG_HELP" = true ]; then
 fi
 
 if [ "$ARG_LIST" = true ]; then
-    cat $HOME/.uploads | nl -w2 -s'| '
+    cat $HOME/.uploads | column -ts '|' | nl -w2 -s'| '
     exit 0;
 fi
 
@@ -105,7 +105,7 @@ else
         "http://upload.mephory.com/")" || exit
 fi
 
-echo "$ARG_FILE    ->    $URL" >> $HOME/.uploads
+echo "$ARG_FILE | $URL" >> $HOME/.uploads
 echo $URL
 echo $URL | xsel -pi
 echo $URL | xsel -bi

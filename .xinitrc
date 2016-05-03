@@ -14,6 +14,7 @@ synclient TapButton3=3
 
 feh --bg-scale ~/.background.jpg
 dunst &
+xcompmgr &
 # compton &
 wm restartall
 

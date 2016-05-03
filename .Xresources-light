@@ -88,10 +88,10 @@ Xft.rgba: rgb
 *bellIsUrgent: true
 
 ! xterm-specific
-*faceName: monaco:size=10
+*faceName: monaco:size=12
 *faceNameDoublesize: Source Han Sans JP
 ! *faceName: Meslo:size=11
-! *faceName: inconsolata:size=12
+! *faceName: inconsolata:size=14
 ! *faceName: terminus:size=12
 ! *faceName: Meyrin:size=11
 ! *faceName: monaco:size=11
@@ -102,7 +102,7 @@ urxvt*fading: 0
 urxvt*scrollBar: false
 urxvt.letterSpace: -1
 urxvt*termName: rxvt
-urvt*font: xft:Roboto Mono:size=10,xft:Source Han Sans JP:size=10
+urxvt*font: xft:Roboto Mono:size=10,xft:Source Han Sans JP:size=10
 ! *font: xft:Terminus:size=12
 ! *font: xft:Source Code Pro:size=13
 ! *font: xft:Inconsolata:size=13
