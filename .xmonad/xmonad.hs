@@ -214,6 +214,7 @@ myManageHook = composeAll
     , className =? "explorer.exe"     --> doShift "float"
     , title     =? "Wine System Tray" --> doShift "float"
     , title     =? "vselect"          --> placeHook (fixed (0.5, 0.5)) <+> doFloat
+    , title     =? "pinentry"         --> doF W.shiftMaster <+> placeHook (fixed (0.5, 0.5)) <+> doFloat
     , title     =? "dztemp"           --> doShift "game" <+> placeHook dztempPosition <+> doFloat
     -- , isFullscreen                    --> doFullFloat
     -- , className =? "mpv"              --> doFloat
