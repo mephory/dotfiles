@@ -111,6 +111,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_grave ), toggleWS' ["NSP"])
     , ((modm              , xK_s     ), submap $ searchMap (S.promptSearchBrowser myXPConfig myBrowser))
     , ((modm .|. shiftMask, xK_s     ), submap $ searchMap (S.selectSearchBrowser myBrowser))
+
+    -- Screenshots
+    , ((0                 , xK_Print ), spawn "import -window root /tmp/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png")
+    , ((shiftMask         , xK_Print ), spawn "import /tmp/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png")
     , ((modm              , xK_0     ), spawn "upload-screenshot -window root")
     , ((modm .|. shiftMask, xK_0     ), spawn "upload-screenshot")
     , ((modm .|. shiftMask, xK_v     ), spawn "screenshot-google-image-search")
