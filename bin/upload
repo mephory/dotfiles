@@ -2,7 +2,7 @@
 # upload - upload file to upload.mephory.com
 # You need to set the UPLOAD_KEY environment variable.
 #
-# Usage: upload [OPTION]... [FILE]
+# Usage: upload [OPTION]... FILE
 #
 # Options:
 #   -l, --list          list uploaded file
@@ -43,7 +43,7 @@ while [ "$#" -gt 0 ]; do
 done
 
 function print_usage() {
-    echo "Usage: upload [OPTION]... [FILE]
+    echo "Usage: upload [OPTION]... FILE
 
 Options:
   -l, --list          list uploaded files
