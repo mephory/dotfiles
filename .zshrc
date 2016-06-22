@@ -51,7 +51,7 @@ function zle-line-init zle-keymap-select {
     else
         PCOLOR="%{$reset_color%}"
     fi;
-    PROMPT="%(#.%{$fg[red]%}.%{$fg[yellow]%})%n %{$fg[blue]%}%~ %{$fg[magenta]%}$(gitprompt)%(1j.%{$fg[green]%}[%j] .)$PCOLOR$%{$reset_color%} "
+    PROMPT="(%m) %(#.%{$fg[red]%}.%{$fg[yellow]%})%n %{$fg[blue]%}%~ %{$fg[magenta]%}$(gitprompt)%(1j.%{$fg[green]%}[%j] .)$PCOLOR$%{$reset_color%} "
     zle reset-prompt
 }
 
