@@ -13,6 +13,7 @@ export HISTSIZE=1000000
 export SAVEHIST=1000000
 
 export PATH="$PATH:$HOME/.gem/ruby/2.2.0/bin"
+export PATH="$PATH:$HOME/.gem/ruby/2.3.0/bin"
 export PATH="$PATH:$HOME/.cabal/bin"
 export PATH="$PATH:$HOME/bin"
 export PATH="$PATH:$HOME/bin/git-plugins"
