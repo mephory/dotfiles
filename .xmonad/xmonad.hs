@@ -121,6 +121,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- Scratchpads
     , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
+    , ((modm              , xK_less  ), namedScratchpadAction myScratchpads "terminal-2")
     , ((modm              , xK_z     ), namedScratchpadAction myScratchpads "music")
     , ((modm              , xK_a     ), namedScratchpadAction myScratchpads "htop")
     , ((modm              , xK_b     ), namedScratchpadAction myScratchpads "irc")
@@ -285,23 +286,26 @@ myLogHook homeDir = dynamicLogWithPP $ def {
 myStartupHook = return ()
 
 -- Scratchpads
-myScratchpads = [ NS "terminal" spawnTerminal findTerminal manageSP
-                , NS "music"    spawnMusic    findMusic    manageSP
-                , NS "htop"     spawnHtop     findHtop     manageSP
-                , NS "irc"      spawnIrc      findIrc      manageIrcSP
-                , NS "color"    spawnColor    findColor    manageColorSP
+myScratchpads = [ NS "terminal"   spawnTerminal  findTerminal  manageSP
+                , NS "terminal-2" spawnTerminal2 findTerminal2 manageSP
+                , NS "music"      spawnMusic     findMusic     manageSP
+                , NS "htop"       spawnHtop      findHtop      manageSP
+                , NS "irc"        spawnIrc       findIrc       manageIrcSP
+                , NS "color"      spawnColor     findColor     manageColorSP
                 ]
     where
-        spawnTerminal = "xterm -name scratchpad"
-        findTerminal  = resource =? "scratchpad"
-        spawnMusic    = "xterm -name music -e 'tmux-attach-or-new music ncmpcpp pulsemixer'"
-        findMusic     = resource =? "music"
-        spawnHtop     = "xterm -name htop -e htop"
-        findHtop      = resource =? "htop"
-        spawnIrc      = "xterm -name irc -e 'tmux-attach-or-new irc weechat'"
-        findIrc       = resource =? "irc"
-        spawnColor    = "gcolor2"
-        findColor     = resource =? "gcolor2"
+        spawnTerminal  = "xterm -name scratchpad"
+        findTerminal   = resource =? "scratchpad"
+        spawnTerminal2 = "xterm -name scratchpad-2"
+        findTerminal2  = resource =? "scratchpad-2"
+        spawnMusic     = "xterm -name music -e 'tmux-attach-or-new music ncmpcpp pulsemixer'"
+        findMusic      = resource =? "music"
+        spawnHtop      = "xterm -name htop -e htop"
+        findHtop       = resource =? "htop"
+        spawnIrc       = "xterm -name irc -e 'tmux-attach-or-new irc weechat'"
+        findIrc        = resource =? "irc"
+        spawnColor     = "gcolor2"
+        findColor      = resource =? "gcolor2"
         manageSP = customFloating $ centeredRect 0.5 0.5
         manageIrcSP = customFloating $ centeredRect 0.6 0.6
         manageColorSP = placeHook (fixed (0.5, 0.5)) <+> doFloat
