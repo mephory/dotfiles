@@ -42,7 +42,7 @@ myXPConfig = def
     , height      = 22
     }
 
-myWorkspaces    = ["web","dev","music","term","game","vm","im","other","float"] ++ ["NSP"]
+myWorkspaces    = ["web","dev","music","term","game","vm","steam","other","float"] ++ ["NSP"]
 myBrowser    = "firefox"
 
 --- Twitch Prompt
@@ -187,7 +187,7 @@ myLayout = onWorkspace "web"   (full ||| fullscreen ||| tiled ||| mtiled) $
            onWorkspace "term"  defaultConf $
            onWorkspace "game"  fullscreen $
            onWorkspace "vm"    (fullscreen ||| full ||| tiled ||| mtiled) $
-           onWorkspace "im"    defaultConf $
+           onWorkspace "steam" (smartBorders $ avoidStruts $ Tall 1 (3/100) (1/4)) $
            onWorkspace "other" (tiled ||| full) $
            onWorkspace "float" (simpleFloat ||| tiled ||| full)
            mtiled
