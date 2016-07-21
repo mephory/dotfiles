@@ -1,2 +1,0 @@
-#!/bin/sh
-convert $1 -crop $(vselect $1) +repage $2
