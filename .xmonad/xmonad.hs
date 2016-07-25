@@ -111,6 +111,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_grave ), toggleWS' ["NSP"])
     , ((modm              , xK_s     ), submap $ searchMap (S.promptSearchBrowser myXPConfig myBrowser))
     , ((modm .|. shiftMask, xK_s     ), submap $ searchMap (S.selectSearchBrowser myBrowser))
+    , ((modm .|. shiftMask, xK_o     ), spawn "tsplaytool \"$(tsplaytool -l | dmenu -l 15 -i)\"")
 
     -- Screenshots
     , ((0                 , xK_Print ), spawn "import -window root /tmp/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png")
@@ -210,17 +211,18 @@ myLayout = onWorkspace "web"   (full ||| fullscreen ||| tiled ||| mtiled) $
 
 -- Window rules:
 myManageHook = composeAll
-    [ className =? "MPlayer"          --> doFloat
-    , className =? "Gimp"             --> doFloat
-    , resource  =? "desktop_window"   --> doIgnore
-    , resource  =? "kdesktop"         --> doIgnore 
-    , className =? "Firefox"          --> doShift "web"
-    , className =? "Pidgin"           --> doShift "im"
-    , className =? "explorer.exe"     --> doShift "float"
-    , title     =? "Wine System Tray" --> doShift "float"
-    , title     =? "vselect"          --> placeHook (fixed (0.5, 0.5)) <+> doFloat
-    , title     =? "pinentry"         --> doF W.shiftMaster <+> placeHook (fixed (0.5, 0.5)) <+> doFloat
-    , title     =? "dztemp"           --> doShift "game" <+> placeHook dztempPosition <+> doFloat
+    [ className =? "MPlayer"             --> doFloat
+    , className =? "Gimp"                --> doFloat
+    , resource  =? "desktop_window"      --> doIgnore
+    , resource  =? "kdesktop"            --> doIgnore
+    , className =? "Firefox"             --> doShift "web"
+    , className =? "Pidgin"              --> doShift "im"
+    , className =? "explorer.exe"        --> doShift "float"
+    , title     =? "Wine System Tray"    --> doShift "float"
+    , title     =? "vselect"             --> placeHook (fixed (0.5, 0.5)) <+> doFloat
+    , title     =? "vselect-record-area" --> placeHook (fixed (0, 0)) <+> doFloat
+    , title     =? "pinentry"            --> doF W.shiftMaster <+> placeHook (fixed (0.5, 0.5)) <+> doFloat
+    , title     =? "dztemp"              --> doShift "game" <+> placeHook dztempPosition <+> doFloat
     -- , isFullscreen                    --> doFullFloat
     -- , className =? "mpv"              --> doFloat
     ]
