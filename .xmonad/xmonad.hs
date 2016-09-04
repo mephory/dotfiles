@@ -114,8 +114,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_o     ), spawn "tsplaytool \"$(tsplaytool -l | dmenu -l 15 -i)\"")
 
     -- Screenshots
-    , ((0                 , xK_Print ), spawn "import -window root /tmp/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png")
-    , ((shiftMask         , xK_Print ), spawn "import /tmp/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png")
+    , ((0                 , xK_Print ), spawn "import -window root $HOME/data/screenshots/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png")
+    , ((shiftMask         , xK_Print ), spawn "import $HOME/data/screenshots/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png")
     , ((modm              , xK_0     ), spawn "upload-screenshot -window root")
     , ((modm .|. shiftMask, xK_0     ), spawn "upload-screenshot")
     , ((modm .|. shiftMask, xK_v     ), spawn "screenshot-google-image-search")
