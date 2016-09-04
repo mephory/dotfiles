@@ -223,6 +223,7 @@ myManageHook = composeAll
     , title     =? "vselect-record-area" --> placeHook (fixed (0, 0)) <+> doFloat
     , title     =? "pinentry"            --> doF W.shiftMaster <+> placeHook (fixed (0.5, 0.5)) <+> doFloat
     , title     =? "dztemp"              --> doShift "game" <+> placeHook dztempPosition <+> doFloat
+    , className =? "dota2"               --> doShift "game" <+> (doF . W.sink =<< ask)
     -- , isFullscreen                    --> doFullFloat
     -- , className =? "mpv"              --> doFloat
     ]
