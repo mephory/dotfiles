@@ -1,7 +1,7 @@
 # Auto-completion
 # ---------------
-if [[ -f /usr/share/zsh/site-functions/_fzf ]]; then
-  source /usr/share/zsh/site-functions/_fzf
+if [[ -f /usr/share/fzf/completion.zsh ]]; then
+  source /usr/share/fzf/completion.zsh
 fi
 
 # Key bindings
