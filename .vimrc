@@ -48,6 +48,10 @@ set list listchars=tab:»·,trail:·
 
 set background=dark
 colorscheme solarized
+if $SSH_CONNECTION
+    colorscheme delek
+end
+
 set laststatus=2    " always show status bar
 set guifont=Inconsolata\ 13
 
