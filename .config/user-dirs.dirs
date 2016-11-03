@@ -1,4 +1,4 @@
-XDG_DESKTOP_DIR="/home/mephory/"
+XDG_DESKTOP_DIR="/home/mephory/.desktop/"
 XDG_DOWNLOAD_DIR="/home/mephory/download/"
 XDG_TEMPLATES_DIR="/home/mephory/"
 XDG_PUBLICSHARE_DIR="/home/mephory/shared/"
