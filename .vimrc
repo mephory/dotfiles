@@ -278,7 +278,7 @@ vnoremap <leader>p :call PostSnippet()<cr>
 vnoremap <leader>P :call PostSnippet('public')<cr>
 
 " View diff of buffer against original file
-nnoremap <leader>d :w !diff -u % -<cr>
+nnoremap <leader>d :w !git diff --no-index % -<cr>
 
 " Improve command line navigation a bit
 cnoremap <C-a> <Home>
