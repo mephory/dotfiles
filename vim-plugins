@@ -9,7 +9,6 @@ git@github.com:benmills/vimux.git
 git@github.com:dhruvasagar/vim-table-mode.git
 git@github.com:godlygeek/tabular.git
 git@github.com:groenewege/vim-less.git
-git@github.com:kien/ctrlp.vim.git
 git@github.com:scrooloose/syntastic.git
 git@github.com:tommcdo/vim-exchange.git
 git@github.com:tomtom/tcomment_vim.git
@@ -20,3 +19,4 @@ git@github.com:vim-pandoc/vim-pandoc-syntax.git
 git@github.com:vim-pandoc/vim-pandoc.git
 git@github.com:vim-scripts/taglist.vim.git
 git@github.com:vim-scripts/ZoomWin.git
+git@github.com:junnegun/fzf.vim.git

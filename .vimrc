@@ -114,13 +114,13 @@ map <leader>n :tabnew<cr>
 map <leader>c :tabclose<cr>
 map <leader>t :tabnext<cr>
 map <leader>T :tabprevious<cr>
-map <leader>p :CtrlPBuffer<cr>
+map <leader>p :Buffers<cr>
 map <leader>m :tabmove 
 map <leader>f :tabfirst<cr>
 map <leader>l :tablast<cr>
 map <leader>o :tabonly<cr>
 map <leader>e :tabedit <c-r>=expand("%:p:h")<cr><cr>
-map <leader>q :CtrlPTag<cr>
+map <leader>q :Tags<cr>
 map <C-W>u :call MergeTabs()<cr>
 map <C-W><C-U> :call MergeTabs()<cr>
 map <BS> <C-W>h
@@ -129,6 +129,9 @@ map <C-j> <C-W>j
 map <C-k> <C-W>k
 map <C-l> <C-W>l
 map <F1> :ls<cr>:b 
+map <C-p> :GFiles<cr>
+map <C-[> :Files<cr>
+
 
 " unmap the above <leader>-mappings in operator pending mode,
 " so that I can still do things like dtn
