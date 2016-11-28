@@ -55,6 +55,13 @@ function zle-line-init zle-keymap-select {
     zle reset-prompt
 }
 
+# kill word but have / as word separator
+function backward-kill-dirword {
+    local WORDCHARS=${WORDCHARS/\/}
+    zle backward-kill-word
+}
+zle -N backward-kill-dirword
+
 autoload -Uz colors
 colors
 zle -N zle-line-init
@@ -82,6 +89,7 @@ bindkey '^y' yank
 bindkey '^o' insert-last-word
 bindkey '^f' forward-word
 bindkey '^b' backward-word
+bindkey '^[' backward-kill-dirword
 bindkey -M viins '^x' vi-cmd-mode
 bindkey -M vicmd '^x' vi-insert
 bindkey -M vicmd '^e' edit-command-line
