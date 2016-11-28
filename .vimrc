@@ -196,6 +196,8 @@ map <leader>a: :Tabularize /:\zs<CR>
 map <leader>a, :Tabularize /,<CR>
 map <leader>a\| :Tabularize /\|<CR>
 map <leader>aa :Tabularize /
+map <leader>A, :Tabularize /^[^,]*,\zs<CR>
+map <leader>A: :Tabularize /^[^:]*:\zs<CR>
 
 " Headlines
 nnoremap <leader>h yypVr-k
