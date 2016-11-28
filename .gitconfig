@@ -11,6 +11,7 @@ unignore = update-index --no-assume-unchanged
 ignores = !git ls-files -v | grep "^[[:lower:]]"
 pom = push origin master
 curbranch = rev-parse --abbrev-ref HEAD
+cb       = rev-parse --abbrev-ref HEAD
 mod      = !cd ${GIT_PREFIX:-.} && git status -sb | grep -E '^ ?M' | cut -d' ' -f3 | sort | uniq
 modified = !cd ${GIT_PREFIX:-.} && git status -sb | grep -E '^ ?M' | cut -d' ' -f3 | sort | uniq
 del      = !cd ${GIT_PREFIX:-.} && git status -sb | grep -E '^ ?D' | cut -d' ' -f3 | sort | uniq
