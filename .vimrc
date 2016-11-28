@@ -85,6 +85,7 @@ let Tlist_Close_On_Select = 1           " exit vim when only the tlist window is
 let Tlist_Exit_OnlyWindow = 1           " exit vim when only the tlist window is opened
 
 let g:ctrlp_working_path_mode = 2
+let g:fzf_buffers_jump = 1
 
 let g:table_mode_corner_corner='+'
 let g:table_mode_header_fillchar='='
