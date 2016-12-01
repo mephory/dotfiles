@@ -89,7 +89,7 @@ bindkey '^y' yank
 bindkey '^o' insert-last-word
 bindkey '^f' forward-word
 bindkey '^b' backward-word
-bindkey '^[' backward-kill-dirword
+bindkey '^\' backward-kill-dirword
 bindkey -M viins '^x' vi-cmd-mode
 bindkey -M vicmd '^x' vi-insert
 bindkey -M vicmd '^e' edit-command-line
