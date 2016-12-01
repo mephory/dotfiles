@@ -131,7 +131,7 @@ map <C-k> <C-W>k
 map <C-l> <C-W>l
 map <F1> :ls<cr>:b 
 map <C-p> :GFiles<cr>
-map <C-[> :Files<cr>
+nmap <Return>p :Files<cr>
 
 
 " unmap the above <leader>-mappings in operator pending mode,
@@ -167,6 +167,10 @@ map <C-\> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
 " Use Tab and S-Tab as ; and ,
 nnoremap <Tab> ;
 nnoremap <S-Tab> ,
+nnoremap <leader>o <C-i>
+nnoremap <leader>j :jumps<cr>
+nnoremap <PageUp> <C-o>
+nnoremap <PageDown> <C-i>
 
 " Move up in down in visual mode even with capital J and K
 vnoremap K k
@@ -241,7 +245,7 @@ nnoremap <leader>gs :!git st<cr>
 nnoremap <leader>gc :!git commit -a -m ''<left>
 nnoremap <leader>gC :!git commit<cr>
 nnoremap <leader>gl :!git log<cr>
-nnoremap <leader>gd :!git diff<cr>
+nnoremap <leader>gd :!git diff %<cr>
 nnoremap <leader>gD :!git diff 
 nnoremap <leader>ga :!git add %<cr>
 nnoremap <leader>gp :!git push<cr>
