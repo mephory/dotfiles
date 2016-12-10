@@ -107,6 +107,6 @@ fi
 
 echo "$ARG_FILE | $URL" >> $HOME/.uploads
 echo $URL
-echo $URL | xsel -pi
-echo $URL | xsel -bi
+echo $URL | xsel -pi 2>/dev/null
+echo $URL | xsel -bi 2>/dev/null
 exit 0;
