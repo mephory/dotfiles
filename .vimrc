@@ -71,10 +71,10 @@ augroup filetypes
 augroup END
 
 
-augroup templates
-    autocmd!
-    autocmd BufNewFile *.* silent! execute '0r ~/.vim/templates/'.expand("<afile>:e").'.template' | normal Gddgg
-augroup END
+" augroup templates
+"     autocmd!
+"     autocmd BufNewFile *.* silent! execute '0r ~/.vim/templates/'.expand("<afile>:e").'.template' | normal Gddgg
+" augroup END
 
 "============================================================================}}}
 " Plugin-specific Configuration                                              {{{
