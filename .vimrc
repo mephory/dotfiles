@@ -105,6 +105,8 @@ let g:user_emmet_mode = 'i'
 let g:syntastic_ruby_exec = '/usr/bin/ruby'
 let g:syntastic_ruby_checkers = ['mri']
 
+let g:vimwiki_list = [{ 'path': '~/.vimwiki', 'path_html': '~/.vimwiki_html' }]
+
 "============================================================================}}}
 " Key Configuration                                                          {{{
 "===============================================================================
@@ -379,6 +381,19 @@ vnoremap <leader>P :<C-u>call VisualPipeToProgram('python2', 'py')<cr>
 nnoremap <leader>S :call PipeToProgram('/bin/zsh', 'sh')<cr>
 vnoremap <leader>S :<C-u>call VisualPipeToProgram('/bin/zsh', 'sh')<cr>
 " }}}
+
+let mapleader = '\'
+
+" vimwiki bindings
+" nmap <leader>wf <Plug>VimwikiFollowLink
+
+nmap <leader>ws <Plug>VimwikiSplitLink
+nmap <leader>wv <Plug>VimwikiVSplitLink
+nmap <leader>wl viwS]gvS]
+vmap <leader>wl S]gvS]
+nmap <leader>wa <leader>wl
+vmap <leader>wa <leader>wl
+
 
 "============================================================================}}}
 " Custom Functions                                                           {{{
