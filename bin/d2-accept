@@ -1,0 +1,7 @@
+#!/bin/sh
+WID=$(xdotool search -name "^Dota 2$")
+xdotool windowactivate --sync $WID
+sleep 0.3
+xdotool windowfocus --sync $WID
+sleep 0.3
+xdotool key --window $WID Return
