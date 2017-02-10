@@ -38,6 +38,7 @@ xmodmap -e "keycode 16 = 7 ampersand F7"
 xmodmap -e "keycode 17 = 8 asterisk F8"
 xmodmap -e "keycode 18 = 9 parenleft F9"
 xmodmap -e "keycode 19 = 0 parenright F10"
+xmodmap -e "keycode 9  = Escape NoSymbol grave"
 xmodmap -e "keycode 47 = semicolon colon Insert"
 
 exec xmonad
