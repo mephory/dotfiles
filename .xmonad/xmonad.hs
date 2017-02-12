@@ -102,7 +102,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Prompts
     , ((modm .|. shiftMask, xK_grave ), sshPrompt myXPConfig)
     , ((modm              , xK_x     ), passwordPrompt myXPConfig)
-    , ((modm              , xK_c     ), genPasswordPrompt myXPConfig)
+    , ((modm              , xK_n     ), genPasswordPrompt myXPConfig)
 
     -- Custom
     , ((modm              , xK_Escape), spawn "slock")
@@ -122,7 +122,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- Scratchpads
     , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
-    , ((modm              , xK_less  ), namedScratchpadAction myScratchpads "terminal-2")
+    , ((modm              , xK_c     ), namedScratchpadAction myScratchpads "terminal-2")
     , ((modm              , xK_z     ), namedScratchpadAction myScratchpads "music")
     , ((modm              , xK_a     ), namedScratchpadAction myScratchpads "htop")
     , ((modm              , xK_b     ), namedScratchpadAction myScratchpads "irc")
