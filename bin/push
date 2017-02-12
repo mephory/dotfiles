@@ -2,7 +2,7 @@
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
-        -t) ARG_TITLE="$3"; shift 2;;
+        -t) ARG_TITLE="$2"; shift 2;;
         -t*) ARG_TITLE="${1:2}"; shift 1;;
         --title=*) ARG_TITLE="${1#*=}"; shift 1;;
 
@@ -18,9 +18,35 @@ while [ "$#" -gt 0 ]; do
         -s*) ARG_SOUND="${1:2}"; shift 1;;
         --sound=*) ARG_SOUND="${1#*=}"; shift 1;;
 
+        -h) ARG_HELP=true; shift 1;;
+        --help) ARG_HELP=true; shift 1;;
+
         *) ARG_MESSAGE="$1"; shift 1;;
     esac
 done
+
+if [ -z $ARG_PRIO ]; then
+    ARG_PRIO=1
+fi
+
+function print_usage() {
+    echo "Usage: push [OPTION]... MESSAGE
+
+Options:
+  -t, --title=TITLE   set notification title
+  -u, --url=URL       notification url
+  -p, --priority=PRIO set notification priority
+  -s, --sound=SOUND   set notification sound
+  -h, --help          display this help
+
+You need to set the PUSHOVER_APP_TOKEN and PUSHOVER_USER_TOKEN environment variables."
+}
+
+if [ "$ARG_HELP" = true ]; then
+    print_usage;
+    exit 0;
+fi
+
 
 curl -s \
   --form-string "token=$PUSHOVER_APP_TOKEN" \
