@@ -1,0 +1,32 @@
+#!/bin/sh
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        -t) ARG_TITLE="$3"; shift 2;;
+        -t*) ARG_TITLE="${1:2}"; shift 1;;
+        --title=*) ARG_TITLE="${1#*=}"; shift 1;;
+
+        -u) ARG_URL="$2"; shift 2;;
+        -u*) ARG_URL="${1:2}"; shift 1;;
+        --url=*) ARG_URL="${1#*=}"; shift 1;;
+
+        -p) ARG_PRIO="$2"; shift 2;;
+        -p*) ARG_PRIO="${1:2}"; shift 1;;
+        --priority=*) ARG_PRIO="${1#*=}"; shift 1;;
+
+        -s) ARG_SOUND="$2"; shift 2;;
+        -s*) ARG_SOUND="${1:2}"; shift 1;;
+        --sound=*) ARG_SOUND="${1#*=}"; shift 1;;
+
+        *) ARG_MESSAGE="$1"; shift 1;;
+    esac
+done
+
+curl -s \
+  --form-string "token=$PUSHOVER_APP_TOKEN" \
+  --form-string "user=$PUSHOVER_USER_TOKEN" \
+  --form-string "message=$ARG_MESSAGE" \
+  --form-string "title=$ARG_TITLE" \
+  --form-string "url=$ARG_URL" \
+  --form-string "priority=$ARG_PRIO" \
+  "https://api.pushover.net/1/messages.json"
