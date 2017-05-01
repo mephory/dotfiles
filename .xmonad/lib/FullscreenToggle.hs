@@ -90,4 +90,6 @@ isFloating w = withWindowSet $ \s ->
     return $ M.member w (W.floating s)
 
 isFullscreen :: Window -> X Bool
-isFullscreen w = currentLocation w >>= (return . (==fullscreenLocation))
+isFullscreen w = do
+    (loc,isFloating) <- currentWindowPosition w
+    return $ isFloating && loc == fullscreenLocation
