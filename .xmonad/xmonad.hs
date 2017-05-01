@@ -28,6 +28,7 @@ import Graphics.X11.ExtraTypes.XF86
 
 import Passwords (passwordPrompt, genPasswordPrompt)
 import UnicodeUtils (writeFileUtf8)
+import FullscreenToggle (toggleFullscreen)
 
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
@@ -95,7 +96,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_q     ), spawn "xmonad --recompile; xmonad --restart")
     , ((modm .|. shiftMask, xK_f     ), toggleFloatNext >> runLogHook)
     -- Toggle struts
-    , ((modm              , xK_o     ), sendMessage ToggleStruts)
+    -- , ((modm              , xK_o     ), sendMessage ToggleStruts)
     -- Toggle border
     , ((modm              , xK_u     ), withFocused toggleBorder)
 
@@ -127,6 +128,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_a     ), namedScratchpadAction myScratchpads "htop")
     , ((modm              , xK_b     ), namedScratchpadAction myScratchpads "irc")
     , ((modm .|. shiftMask, xK_p     ), namedScratchpadAction myScratchpads "color")
+
+    , ((modm              , xK_o     ), withFocused toggleFullscreen)
 
     -- Thinkpad Function Keys
     , ((0, xF86XK_AudioMute), spawn "amixer sset Master toggle")
