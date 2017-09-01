@@ -38,6 +38,8 @@ alias oot="mupen $HOME/data/rom/*Ocarina*"
 alias enc="gpg --encrypt"
 alias dec="gpg --decrypt"
 alias s.="du -hs"
+alias grepip="grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'"
+alias cd-="cd -"
 
 alias notouchpad="synclient TouchpadOff=1"
 alias touchpad="synclient TouchpadOff=0"
