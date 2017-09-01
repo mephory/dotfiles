@@ -1,0 +1,2 @@
+#!/bin/sh
+$HOME/.dynamic-colors/bin/dynamic-colors $@
