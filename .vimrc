@@ -63,6 +63,7 @@ augroup filetypes
     autocmd!
     autocmd FileType php set ai sw=2 sts=2 et
     autocmd FileType ruby set ai sw=2 sts=2 et
+    autocmd FileType go set ai sw=2 sts=2 et
     autocmd FileType lisp set ai sw=2 sts=2 et
     autocmd FileType javascript set ai sw=2 sts=2 et
     autocmd FileType xml setlocal equalprg=xmllint\ --format\ --recover\ -\ 2>/dev/null    " = for xml
