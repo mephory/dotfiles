@@ -1,4 +1,4 @@
 #!/bin/sh
-import $@ png:- \
+import +repage $@ png:- \
     | upload -p -nscreenshot-$(date +'%Y-%m-%d--%H-%M').png - \
     && notify-send "Upload finished" "The URL has been copied to your clipboard"
