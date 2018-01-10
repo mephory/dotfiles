@@ -193,6 +193,8 @@ nnoremap ''a :CtrlP /home/mephory/code/alexandria/<cr>
 nnoremap ''v :e `=resolve(expand("~/.vimrc"))`<cr>
 nnoremap ''x :e `=resolve(expand("~/.xmonad/xmonad.hs"))`<cr>
 nnoremap ''' :cd %:p:h<cr>
+nnoremap \e :e <C-r>=expand('%:h')<cr>/
+nnoremap \r :r <C-r>=expand('%:h')<cr>/
 
 "----------------------------------------------------------------------------}}}
 " Format                                                                     {{{
