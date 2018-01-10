@@ -10,15 +10,12 @@ import XMonad.Layout.OneBig
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
-import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.FloatNext
 import XMonad.Hooks.InsertPosition
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.Place
 import XMonad.Util.NamedScratchpad
 import XMonad.Prompt
-import XMonad.Prompt.Ssh
-import XMonad.Prompt.Input
 import Data.List (elemIndex, isPrefixOf)
 import Data.Maybe (fromJust, fromMaybe)
 import System.IO.Unsafe (unsafePerformIO)
@@ -43,14 +40,8 @@ myXPConfig = def
     , height      = 22
     }
 
-myWorkspaces    = ["web","dev","music","term","game","vm","steam","other","float"] ++ ["NSP"]
-myBrowser    = "firefox"
-
---- Twitch Prompt
-twitchChannels = ["stevicules", "amazhs", "rsgloryandgold"]
-twitchPrompt = inputPromptWithCompl myXPConfig "Twitch Channel"
-                    (mkComplFunFromList twitchChannels) ?+ watchTwitchChannel
-    where watchTwitchChannel x = spawn $ "mpv http://twitch.tv/" ++ x
+myWorkspaces    = ["1","2","3","4","5","6","7","8","9"] ++ ["NSP"]
+myBrowser    = "qutebrowser"
 
 -- Key bindings. Add, modify or remove key bindings here.
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
@@ -66,8 +57,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
     -- Resize viewed windows to the correct size
     , ((modm .|. shiftMask, xK_r     ), refresh)
-    -- Move focus to the next window
-    -- , ((modm,               xK_Tab   ), windows W.focusDown)
     -- Move focus to the next window
     , ((modm,               xK_j     ), windows W.focusDown)
     -- Move focus to the previous window
@@ -92,27 +81,28 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_period), sendMessage (IncMasterN (-1)))
     -- Quit xmonad
     , ((modm .|. shiftMask, xK_q     ), io exitSuccess)
-    -- Restart xmonad
-    , ((modm              , xK_q     ), spawn "xmonad --recompile; xmonad --restart")
+    -- Float next window
     , ((modm .|. shiftMask, xK_f     ), toggleFloatNext >> runLogHook)
     -- Toggle struts
     -- , ((modm              , xK_o     ), sendMessage ToggleStruts)
     -- Toggle border
     , ((modm              , xK_u     ), withFocused toggleBorder)
+    -- Lock screen
+    , ((modm              , xK_Escape), spawn "slock")
+    -- Click on a window to kill
+    , ((modm .|. shiftMask, xK_x     ), spawn "xkill")
+    -- Toggle between two most recently viewed workspaces
+    , ((modm              , xK_grave ), toggleWS' ["NSP"])
+    -- Toggle fullscreen for focused window
+    , ((modm              , xK_o     ), withFocused toggleFullscreen)
 
     -- Prompts
-    , ((modm .|. shiftMask, xK_grave ), sshPrompt myXPConfig)
     , ((modm              , xK_x     ), passwordPrompt myXPConfig)
     , ((modm              , xK_n     ), genPasswordPrompt myXPConfig)
 
-    -- Custom
-    , ((modm              , xK_Escape), spawn "slock")
-    , ((modm .|. shiftMask, xK_x     ), spawn "xkill")
-    , ((modm .|. shiftMask, xK_t     ), twitchPrompt)
-    , ((modm              , xK_grave ), toggleWS' ["NSP"])
+    -- Various
     , ((modm              , xK_s     ), submap $ searchMap (S.promptSearchBrowser myXPConfig myBrowser))
     , ((modm .|. shiftMask, xK_s     ), submap $ searchMap (S.selectSearchBrowser myBrowser))
-    , ((modm .|. shiftMask, xK_o     ), spawn "tsplaytool \"$(tsplaytool -l | dmenu -l 15 -i)\"")
 
     -- Screenshots
     , ((0                 , xK_Print ), spawn "import -window root $HOME/data/screenshots/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png")
@@ -129,16 +119,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_b     ), namedScratchpadAction myScratchpads "irc")
     , ((modm .|. shiftMask, xK_p     ), namedScratchpadAction myScratchpads "color")
 
-    , ((modm              , xK_o     ), withFocused toggleFullscreen)
 
-    -- Thinkpad Function Keys
+    -- Media Keys
     , ((0, xF86XK_AudioMute), spawn "amixer sset Master toggle")
     , ((0, xF86XK_AudioLowerVolume), spawn "amixer sset Master 2dB-")
     , ((0, xF86XK_AudioRaiseVolume), spawn "amixer sset Master 2dB+")
     , ((0, xF86XK_MonBrightnessDown), spawn "xbacklight -dec 5")
     , ((0, xF86XK_MonBrightnessUp), spawn "xbacklight -inc 5")
     , ((0, xF86XK_Display), spawn "xbacklight -set 85")
-    , ((0, xF86XK_Tools), spawn "notify-send -t 2000 Temperature \"$(acpi -t)\"")
     ]
     ++
 
@@ -180,21 +168,19 @@ searchMap method = M.fromList
     , ((0, xK_s), method S.multi)
     , ((0, xK_d), method $ S.searchEngine "dict" "http://dict.cc/")
     , ((0, xK_a), method $ S.searchEngine "amazon" "http://www.amazon.de/s/?field-keywords=")
-    , ((0, xK_p), method $ S.searchEngine "proxer" "http://proxer.me/search?name=")
-    , ((0, xK_m), method $ S.searchEngine "myanimelist" "http://myanimelist.net/anime.php?q=")
     ]
 
 
 -- Layouts:
-myLayout = onWorkspace "web"   (full ||| fullscreen ||| tiled ||| mtiled) $
-           onWorkspace "dev"   (devLayout ||| tiled ||| mtiled ||| full) $
-           onWorkspace "music" defaultConf $
-           onWorkspace "term"  defaultConf $
-           onWorkspace "game"  fullscreen $
-           onWorkspace "vm"    (fullscreen ||| full ||| tiled ||| mtiled) $
-           onWorkspace "steam" (smartBorders $ avoidStruts $ Tall 1 (3/100) (1/4)) $
-           onWorkspace "other" (tiled ||| full) $
-           onWorkspace "float" (simpleFloat ||| tiled ||| full)
+myLayout = onWorkspace "1" (full ||| fullscreen ||| tiled ||| mtiled) $
+           onWorkspace "2" (devLayout ||| tiled ||| mtiled ||| full) $
+           onWorkspace "3" defaultConf $
+           onWorkspace "4" defaultConf $
+           onWorkspace "5" fullscreen $
+           onWorkspace "6" (fullscreen ||| full ||| tiled ||| mtiled) $
+           onWorkspace "7" (smartBorders $ avoidStruts $ Tall 1 (3/100) (1/4)) $
+           onWorkspace "8" (tiled ||| full) $
+           onWorkspace "9" (simpleFloat ||| tiled ||| full)
            mtiled
     where
         -- default tiling algorithm partitions the screen into two panes
@@ -214,23 +200,17 @@ myLayout = onWorkspace "web"   (full ||| fullscreen ||| tiled ||| mtiled) $
 
 -- Window rules:
 myManageHook = composeAll
-    [ className =? "MPlayer"             --> doFloat
-    , className =? "Gimp"                --> doFloat
-    , resource  =? "desktop_window"      --> doIgnore
+    [ resource  =? "desktop_window"      --> doIgnore
     , resource  =? "kdesktop"            --> doIgnore
-    , className =? "Firefox"             --> doShift "web"
-    , className =? "Pidgin"              --> doShift "im"
-    , className =? "explorer.exe"        --> doShift "float"
-    , title     =? "Wine System Tray"    --> doShift "float"
+    , className =? "Firefox"             --> doShift "1"
+    , className =? "qutebrowser"         --> doShift "1"
+    , className =? "explorer.exe"        --> doShift "9"
+    , title     =? "Wine System Tray"    --> doShift "9"
+    , className =? "dota2"               --> doShift "5" <+> (doF . W.sink =<< ask)
     , title     =? "vselect"             --> placeHook (fixed (0.5, 0.5)) <+> doFloat
     , title     =? "vselect-record-area" --> placeHook (fixed (0, 0)) <+> doFloat
     , title     =? "pinentry"            --> doF W.shiftMaster <+> placeHook (fixed (0.5, 0.5)) <+> doFloat
-    , title     =? "dztemp"              --> doShift "game" <+> placeHook dztempPosition <+> doFloat
-    , className =? "dota2"               --> doShift "game" <+> (doF . W.sink =<< ask)
-    -- , isFullscreen                    --> doFullFloat
-    -- , className =? "mpv"              --> doFloat
     ]
-    where dztempPosition = withGaps (0, 1, 1, 0) (fixed (1, 1))
 
 -- Event handling
 myEventHook = fullscreenEventHook
