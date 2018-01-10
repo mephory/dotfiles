@@ -2,6 +2,7 @@ import XMonad
 import XMonad.Actions.CycleWS
 import XMonad.Actions.Submap
 import XMonad.Actions.NoBorders
+import XMonad.Actions.GridSelect
 import qualified XMonad.Actions.Search as S
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.SimpleFloat
@@ -95,6 +96,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_grave ), toggleWS' ["NSP"])
     -- Toggle fullscreen for focused window
     , ((modm              , xK_o     ), withFocused toggleFullscreen)
+    -- Overview of all windows
+    , ((modm              , xK_f     ), goToSelected defaultGSConfig)
 
     -- Prompts
     , ((modm              , xK_x     ), passwordPrompt myXPConfig)
