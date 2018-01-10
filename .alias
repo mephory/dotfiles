@@ -1,5 +1,12 @@
 alias config='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
 
+alias -g ,,b='$(git curbranch)'
+alias -g ,,s='$(echo ~/data/screenshots/*(om[1]))'
+alias -g ,,s2='$(echo ~/data/screenshots/*(om[2]))'
+alias -g ,,s3='$(echo ~/data/screenshots/*(om[3]))'
+alias -g ,,s4='$(echo ~/data/screenshots/*(om[4]))'
+alias -g ,,s5='$(echo ~/data/screenshots/*(om[5]))'
+
 # Colors                                                                     {{{
 alias ls="ls --color=auto"
 alias grep="grep --color=auto"
