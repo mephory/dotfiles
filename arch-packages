@@ -11,3 +11,7 @@ community/adobe-source-han-sans-jp-fonts
 # Others
 community/id3v2
 community/fzf
+
+# X11
+community/slock
+extra/xorg-xkill
