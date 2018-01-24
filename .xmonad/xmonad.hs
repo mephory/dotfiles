@@ -19,7 +19,6 @@ import XMonad.Util.NamedScratchpad
 import XMonad.Prompt
 import Data.List (elemIndex, isPrefixOf)
 import Data.Maybe (fromJust, fromMaybe)
-import System.IO.Unsafe (unsafePerformIO)
 import System.Exit
 import System.Environment
 import Graphics.X11.ExtraTypes.XF86
@@ -97,13 +96,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Toggle fullscreen for focused window
     , ((modm              , xK_o     ), withFocused toggleFullscreen)
     -- Overview of all windows
-    , ((modm              , xK_f     ), goToSelected defaultGSConfig)
+    , ((modm              , xK_f     ), goToSelected $ def { gs_navigate = navNSearch })
 
     -- Prompts
     , ((modm              , xK_x     ), passwordPrompt myXPConfig)
     , ((modm              , xK_n     ), genPasswordPrompt myXPConfig)
 
     -- Various
+    , ((modm              , xK_i     ), spawn "toggle-dock")
     , ((modm              , xK_s     ), submap $ searchMap (S.promptSearchBrowser myXPConfig myBrowser))
     , ((modm .|. shiftMask, xK_s     ), submap $ searchMap (S.selectSearchBrowser myBrowser))
 
@@ -216,7 +216,7 @@ myManageHook = composeAll
     ]
 
 -- Event handling
-myEventHook = fullscreenEventHook
+myEventHook = docksEventHook <+> fullscreenEventHook
 
 -- Status bars and logging
 myLogHook homeDir = dynamicLogWithPP $ def {
@@ -325,6 +325,7 @@ main = do
       -- hooks, layouts
       , layoutHook         = myLayout
       , manageHook         = myManageHook
+                             <+> manageDocks
                              <+> namedScratchpadManageHook myScratchpads
                              <+> floatPlacement
                              <+> floatNextHook

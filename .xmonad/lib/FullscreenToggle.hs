@@ -3,19 +3,10 @@ module FullscreenToggle (
     toggleFullscreen
   ) where
 
-import System.FilePath.Posix (dropExtension, (</>))
-import System.Environment (getEnv)
-import System.Directory
-import Control.Monad.IO.Class (liftIO)
-import Control.Monad (forM)
-import Data.List (stripPrefix, sort, isInfixOf)
-import Data.Maybe (fromJust)
-import System.IO.Unsafe (unsafePerformIO)
 import Graphics.X11.Types
 import qualified Data.Map as M
 
 import XMonad.Core
-import XMonad.Prompt
 import XMonad.Operations
 import qualified XMonad.StackSet as W
 import qualified XMonad.Util.ExtensibleState as XS
