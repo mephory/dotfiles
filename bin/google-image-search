@@ -1,2 +1,2 @@
 #!/bin/sh
-firefox "http://www.google.com/searchbyimage?image_url=$1"
+qutebrowser "http://www.google.com/searchbyimage?image_url=$1"
