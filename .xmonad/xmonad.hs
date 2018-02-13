@@ -117,8 +117,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Scratchpads
     , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
     , ((modm              , xK_c     ), namedScratchpadAction myScratchpads "terminal-2")
+    , ((modm              , xK_a     ), namedScratchpadAction myScratchpads "terminal-3")
     , ((modm              , xK_z     ), namedScratchpadAction myScratchpads "music")
-    , ((modm              , xK_a     ), namedScratchpadAction myScratchpads "htop")
     , ((modm              , xK_b     ), namedScratchpadAction myScratchpads "irc")
     , ((modm .|. shiftMask, xK_p     ), namedScratchpadAction myScratchpads "color")
 
@@ -277,8 +277,8 @@ myStartupHook = return ()
 -- Scratchpads
 myScratchpads = [ NS "terminal"   spawnTerminal  findTerminal  manageSP
                 , NS "terminal-2" spawnTerminal2 findTerminal2 manageSP
+                , NS "terminal-3" spawnTerminal3 findTerminal3 manageSP
                 , NS "music"      spawnMusic     findMusic     manageSP
-                , NS "htop"       spawnHtop      findHtop      manageSP
                 , NS "irc"        spawnIrc       findIrc       manageIrcSP
                 , NS "color"      spawnColor     findColor     manageColorSP
                 ]
@@ -287,10 +287,10 @@ myScratchpads = [ NS "terminal"   spawnTerminal  findTerminal  manageSP
         findTerminal   = resource =? "scratchpad"
         spawnTerminal2 = "xterm -name scratchpad-2"
         findTerminal2  = resource =? "scratchpad-2"
+        spawnTerminal3 = "xterm -name scratchpad-3"
+        findTerminal3  = resource =? "scratchpad-3"
         spawnMusic     = "xterm -name music -e 'tmux-attach-or-new music ncmpcpp pulsemixer'"
         findMusic      = resource =? "music"
-        spawnHtop      = "xterm -name htop -e htop"
-        findHtop       = resource =? "htop"
         -- spawnIrc       = "xterm -name irc -e 'tmux-attach-or-new irc weechat'"
         spawnIrc       = "xterm -name irc -e 'ssh -t mephory LANG=en_US.utf8 tmux attach -t irc'"
         findIrc        = resource =? "irc"
