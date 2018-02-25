@@ -23,6 +23,7 @@ import System.Exit
 import System.Environment
 import Graphics.X11.ExtraTypes.XF86
 
+import SubmapWithHints (submapWithHints)
 import Passwords (passwordPrompt, genPasswordPrompt)
 import UnicodeUtils (writeFileUtf8)
 import FullscreenToggle (toggleFullscreen)
@@ -104,8 +105,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- Various
     , ((modm              , xK_i     ), spawn "toggle-dock")
-    , ((modm              , xK_s     ), submap $ searchMap (S.promptSearchBrowser myXPConfig myBrowser))
-    , ((modm .|. shiftMask, xK_s     ), submap $ searchMap (S.selectSearchBrowser myBrowser))
+    , ((modm              , xK_s     ), submapWithHints $ searchMap (S.promptSearchBrowser myXPConfig myBrowser))
+    , ((modm .|. shiftMask, xK_s     ), submapWithHints $ searchMap (S.selectSearchBrowser myBrowser))
 
     -- Screenshots
     , ((0                 , xK_Print ), spawn "import -window root $HOME/data/screenshots/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png")
@@ -113,6 +114,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_0     ), spawn "upload-screenshot -window root")
     , ((modm .|. shiftMask, xK_0     ), spawn "upload-screenshot")
     , ((modm .|. shiftMask, xK_v     ), spawn "screenshot-google-image-search")
+    , ((modm .|. shiftMask, xK_v     ), spawn "screenshot-google-image-search")
+    , ((modm              , xK_Print ), submapWithHints $ screenshotMap 1)
 
     -- Scratchpads
     , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
@@ -161,16 +164,58 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList
     -- you may also bind events to the mouse scroll wheel (button4 and button5)
     ]
 
+screenshotMap n =
+    [ ("Current Screenshot: " ++ show n, (0, xK_q), mempty)
+    , ("v   view",
+        (0, xK_v), spawn $ "feh \"$(nth-last-screenshot " ++ show n ++ ")\"")
+    , ("c   draw a circle",
+        (0, xK_c), spawn $ "vcircle \"$(nth-last-screenshot " ++ show n ++ ")\" \"$(nextname \"$(nth-last-screenshot " ++ show n ++ ")\")\"")
+    , ("r   draw a rectangle",
+        (0, xK_r), spawn $ "vrect \"$(nth-last-screenshot " ++ show n ++ ")\" \"$(nextname \"$(nth-last-screenshot " ++ show n ++ ")\")\"")
+    , ("x   crop",
+        (0, xK_x), spawn $ "vcrop \"$(nth-last-screenshot " ++ show n ++ ")\" \"$(nextname \"$(nth-last-screenshot " ++ show n ++ ")\")\"")
+    , ("u   upload",
+        (0, xK_u), spawn $ "upload -p \"$(nth-last-screenshot " ++ show n ++ ")\" && notify-send \"Upload finished\" \"URL copied to clipoboard\"")
+    , ("U   upload with mode",
+        (shiftMask, xK_u), submapWithHints
+          [
+            ("p - Private", (0, xK_p), spawn $ "upload -p \"$(nth-last-screenshot " ++ show n ++ ")\" && notify-send \"Upload finished\" \"URL copied to clipoboard\"")
+          , ("a - Public", (0, xK_a), spawn $ "upload \"$(nth-last-screenshot " ++ show n ++ ")\" && notify-send \"Upload finished\" \"URL copied to clipoboard\"")
+          , ("t - Temporary", (0, xK_t), spawn $ "upload -t \"$(nth-last-screenshot " ++ show n ++ ")\" && notify-send \"Upload finished\" \"URL copied to clipoboard\"")
+          ])
+    , ("D   delete",
+        (shiftMask, xK_d), spawn $ "rm \"$(nth-last-screenshot " ++ show n ++ ")\"")
+    , ("1   operate on latest screenshot",
+        (0, xK_1), submapWithHints $ screenshotMap 1)
+    , ("2   operate on second latest screenshot",
+        (0, xK_2), submapWithHints $ screenshotMap 2)
+    , ("3   operate on third latest screenshot",
+        (0, xK_3), submapWithHints $ screenshotMap 3)
+    , ("4   operate on fourth latest screenshot",
+        (0, xK_4), submapWithHints $ screenshotMap 4)
+    , ("5   operate on fifth latest screenshot",
+        (0, xK_5), submapWithHints $ screenshotMap 5)
+    ]
+
+
 -- Search bindings
-searchMap method = M.fromList
-    [ ((0, xK_g), method S.google)
-    , ((0, xK_i), method S.images)
-    , ((0, xK_w), method S.wikipedia)
-    , ((0, xK_y), method S.youtube)
-    , ((0, xK_h), method S.hoogle)
-    , ((0, xK_s), method S.multi)
-    , ((0, xK_d), method $ S.searchEngine "dict" "http://dict.cc/")
-    , ((0, xK_a), method $ S.searchEngine "amazon" "http://www.amazon.de/s/?field-keywords=")
+searchMap method =
+    [ ("g   Google",
+        (0, xK_g), method S.google)
+    , ("i   Images",
+        (0, xK_i), method S.images)
+    , ("w   Wikipedia",
+        (0, xK_w), method S.wikipedia)
+    , ("y   Youtube",
+        (0, xK_y), method S.youtube)
+    , ("h   Hoogle",
+        (0, xK_h), method S.hoogle)
+    , ("m   Multi",
+        (0, xK_s), method S.multi)
+    , ("d   dict.cc",
+        (0, xK_d), method $ S.searchEngine "dict" "http://dict.cc/")
+    , ("a   Amazon",
+        (0, xK_a), method $ S.searchEngine "amazon" "http://www.amazon.de/s/?field-keywords=")
     ]
 
 
@@ -213,6 +258,7 @@ myManageHook = composeAll
     , title     =? "vselect"             --> placeHook (fixed (0.5, 0.5)) <+> doFloat
     , title     =? "vselect-record-area" --> placeHook (fixed (0, 0)) <+> doFloat
     , title     =? "pinentry"            --> doF W.shiftMaster <+> placeHook (fixed (0.5, 0.5)) <+> doFloat
+    , className =? "feh"                 --> doF W.shiftMaster <+> placeHook (fixed (0.5, 0.5)) <+> doFloat
     ]
 
 -- Event handling
