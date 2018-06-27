@@ -27,6 +27,7 @@ import SubmapWithHints (submapWithHints)
 import Passwords (passwordPrompt, genPasswordPrompt)
 import UnicodeUtils (writeFileUtf8)
 import FullscreenToggle (toggleFullscreen)
+import DynamicScratchpads (spawnDynamicSP, makeDynamicSP)
 
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
@@ -105,8 +106,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- Various
     , ((modm              , xK_i     ), spawn "toggle-dock")
-    , ((modm              , xK_s     ), submapWithHints $ searchMap (S.promptSearchBrowser myXPConfig myBrowser))
-    , ((modm .|. shiftMask, xK_s     ), submapWithHints $ searchMap (S.selectSearchBrowser myBrowser))
+    , ((modm              , xK_s     ), spawnDynamicSP "dyn1")
+    , ((modm .|. shiftMask, xK_s     ), withFocused $ makeDynamicSP "dyn1")
 
     -- Screenshots
     , ((0                 , xK_Print ), spawn "import -window root $HOME/data/screenshots/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png")
@@ -195,27 +196,6 @@ screenshotMap n =
         (0, xK_4), submapWithHints $ screenshotMap 4)
     , ("5   operate on fifth latest screenshot",
         (0, xK_5), submapWithHints $ screenshotMap 5)
-    ]
-
-
--- Search bindings
-searchMap method =
-    [ ("g   Google",
-        (0, xK_g), method S.google)
-    , ("i   Images",
-        (0, xK_i), method S.images)
-    , ("w   Wikipedia",
-        (0, xK_w), method S.wikipedia)
-    , ("y   Youtube",
-        (0, xK_y), method S.youtube)
-    , ("h   Hoogle",
-        (0, xK_h), method S.hoogle)
-    , ("m   Multi",
-        (0, xK_s), method S.multi)
-    , ("d   dict.cc",
-        (0, xK_d), method $ S.searchEngine "dict" "http://dict.cc/")
-    , ("a   Amazon",
-        (0, xK_a), method $ S.searchEngine "amazon" "http://www.amazon.de/s/?field-keywords=")
     ]
 
 
