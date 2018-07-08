@@ -34,6 +34,7 @@ set smartcase
 set spelllang=en,de
 set shiftround
 set backspace=indent,eol,start
+set relativenumber
 filetype plugin on
 
 "============================================================================}}}
@@ -61,6 +62,7 @@ set guifont=Inconsolata\ 13
 " Filetype Indent 
 augroup filetypes
     autocmd!
+    autocmd FileType clojure set ai sw=2 sts=2 et
     autocmd FileType php set ai sw=2 sts=2 et
     autocmd FileType ruby set ai sw=2 sts=2 et
     autocmd FileType go set ai sw=2 sts=2 et
@@ -80,6 +82,9 @@ augroup END
 "============================================================================}}}
 " Plugin-specific Configuration                                              {{{
 "===============================================================================
+let g:netrw_banner = 0
+" let g:netrw_liststyle = 3
+
 let Tlist_Use_Right_Window = 1          " open tlist on the right
 let Tlist_GainFocus_On_ToggleOpen = 1   " focus tlist on first open
 let Tlist_Close_On_Select = 1           " exit vim when only the tlist window is opened
@@ -106,11 +111,13 @@ let g:user_emmet_mode = 'i'
 let g:syntastic_ruby_exec = '/usr/bin/ruby'
 let g:syntastic_ruby_checkers = ['mri']
 
-let g:vimwiki_list = [{ 'path': '~/.vimwiki', 'path_html': '~/.vimwiki_html' }]
+let g:pandoc#formatting#mode = 'hA'
+
 
 "============================================================================}}}
 " Key Configuration                                                          {{{
 "===============================================================================
+let maplocalleader='\'
 " Tab and Split Management                                                   {{{
 "-------------------------------------------------------------------------------
 let mapleader='t'
@@ -192,6 +199,7 @@ nnoremap ''n :CtrlP /home/mephory/code/nexus/<cr>
 nnoremap ''a :CtrlP /home/mephory/code/alexandria/<cr>
 nnoremap ''v :e `=resolve(expand("~/.vimrc"))`<cr>
 nnoremap ''x :e `=resolve(expand("~/.xmonad/xmonad.hs"))`<cr>
+nnoremap ''w :e `=resolve(expand("~/.wiki/index.pandoc"))`<cr>
 nnoremap ''' :cd %:p:h<cr>
 nnoremap \e :e <C-r>=expand('%:h')<cr>/
 nnoremap \r :r <C-r>=expand('%:h')<cr>/
@@ -263,7 +271,7 @@ nnoremap <leader>gB :!git branch -a<cr>
 inoremap <c-F> <c-V>u0192
 
 " Open the file openend by gf in a new tab
-nnoremap gf <C-w>gF
+" nnoremap gf <C-w>gF
 
 " Y yanks until the end of line
 nnoremap Y y$
@@ -314,6 +322,7 @@ vnoremap <C-V>     v
 
 " use ; as : to make colon commands easier to type
 nnoremap  ;  :
+nnoremap q; q:
 
 " use . in visual mode to repeat command on every visually selected line
 vnoremap . :norm.<cr>
@@ -369,6 +378,7 @@ nnoremap <leader>p !!python2 -<cr>
 vnoremap <leader>p :!python2 -<cr>
 nnoremap <leader>r !!ruby -<cr>
 vnoremap <leader>r :!ruby -<cr>
+nnoremap <leader>e :!%<cr>
 
 nmap <leader><space> ml<space>su`l
 vmap <leader><space> ml<space>su`l
@@ -572,7 +582,7 @@ function! ToggleHex()
 endfunction
 
 function! OpenURL(url)
-    exe "silent !firefox \"".a:url."\""
+    exe "silent !qutebrowser \"".a:url."\""
     redraw!
 endfunction
 command! -nargs=1 OpenURL :call OpenURL(<q-args>)
@@ -637,15 +647,15 @@ function! AutoScp(...)
 endfunction
 
 function! PandocMode()
-    let b:pandoc_command = a:0 ? a:1 : 'pandoc % --self-contained -c ~/.config/pandoc.css -o /tmp/pandoc-mode/%:t.html'
-    let b:refresh_command = 'xdotool search --name Vimperator key r'
+    let b:pandoc_command = a:0 ? a:1 : 'pandoc % --self-contained -c ~/.config/pandoc.css --quiet -o /tmp/pandoc-mode/%:t.html'
+    let b:refresh_command = 'xdotool search --name qutebrowser key r'
 
     setlocal tw=80
     setlocal fo+=t
 
     silent! exe '!mkdir -p /tmp/pandoc-mode'
     silent! exe '!touch /tmp/pandoc-mode/%:t.html'
-    silent! exe '!firefox /tmp/pandoc-mode/%:t.html'
+    silent! exe '!qutebrowser /tmp/pandoc-mode/%:t.html'
     redraw!
 
     augroup pandocmode
@@ -661,7 +671,7 @@ function! NoPandocMode()
 endfunction
 
 function! AutoRefresh()
-  let b:command = 'xdotool search --name Vimperator key r'
+  let b:command = 'xdotool search --name qutebrowser key r'
   augroup autorefresh
     autocmd!
     autocmd BufWritePost <buffer> exe "silent !" . b:command . " &"
@@ -680,6 +690,37 @@ function! SaveAsRoot() abort
   :silent! w !env SUDO_EDITOR=tee sudo -e % >/dev/null
   let &modified = v:shell_error
   :e %
+endfunction
+
+onoremap <silent>ai :<C-U>cal <SID>IndTxtObj(0)<CR>
+onoremap <silent>ii :<C-U>cal <SID>IndTxtObj(1)<CR>
+vnoremap <silent>ai :<C-U>cal <SID>IndTxtObj(0)<CR><Esc>gv
+vnoremap <silent>ii :<C-U>cal <SID>IndTxtObj(1)<CR><Esc>gv
+
+function! s:IndTxtObj(inner)
+  let curline = line(".")
+  let lastline = line("$")
+  let i = indent(line(".")) - &shiftwidth * (v:count1 - 1)
+  let i = i < 0 ? 0 : i
+  if getline(".") !~ "^\\s*$"
+    let p = line(".") - 1
+    let nextblank = getline(p) =~ "^\\s*$"
+    while p > 0 && ((i == 0 && !nextblank) || (i > 0 && ((indent(p) >= i && !(nextblank && a:inner)) || (nextblank && !a:inner))))
+      -
+      let p = line(".") - 1
+      let nextblank = getline(p) =~ "^\\s*$"
+    endwhile
+    normal! 0V
+    call cursor(curline, 0)
+    let p = line(".") + 1
+    let nextblank = getline(p) =~ "^\\s*$"
+    while p <= lastline && ((i == 0 && !nextblank) || (i > 0 && ((indent(p) >= i && !(nextblank && a:inner)) || (nextblank && !a:inner))))
+      +
+      let p = line(".") + 1
+      let nextblank = getline(p) =~ "^\\s*$"
+    endwhile
+    normal! $
+  endif
 endfunction
 
 "============================================================================}}}

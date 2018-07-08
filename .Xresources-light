@@ -37,7 +37,7 @@
 #define S_green        #859900
 
 *background:            S_base3
-*foreground:            S_base0
+*foreground:            S_base00
 *fading:                40
 *fadeColor:             S_base03
 *cursorColor:           S_base01
@@ -88,9 +88,9 @@ Xft.rgba: rgb
 *bellIsUrgent: true
 
 ! xterm-specific
-*faceName: monaco:size=12
+! *faceName: monaco:size=12
 *faceNameDoublesize: Source Han Sans JP
-! *faceName: Meslo:size=11
+*faceName: Meslo:size=14
 ! *faceName: inconsolata:size=14
 ! *faceName: terminus:size=12
 ! *faceName: Meyrin:size=11
@@ -112,3 +112,49 @@ urxvt*font: xft:Roboto Mono:size=10,xft:Source Han Sans JP:size=10
 ! User Super as the meta key
 *VT100.Translations: #override \
   Super<KeyPress>: string(0x1b) insert()
+
+
+! Inverted small font
+
+invertedTerm*background:            S_base3
+invertedTerm*foreground:            S_base00
+invertedTerm*fading:                40
+invertedTerm*fadeColor:             S_base03
+invertedTerm*cursorColor:           S_base01
+invertedTerm*pointerColorBackground:S_base1
+invertedTerm*pointerColorForeground:S_base01
+
+!! black dark/light
+invertedTerm*color0:                S_base2
+invertedTerm*color8:                S_base3
+!!*color8:                S_base02
+
+!! red dark/light
+invertedTerm*color1:                S_red
+invertedTerm*color9:                S_orange
+
+!! green dark/light
+invertedTerm*color2:                S_green
+invertedTerm*color10:               S_base1
+
+!! yellow dark/light
+invertedTerm*color3:                S_yellow
+invertedTerm*color11:               S_base0
+
+!! blue dark/light
+invertedTerm*color4:                S_blue
+invertedTerm*color12:               S_base00
+
+!! magenta dark/light
+invertedTerm*color5:                S_magenta
+invertedTerm*color13:               S_violet
+
+!! cyan dark/light
+invertedTerm*color6:                S_cyan
+invertedTerm*color14:               S_base01
+
+!! white dark/light
+invertedTerm*color7:                S_base02
+invertedTerm*color15:               S_base03
+
+invertedTerm*faceName: terminus:size=12

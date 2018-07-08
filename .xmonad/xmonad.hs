@@ -3,7 +3,7 @@ import XMonad.Actions.CycleWS
 import XMonad.Actions.Submap
 import XMonad.Actions.NoBorders
 import XMonad.Actions.GridSelect
-import qualified XMonad.Actions.Search as S
+import XMonad.Actions.FloatSnap
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.SimpleFloat
 import XMonad.Layout.NoBorders
@@ -98,7 +98,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Toggle fullscreen for focused window
     , ((modm              , xK_o     ), withFocused toggleFullscreen)
     -- Overview of all windows
-    , ((modm              , xK_f     ), goToSelected $ def { gs_navigate = navNSearch })
+    -- , ((modm              , xK_f     ), goToSelected $ def { gs_navigate = navNSearch })
+    -- Toggle TTY
+    , ((modm              , xK_q     ), spawn "toggle-tty")
 
     -- Prompts
     , ((modm              , xK_x     ), passwordPrompt myXPConfig)
@@ -106,8 +108,18 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- Various
     , ((modm              , xK_i     ), spawn "toggle-dock")
-    , ((modm              , xK_s     ), spawnDynamicSP "dyn1")
-    , ((modm .|. shiftMask, xK_s     ), withFocused $ makeDynamicSP "dyn1")
+
+    -- Floating Positions
+    , ((modm              , xK_f     ) , withFocused $ \w -> windows (W.float w (centeredRect 0.6 0.6)))
+    , ((modm              , xK_Left  ) , withFocused $ snapMove L Nothing)
+    , ((modm              , xK_Right ) , withFocused $ snapMove R Nothing)
+    , ((modm              , xK_Up    ) , withFocused $ snapMove U Nothing)
+    , ((modm              , xK_Down  ) , withFocused $ snapMove D Nothing)
+    , ((modm .|. shiftMask, xK_Left  ) , withFocused $ snapShrink R Nothing)
+    , ((modm .|. shiftMask, xK_Right ) , withFocused $ snapGrow R Nothing)
+    , ((modm .|. shiftMask, xK_Up    ) , withFocused $ snapShrink D Nothing)
+    , ((modm .|. shiftMask, xK_Down  ) , withFocused $ snapGrow D Nothing)
+
 
     -- Screenshots
     , ((0                 , xK_Print ), spawn "import -window root $HOME/data/screenshots/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png")
@@ -121,10 +133,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Scratchpads
     , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
     , ((modm              , xK_c     ), namedScratchpadAction myScratchpads "terminal-2")
-    , ((modm              , xK_a     ), namedScratchpadAction myScratchpads "terminal-3")
     , ((modm              , xK_z     ), namedScratchpadAction myScratchpads "music")
     , ((modm              , xK_b     ), namedScratchpadAction myScratchpads "irc")
     , ((modm .|. shiftMask, xK_p     ), namedScratchpadAction myScratchpads "color")
+    , ((modm              , xK_s     ), namedScratchpadAction myScratchpads "bot-term")
+    , ((modm              , xK_a     ), spawnDynamicSP "dyn1")
+    , ((modm .|. shiftMask, xK_a     ), withFocused $ makeDynamicSP "dyn1")
+    , ((modm              , xK_d     ), spawnDynamicSP "dyn2")
+    , ((modm .|. shiftMask, xK_d     ), withFocused $ makeDynamicSP "dyn2")
 
 
     -- Media Keys
@@ -304,6 +320,7 @@ myStartupHook = return ()
 myScratchpads = [ NS "terminal"   spawnTerminal  findTerminal  manageSP
                 , NS "terminal-2" spawnTerminal2 findTerminal2 manageSP
                 , NS "terminal-3" spawnTerminal3 findTerminal3 manageSP
+                , NS "bot-term"   spawnBotTerm   findBotTerm   manageBotTermSP
                 , NS "music"      spawnMusic     findMusic     manageSP
                 , NS "irc"        spawnIrc       findIrc       manageIrcSP
                 , NS "color"      spawnColor     findColor     manageColorSP
@@ -315,21 +332,25 @@ myScratchpads = [ NS "terminal"   spawnTerminal  findTerminal  manageSP
         findTerminal2  = resource =? "scratchpad-2"
         spawnTerminal3 = "xterm -name scratchpad-3"
         findTerminal3  = resource =? "scratchpad-3"
+        spawnBotTerm   = "xterm -name bot-term -class invertedTerm"
+        findBotTerm    = resource =? "bot-term"
         spawnMusic     = "xterm -name music -e 'tmux-attach-or-new music ncmpcpp pulsemixer'"
         findMusic      = resource =? "music"
         -- spawnIrc       = "xterm -name irc -e 'tmux-attach-or-new irc weechat'"
         spawnIrc       = "xterm -name irc -e 'ssh -t mephory LANG=en_US.utf8 tmux attach -t irc'"
+        -- spawnIrc       = "xterm -name irc -e 'ssh -t mephory tmux attach -t irc'"
         findIrc        = resource =? "irc"
         spawnColor     = "gcolor2"
         findColor      = resource =? "gcolor2"
         manageSP = customFloating $ centeredRect 0.5 0.5
+        manageBotTermSP = customFloating $ W.RationalRect 0 (1-0.4) 1 0.4
         manageIrcSP = customFloating $ centeredRect 0.6 0.6
         manageColorSP = placeHook (fixed (0.5, 0.5)) <+> doFloat
 
 centeredRect :: Rational -> Rational -> W.RationalRect
 centeredRect w h = W.RationalRect ((1 - w) / 2) ((1 - h) / 2) w h
 
-floatPlacement = placeHook (withGaps (20, 0, 0, 0) $ fixed (0, 0))
+floatPlacement = placeHook (withGaps (0, 0, 0, 0) $ fixed (0, 0))
 
 ------------------------------------------------------------------------
 main = do
@@ -355,7 +376,7 @@ main = do
                              <+> namedScratchpadManageHook myScratchpads
                              <+> floatPlacement
                              <+> floatNextHook
-                             <+> insertPosition Below Newer
+                             -- <+> insertPosition Below Newer
       , handleEventHook    = myEventHook
       , logHook            = myLogHook homeDir
       , startupHook        = myStartupHook

@@ -9,15 +9,16 @@ c.tabs.padding = { "top": 7, "bottom": 7, "left": 7, "right": 7 }
 c.tabs.favicons.scale = 1.5
 c.url.searchengines = { "DEFAULT": "https://google.com/search?q={}" }
 c.backend = "webengine"
+c.fonts.monospace = "meslo"
 
-c.colors.tabs.odd.bg = '#000000'
-c.colors.tabs.even.bg = '#000000'
-c.colors.tabs.odd.fg = '#ffffff'
-c.colors.tabs.even.fg = '#ffffff'
-c.colors.tabs.selected.odd.bg = '#ffffff'
-c.colors.tabs.selected.even.bg = '#ffffff'
-c.colors.tabs.selected.odd.fg = '#000000'
-c.colors.tabs.selected.even.fg = '#000000'
+c.colors.tabs.odd.bg = '#002b36'
+c.colors.tabs.even.bg = '#002b36'
+c.colors.tabs.odd.fg = '#fdf6e3'
+c.colors.tabs.even.fg = '#fdf6e3'
+c.colors.tabs.selected.odd.bg = '#fdf6e3'
+c.colors.tabs.selected.even.bg = '#fdf6e3'
+c.colors.tabs.selected.odd.fg = '#002b36'
+c.colors.tabs.selected.even.fg = '#002b36'
 
 config.bind('t', 'set-cmd-text -s :open -t')
 config.bind('T', 'set-cmd-text :open -t {url}')

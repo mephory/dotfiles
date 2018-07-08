@@ -14,6 +14,8 @@ export SAVEHIST=1000000
 
 export PATH="$PATH:$HOME/.gem/ruby/2.2.0/bin"
 export PATH="$PATH:$HOME/.gem/ruby/2.3.0/bin"
+export PATH="$PATH:$HOME/.gem/ruby/2.4.0/bin"
+export PATH="$PATH:$HOME/.gem/ruby/2.5.0/bin"
 export PATH="$PATH:$HOME/.cabal/bin"
 export PATH="$PATH:$HOME/bin"
 export PATH="$PATH:$HOME/bin/git-plugins"
@@ -62,6 +64,12 @@ function backward-kill-dirword {
 }
 zle -N backward-kill-dirword
 
+function insert-newest-file-glob {
+    LBUFFER="${LBUFFER}*(om[1])"
+    zle expand-word
+}
+zle -N insert-newest-file-glob
+
 autoload -Uz colors
 colors
 zle -N zle-line-init
@@ -80,7 +88,7 @@ bindkey '^B' backward-char
 bindkey '^H' backward-delete-char
 bindkey '^W' backward-kill-word
 bindkey '^U' kill-whole-line
-bindkey '^N' down-history
+bindkey '^N' insert-newest-file-glob
 bindkey '^?' backward-delete-char
 bindkey '^h' backward-delete-char
 bindkey '^w' backward-kill-word
