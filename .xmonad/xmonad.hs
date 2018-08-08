@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 import XMonad
 import XMonad.Actions.CycleWS
 import XMonad.Actions.Submap
@@ -28,9 +29,15 @@ import Passwords (passwordPrompt, genPasswordPrompt)
 import UnicodeUtils (writeFileUtf8)
 import FullscreenToggle (toggleFullscreen)
 import DynamicScratchpads (spawnDynamicSP, makeDynamicSP)
+import FloatCenterWindow (floatCenterWindow)
 
 import qualified XMonad.StackSet as W
+import qualified XMonad.Util.Dmenu as D
+import qualified Contexts as C
 import qualified Data.Map        as M
+
+instance Read (Layout Window) where
+    readsPrec _ = readsLayout (Layout myLayout)
 
 myXPConfig = def
     { bgColor     = "#002b36"
@@ -102,6 +109,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Toggle TTY
     , ((modm              , xK_q     ), spawn "toggle-tty")
 
+    -- Contexts
+    , ((modm              , xK_q     ), C.listContextNames >>= D.dmenu >>= C.createAndSwitchContext)
+    , ((modm              , xK_y     ), C.listContextNames >>= D.dmenu >>= C.deleteContext >> return ())
+
     -- Prompts
     , ((modm              , xK_x     ), passwordPrompt myXPConfig)
     , ((modm              , xK_n     ), genPasswordPrompt myXPConfig)
@@ -119,6 +130,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_Right ) , withFocused $ snapGrow R Nothing)
     , ((modm .|. shiftMask, xK_Up    ) , withFocused $ snapShrink D Nothing)
     , ((modm .|. shiftMask, xK_Down  ) , withFocused $ snapGrow D Nothing)
+    , ((modm              , xK_g     ) , withFocused floatCenterWindow)
 
 
     -- Screenshots
