@@ -1,0 +1,14 @@
+#!/bin/sh
+
+CURRENT_SESSION="$(tmux display-message -p '#S')"
+CURRENT_TTY="$(tmux display-message -p '#{client_tty}')"
+
+tmux list-clients -F "#{client_activity} #{client_tty} #{client_session}" | sort -n -r | while read p; do
+    C_ACTIVITY="$(echo $p | cut -d' ' -f1)"
+    C_TTY="$(echo $p | cut -d' ' -f2)"
+    C_SESSION="$(echo $p | cut -d' ' -f3)"
+
+    if [ "$CURRENT_SESSION" = "$C_SESSION" ] && [ "$CURRENT_TTY" != "$C_TTY" ]; then
+        tmux detach-client -t $C_TTY >/dev/null 2>&1
+    fi
+done

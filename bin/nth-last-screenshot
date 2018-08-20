@@ -1,0 +1,2 @@
+#!/bin/sh
+ls -d -1 $HOME/data/screenshots/* --sort=time | tail -n +$(($1)) ${@: 2} | head -n1

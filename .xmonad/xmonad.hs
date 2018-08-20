@@ -34,10 +34,39 @@ import FloatCenterWindow (floatCenterWindow)
 import qualified XMonad.StackSet as W
 import qualified XMonad.Util.Dmenu as D
 import qualified Contexts as C
-import qualified Data.Map        as M
+import qualified Data.Map as M
 
 instance Read (Layout Window) where
     readsPrec _ = readsLayout (Layout myLayout)
+
+main = do
+    homeDir <- getEnv "HOME"
+    xmonad $ ewmh $ withUrgencyHook NoUrgencyHook def {
+      -- simple stuff
+        terminal           = "xterm"
+      , focusFollowsMouse  = True
+      , borderWidth        = 1
+      , modMask            = mod1Mask
+      , workspaces         = myWorkspaces
+      , normalBorderColor  = "#666666"
+      , focusedBorderColor = "#dddddd"
+
+      -- key bindings
+      , keys               = myKeys
+      , mouseBindings      = myMouseBindings
+
+      -- hooks, layouts
+      , layoutHook         = myLayout
+      , manageHook         = myManageHook
+                             <+> manageDocks
+                             <+> namedScratchpadManageHook myScratchpads
+                             <+> floatPlacement
+                             <+> floatNextHook
+                             -- <+> insertPosition Below Newer
+      , handleEventHook    = myEventHook
+      , logHook            = myLogHook homeDir
+      , startupHook        = myStartupHook
+    }
 
 myXPConfig = def
     { bgColor     = "#002b36"
@@ -154,6 +183,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_d     ), spawnDynamicSP "dyn2")
     , ((modm .|. shiftMask, xK_d     ), withFocused $ makeDynamicSP "dyn2")
 
+    , ((modm .|. shiftMask, xK_o     ), spawn "tsplaytool")
 
     -- Media Keys
     , ((0, xF86XK_AudioMute), spawn "amixer sset Master toggle")
@@ -195,25 +225,34 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList
 
 screenshotMap n =
     [ ("Current Screenshot: " ++ show n, (0, xK_q), mempty)
+    , ("t   take screenshot with mode",
+        (0, xK_t), submapWithHints
+          [
+            ("f - Full", (0, xK_f), spawn $ unwords ["import", "-window", "root", newScreenshotName])
+          , ("c - Choose Window/Area", (0, xK_c), spawn $ unwords ["import", newScreenshotName])
+          , ("w - Focused Window", (0, xK_w), spawn $ unwords ["import", "-window", "$(xdotool getwindowfocus -f)", newScreenshotName])
+          , ("1 - Screen 1", (0, xK_1), spawn $ unwords ["import", "-window", "root", "-crop", "1920x1080+0+0", "+repage", newScreenshotName])
+          , ("2 - Screen 2", (0, xK_2), spawn $ unwords ["import", "-window", "root", "-crop", "1920x1080+1920+0", "+repage", newScreenshotName])
+          ])
     , ("v   view",
-        (0, xK_v), spawn $ "feh \"$(nth-last-screenshot " ++ show n ++ ")\"")
+        (0, xK_v), spawn $ unwords ["feh", filename])
     , ("c   draw a circle",
-        (0, xK_c), spawn $ "vcircle \"$(nth-last-screenshot " ++ show n ++ ")\" \"$(nextname \"$(nth-last-screenshot " ++ show n ++ ")\")\"")
+        (0, xK_c), spawn $ unwords ["vcircle", filename, nextFilename])
     , ("r   draw a rectangle",
-        (0, xK_r), spawn $ "vrect \"$(nth-last-screenshot " ++ show n ++ ")\" \"$(nextname \"$(nth-last-screenshot " ++ show n ++ ")\")\"")
+        (0, xK_r), spawn $ unwords ["vrect", filename, nextFilename])
     , ("x   crop",
-        (0, xK_x), spawn $ "vcrop \"$(nth-last-screenshot " ++ show n ++ ")\" \"$(nextname \"$(nth-last-screenshot " ++ show n ++ ")\")\"")
+        (0, xK_x), spawn $ unwords ["vcrop", filename, nextFilename])
     , ("u   upload",
-        (0, xK_u), spawn $ "upload -p \"$(nth-last-screenshot " ++ show n ++ ")\" && notify-send \"Upload finished\" \"URL copied to clipoboard\"")
+        (0, xK_u), spawn $ unwords ["upload", "--notify", "-p", filename])
     , ("U   upload with mode",
         (shiftMask, xK_u), submapWithHints
           [
-            ("p - Private", (0, xK_p), spawn $ "upload -p \"$(nth-last-screenshot " ++ show n ++ ")\" && notify-send \"Upload finished\" \"URL copied to clipoboard\"")
-          , ("a - Public", (0, xK_a), spawn $ "upload \"$(nth-last-screenshot " ++ show n ++ ")\" && notify-send \"Upload finished\" \"URL copied to clipoboard\"")
-          , ("t - Temporary", (0, xK_t), spawn $ "upload -t \"$(nth-last-screenshot " ++ show n ++ ")\" && notify-send \"Upload finished\" \"URL copied to clipoboard\"")
+            ("p - Private", (0, xK_p), spawn $ unwords ["upload", "--notify", "-p", filename])
+          , ("a - Public", (0, xK_a), spawn $ unwords ["upload", "--notify", filename])
+          , ("t - Temporary", (0, xK_t), spawn $ unwords ["upload --notify", "-t", filename])
           ])
     , ("D   delete",
-        (shiftMask, xK_d), spawn $ "rm \"$(nth-last-screenshot " ++ show n ++ ")\"")
+        (shiftMask, xK_d), spawn $ unwords ["rm", filename])
     , ("1   operate on latest screenshot",
         (0, xK_1), submapWithHints $ screenshotMap 1)
     , ("2   operate on second latest screenshot",
@@ -225,9 +264,11 @@ screenshotMap n =
     , ("5   operate on fifth latest screenshot",
         (0, xK_5), submapWithHints $ screenshotMap 5)
     ]
+        where filename = "\"$(nth-last-screenshot " ++ show n ++ ")\""
+              nextFilename = "\"$(nextname " ++ filename ++ ")\""
+              newScreenshotName = "\"$HOME/data/screenshots/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png\""
 
 
--- Layouts:
 myLayout = onWorkspace "1" (full ||| fullscreen ||| tiled ||| mtiled) $
            onWorkspace "2" (devLayout ||| tiled ||| mtiled ||| full) $
            onWorkspace "3" defaultConf $
@@ -254,7 +295,6 @@ myLayout = onWorkspace "1" (full ||| fullscreen ||| tiled ||| mtiled) $
         -- Percent of screen to increment by when resizing panes
         delta   = 3/100
 
--- Window rules:
 myManageHook = composeAll
     [ resource  =? "desktop_window"      --> doIgnore
     , resource  =? "kdesktop"            --> doIgnore
@@ -269,66 +309,10 @@ myManageHook = composeAll
     , className =? "feh"                 --> doF W.shiftMaster <+> placeHook (fixed (0.5, 0.5)) <+> doFloat
     ]
 
--- Event handling
 myEventHook = docksEventHook <+> fullscreenEventHook
 
--- Status bars and logging
-myLogHook homeDir = dynamicLogWithPP $ def {
-      ppCurrent         = clickable [dzenColor "#fffffd" "#268bd2" . addPadding . wsNum]
-    , ppVisible         = clickable [dzenColor "#fffffd" "#8a8a8a" . addPadding . wsNum]
-    , ppHidden          = onlyIf (/= "NSP") $ clickable [dzenColor "#586e75" "#eee8d5" . addPadding . wsNum]
-    , ppHiddenNoWindows = onlyIf (/= "NSP") $ clickable [dzenColor "#93a1a1" "#eee8d5" . addPadding . wsNum]
-    , ppUrgent          = clickable [dzenColor "red"     "#212121" . addPadding . wsNum]
-    , ppSep             = "^fg(#e0e0bb)^r(1x16)^fg(#efefef)^r(1x16)^bg()^fg()"
-    , ppWsSep           = ""
-    , ppLayout          = dzenColor "#657b83" "#eee8d5" . addPadding . layoutName
-    , ppTitle           = dzenColor "#657b83" "#eee8d5" . addPadding
-    , ppExtras          = [willFloatNextPP (addPadding . floatNextStr)]
-    , ppOrder           = \(w:l:t:es) -> [w, l] ++ es ++ [t]
-    , ppOutput          = writeFileUtf8 "/tmp/.workspace-info" . (++"\n")
-    }
-    where
-        -- general transformations
-        addPadding      = ("    " ++) . (++ "    ")
-
-        -- workspace name transformations
-        wsIcon wid        = "^i(" ++ homeDir ++ "/.workspace-icons/" ++ wid ++ ".xbm)"
-        wsUnicodeIcon wid = fromMaybe "N" (M.lookup wid workspaceIcons)
-        wsNum wid       = show . (+1) . fromJust $ elemIndex wid myWorkspaces
-
-        -- layout name transformation
-        layoutName s
-            | s == "Tall"             = "◧"
-            | s == "Mirror Tall"      = "⬒"
-            | s == "Full"             = "□"
-            | "OneBig" `isPrefixOf` s = "◰"
-            | otherwise               = "▦"
-
-        -- other transformations
-        floatNextStr _ = "◈"
-
-        -- helpers
-        dzenStartCa wid = "^ca(1, xdotool key 'alt+" ++ wsNum wid ++ "')"
-        dzenEndCa _         = "^ca()"
-        clickable fs = applyAll ([dzenStartCa] ++ fs ++ [dzenEndCa])
-        applyAll fs x   = fs >>= ($ x)
-        onlyIf p f x    = if p x then f x else ""
-        workspaceIcons = M.fromList
-              [ ("web"   , "☀")
-              , ("dev"   , "♛")
-              , ("music" , "♬")
-              , ("term"  , "⌚")
-              , ("game"  , "♞")
-              , ("vm"    , "♟")
-              , ("im"    , "✉")
-              , ("other" , "ℹ")
-              , ("float" , "💾")
-                ]
-
--- Startup hook
 myStartupHook = return ()
 
--- Scratchpads
 myScratchpads = [ NS "terminal"   spawnTerminal  findTerminal  manageSP
                 , NS "terminal-2" spawnTerminal2 findTerminal2 manageSP
                 , NS "terminal-3" spawnTerminal3 findTerminal3 manageSP
@@ -364,32 +348,32 @@ centeredRect w h = W.RationalRect ((1 - w) / 2) ((1 - h) / 2) w h
 
 floatPlacement = placeHook (withGaps (0, 0, 0, 0) $ fixed (0, 0))
 
-------------------------------------------------------------------------
-main = do
-    homeDir <- getEnv "HOME"
-    xmonad $ ewmh $ withUrgencyHook NoUrgencyHook def {
-      -- simple stuff
-        terminal           = "xterm"
-      , focusFollowsMouse  = True
-      , borderWidth        = 1
-      , modMask            = mod1Mask
-      , workspaces         = myWorkspaces
-      , normalBorderColor  = "#666666"
-      , focusedBorderColor = "#dddddd"
-
-      -- key bindings
-      , keys               = myKeys
-      , mouseBindings      = myMouseBindings
-
-      -- hooks, layouts
-      , layoutHook         = myLayout
-      , manageHook         = myManageHook
-                             <+> manageDocks
-                             <+> namedScratchpadManageHook myScratchpads
-                             <+> floatPlacement
-                             <+> floatNextHook
-                             -- <+> insertPosition Below Newer
-      , handleEventHook    = myEventHook
-      , logHook            = myLogHook homeDir
-      , startupHook        = myStartupHook
+myLogHook homeDir = dynamicLogWithPP $ def {
+      ppCurrent         = clickable [dzenColor "#fffffd" "#268bd2" . addPadding . wsNum]
+    , ppVisible         = clickable [dzenColor "#fffffd" "#8a8a8a" . addPadding . wsNum]
+    , ppHidden          = onlyIf (/= "NSP") $ clickable [dzenColor "#586e75" "#eee8d5" . addPadding . wsNum]
+    , ppHiddenNoWindows = onlyIf (/= "NSP") $ clickable [dzenColor "#93a1a1" "#eee8d5" . addPadding . wsNum]
+    , ppUrgent          = clickable [dzenColor "red"     "#212121" . addPadding . wsNum]
+    , ppSep             = "^fg(#e0e0bb)^r(1x16)^fg(#efefef)^r(1x16)^bg()^fg()"
+    , ppWsSep           = ""
+    , ppLayout          = dzenColor "#657b83" "#eee8d5" . addPadding . layoutName
+    , ppTitle           = dzenColor "#657b83" "#eee8d5" . addPadding
+    , ppExtras          = [willFloatNextPP (addPadding . floatNextStr)]
+    , ppOrder           = \(w:l:t:es) -> [w, l] ++ es ++ [t]
+    , ppOutput          = writeFileUtf8 "/tmp/.workspace-info" . (++"\n")
     }
+    where
+        addPadding      = ("    " ++) . (++ "    ")
+        wsNum wid       = show . (+1) . fromJust $ elemIndex wid myWorkspaces
+        layoutName s
+            | s == "Tall"             = "◧"
+            | s == "Mirror Tall"      = "⬒"
+            | s == "Full"             = "□"
+            | "OneBig" `isPrefixOf` s = "◰"
+            | otherwise               = "▦"
+        floatNextStr _ = "◈"
+        dzenStartCa wid = "^ca(1, xdotool key 'alt+" ++ wsNum wid ++ "')"
+        dzenEndCa _         = "^ca()"
+        clickable fs = applyAll ([dzenStartCa] ++ fs ++ [dzenEndCa])
+        applyAll fs x   = fs >>= ($ x)
+        onlyIf p f x    = if p x then f x else ""

@@ -11,6 +11,7 @@
 #   -p, --private       upload a private file
 #   -t, --temporary     upload a temporary file
 #   -h, --help          display this help
+#   -y, --notify        send desktop notification when finished
 
 
 while [ "$#" -gt 0 ]; do
@@ -34,6 +35,9 @@ while [ "$#" -gt 0 ]; do
 
         -s) ARG_SILENT=true; shift 1 ;;
         --silent) ARG_SILENT=true; shift 1;;
+
+        -y) ARG_NOTIFY=true; shift 1 ;;
+        --notify) ARG_NOTIFY=true; shift 1;;
 
         -h) ARG_HELP=true; shift 1;;
         --help) ARG_HELP=true; shift 1;;
@@ -109,4 +113,9 @@ echo "$ARG_FILE | $URL" >> $HOME/.uploads
 echo $URL
 echo $URL | xsel -pi 2>/dev/null
 echo $URL | xsel -bi 2>/dev/null
+
+if [ -n "$ARG_NOTIFY" ]; then
+    notify-send "Upload finished" "URL copied to clipboard"
+fi
+
 exit 0;
