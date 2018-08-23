@@ -19,6 +19,15 @@ c.colors.tabs.selected.odd.bg = '#fdf6e3'
 c.colors.tabs.selected.even.bg = '#fdf6e3'
 c.colors.tabs.selected.odd.fg = '#002b36'
 c.colors.tabs.selected.even.fg = '#002b36'
+c.colors.completion.even.bg = '#002b36'
+c.colors.completion.odd.bg = '#073642'
+c.colors.completion.item.selected.bg = '#268bd2'
+c.colors.completion.item.selected.fg = '#eee8d5'
+c.colors.completion.item.selected.border.bottom = '#268bd2'
+c.colors.completion.item.selected.border.top = '#268bd2'
+c.colors.completion.fg = '#eee8d5'
+c.colors.completion.match.fg = '#d33682'
+c.colors.completion.category.bg = 'qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #073642, stop:1 #002b36)'
 
 config.bind('t', 'set-cmd-text -s :open -t')
 config.bind('T', 'set-cmd-text :open -t {url}')
@@ -42,5 +51,6 @@ config.bind(',q', 'set-cmd-text -s :quickmark-load')
 config.bind(',Q', 'set-cmd-text -s :quickmark-load -t')
 config.bind('<Ctrl-e>', 'scroll down')
 config.bind('<Ctrl-y>', 'scroll up')
+config.bind('zo', 'tab-give')
 
 quickmarks.register_quickmarks(config)
