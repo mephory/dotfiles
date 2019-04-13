@@ -1,0 +1,6 @@
+#!/bin/sh
+
+while true; do ssh mephory 'tail -n0 -f ~/.notifications'; done | while read -r p; do
+    echo "$p"
+    echo "$p" | xargs notify-send
+done

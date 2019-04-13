@@ -6,17 +6,18 @@ import Control.Monad (forM_)
 import Data.Maybe (fromMaybe)
 import Data.Int (Int32)
 import XMonad
+import XMonad.Prompt
 import XMonad.Actions.Submap
 import XMonad.Util.XUtils
 import XMonad.Util.Font
 import qualified Data.Map as M
 import qualified XMonad.StackSet as W
 
-submapWithHints :: [(String, (KeyMask, KeySym), X ())] -> X ()
-submapWithHints xs = do
+submapWithHints :: XPConfig -> [(String, (KeyMask, KeySym), X ())] -> X ()
+submapWithHints conf xs = do
     xmf <- initXMF "xft:monaco:size=10"
     hints <- getHints (map (\(a, _, _) -> a) xs) xmf Nothing
-    w <- createHintWindow hints
+    w <- createHintWindow conf hints
     submap $ M.fromList submapMap
     hideHintWindow w
     where submapMap = map (\(_, b, c) -> (b, c)) xs
@@ -45,13 +46,13 @@ windowHeight hints = (+15) . fi . fromMaybe 0 . lastMay . map getY $ hints
 
 -- shows a window that displays each string
 -- in its own line
-createHintWindow :: [Hint] -> X Window
-createHintWindow hints = do
+createHintWindow :: XPConfig -> [Hint] -> X Window
+createHintWindow conf hints = do
     (wX, wY, wWidth, wHeight) <- windowPosition hints
     let windowPosition = Rectangle wX wY wWidth wHeight
     w <- createNewWindow windowPosition Nothing "" True
     showWindow w
-    printHintsOnWindow w hints
+    printHintsOnWindow conf w hints
     return w
 
 data Hint = Hint String Int32 Int32
@@ -61,8 +62,8 @@ getY (Hint _ _ y) = y
 
 lastMay xs = if null xs then Nothing else Just (last xs)
 
-printHintsOnWindow :: Window -> [Hint] -> X ()
-printHintsOnWindow w hints = do
+printHintsOnWindow :: XPConfig -> Window -> [Hint] -> X ()
+printHintsOnWindow conf w hints = do
     (_, _, wWidth, wHeight) <- windowPosition hints
     d <- asks display
     xmf <- initXMF fnt
@@ -83,9 +84,9 @@ printHintsOnWindow w hints = do
     io $ freePixmap d p
     io $ freeGC d gc
 
-    where fnt = "xft:monaco:size=10"
-          bg = "#002b36"
-          fg = "#fdf6e3"
-          border = "#fdf6e3"
+    where fnt = font conf
+          bg = bgColor conf
+          fg = fgColor conf
+          border = borderColor conf
 
 hideHintWindow = deleteWindow

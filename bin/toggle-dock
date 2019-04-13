@@ -8,8 +8,8 @@ PID=$(xdotool search --name dzen2-dock getwindowpid %@)
 
 if [[ -z $PID ]]; then
     touch /tmp/.workspace-info
-    ((cat /tmp/.workspace-info; while true; do inotifywait -qq -e close_write /tmp/.workspace-info; cat /tmp/.workspace-info; done | dzen2 -p -x 0 -w 1920 -bg '#eee8d5' -xs 1 -ta l -dock -title-name dzen2-dock -e '') &)
-    ((cat /tmp/.workspace-info; while true; do inotifywait -qq -e close_write /tmp/.workspace-info; cat /tmp/.workspace-info; done | dzen2 -p -x 0 -w 1920 -bg '#eee8d5' -xs 2 -ta l -dock -title-name dzen2-dock -e '') &)
+    ((cat /tmp/.workspace-info; while true; do inotifywait -qq -e close_write /tmp/.workspace-info; cat /tmp/.workspace-info; done | dzen2 -p -x 0 -w 1920 -bg '#002b36' -xs 1 -ta l -dock -title-name dzen2-dock -fn xft:monaco:pixelsize=12 -e '') &)
+    ((cat /tmp/.workspace-info; while true; do inotifywait -qq -e close_write /tmp/.workspace-info; cat /tmp/.workspace-info; done | dzen2 -p -x 0 -w 1920 -bg '#002b36' -xs 2 -ta l -dock -title-name dzen2-dock -fn xft:monaco:pixelsize=12 -e '') &)
 else
     kill $PID
 fi

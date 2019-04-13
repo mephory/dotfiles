@@ -83,19 +83,22 @@ Xft.hintstyle:  hintfull
 Xft.hinting: 1
 Xft.antialias: 1
 Xft.rgba: rgb
+Xft.dpi: 90
 
 *urgentOnBell: true
 *bellIsUrgent: true
 
 ! xterm-specific
 ! *faceName: monaco:size=12
+*faceName: inconsolata:size=15
 *faceNameDoublesize: Source Han Sans JP
-*faceName: Meslo:size=14
 ! *faceName: inconsolata:size=14
 ! *faceName: terminus:size=12
 ! *faceName: Meyrin:size=11
 ! *faceName: monaco:size=11
 *termName: xterm-256color
+*decTerminalID: vt340
+*numColorRegisters: 256
 
 ! rxvt-specific (not used)
 urxvt*fading: 0
@@ -157,4 +160,14 @@ invertedTerm*color14:               S_base1
 invertedTerm*color7:                S_base2
 invertedTerm*color15:               S_base3
 
-invertedTerm*faceName: terminus:size=12
+invertedTerm*faceName: inconsolata:size=13
+
+
+rofi.separator-style: solid
+rofi.dpi: 110
+rofi.font: Meslo 10
+rofi.location: 1
+rofi.width: 100
+rofi.hide-scrollbar: true
+rofi.terminal: urxvt
+rofi.levenshtein-sort: true

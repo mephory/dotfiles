@@ -395,17 +395,20 @@ nnoremap <leader>S :call PipeToProgram('/bin/zsh', 'sh')<cr>
 vnoremap <leader>S :<C-u>call VisualPipeToProgram('/bin/zsh', 'sh')<cr>
 " }}}
 
-let mapleader = '\'
+let mapleader = ',w'
 
 " vimwiki bindings
+nmap ]w <Plug>VimwikiNextLink
+nmap [w <Plug>VimwikiPrevLink
+
 " nmap <leader>wf <Plug>VimwikiFollowLink
 
-nmap <leader>ws <Plug>VimwikiSplitLink
-nmap <leader>wv <Plug>VimwikiVSplitLink
-nmap <leader>wl viwS]gvS]
-vmap <leader>wl S]gvS]
-nmap <leader>wa <leader>wl
-vmap <leader>wa <leader>wl
+" nmap <leader>ws <Plug>VimwikiSplitLink
+" nmap <leader>wv <Plug>VimwikiVSplitLink
+" nmap <leader>wl viwS]gvS]
+" vmap <leader>wl S]gvS]
+" nmap <leader>wa <leader>wl
+" vmap <leader>wa <leader>wl
 
 
 "============================================================================}}}
@@ -648,10 +651,7 @@ endfunction
 
 function! PandocMode()
     let b:pandoc_command = a:0 ? a:1 : 'pandoc % --self-contained -c ~/.config/pandoc.css --quiet -o /tmp/pandoc-mode/%:t.html'
-    let b:refresh_command = 'xdotool search --name qutebrowser key r'
-
-    setlocal tw=80
-    setlocal fo+=t
+    let b:refresh_command = 'xdotool search --name qutebrowser windowactivate --sync key r windowactivate $(xdotool getactivewindow)'
 
     silent! exe '!mkdir -p /tmp/pandoc-mode'
     silent! exe '!touch /tmp/pandoc-mode/%:t.html'

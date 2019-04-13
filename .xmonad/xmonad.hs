@@ -1,6 +1,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 import XMonad
+import XMonad.Actions.CopyWindow
 import XMonad.Actions.CycleWS
+import XMonad.Actions.DynamicProjects
 import XMonad.Actions.Submap
 import XMonad.Actions.NoBorders
 import XMonad.Actions.GridSelect
@@ -11,12 +13,14 @@ import XMonad.Layout.NoBorders
 import XMonad.Layout.OneBig
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.DynamicLog
+-- import MyManageDocks
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.FloatNext
 import XMonad.Hooks.InsertPosition
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.Place
 import XMonad.Util.NamedScratchpad
+import XMonad.Util.Loggers
 import XMonad.Prompt
 import Data.List (elemIndex, isPrefixOf)
 import Data.Maybe (fromJust, fromMaybe)
@@ -29,7 +33,9 @@ import Passwords (passwordPrompt, genPasswordPrompt)
 import UnicodeUtils (writeFileUtf8)
 import FullscreenToggle (toggleFullscreen)
 import DynamicScratchpads (spawnDynamicSP, makeDynamicSP)
-import FloatCenterWindow (floatCenterWindow)
+import FloatCenterWindow (centerFloatingWindow, makeFloatingCenterWindow)
+import FloatsOnTop (floatsOnTop)
+import EvasiveWindow (toggleEvasive, evasiveWindowEventHook)
 
 import qualified XMonad.StackSet as W
 import qualified XMonad.Util.Dmenu as D
@@ -41,15 +47,15 @@ instance Read (Layout Window) where
 
 main = do
     homeDir <- getEnv "HOME"
-    xmonad $ ewmh $ withUrgencyHook NoUrgencyHook def {
+    xmonad $ ewmh $ docks $ dynamicProjects myProjects $ withUrgencyHook NoUrgencyHook def {
       -- simple stuff
         terminal           = "xterm"
       , focusFollowsMouse  = True
       , borderWidth        = 1
       , modMask            = mod1Mask
       , workspaces         = myWorkspaces
-      , normalBorderColor  = "#666666"
-      , focusedBorderColor = "#dddddd"
+      , normalBorderColor  = "#3a5c65"
+      , focusedBorderColor = "#fdf6e3"
 
       -- key bindings
       , keys               = myKeys
@@ -57,12 +63,12 @@ main = do
 
       -- hooks, layouts
       , layoutHook         = myLayout
-      , manageHook         = myManageHook
-                             <+> manageDocks
+      , manageHook         = floatsOnTop
+                             <+> insertPosition Below Newer
+                             <+> myManageHook
                              <+> namedScratchpadManageHook myScratchpads
                              <+> floatPlacement
                              <+> floatNextHook
-                             -- <+> insertPosition Below Newer
       , handleEventHook    = myEventHook
       , logHook            = myLogHook homeDir
       , startupHook        = myStartupHook
@@ -74,19 +80,27 @@ myXPConfig = def
     , borderColor = "#fdf6e3"
     , fgHLight    = "#002b36"
     , bgHLight    = "#fdf6e3"
-    , font        = "xft:monaco:size=10"
+    , font        = "xft:inconsolata:size=12"
     , height      = 22
     }
 
 myWorkspaces    = ["1","2","3","4","5","6","7","8","9"] ++ ["NSP"]
 myBrowser    = "qutebrowser"
 
+myProjects = []
+    -- [ Project { projectName      = "steam"
+    --           , projectDirectory = "~/"
+    --           , projectStartHook = Just $ spawn "steam"
+    --           }
+    -- ]
+
 -- Key bindings. Add, modify or remove key bindings here.
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- launch a terminal
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
     -- launch dmenu
-    , ((modm,               xK_p     ), spawn "dmenu_run")
+    , ((modm,               xK_p     ), spawn "rofi -show run")
+    , ((modm,               xK_q     ), spawn "rofi-shell")
     -- close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
      -- Rotate through the available layout algorithms
@@ -94,7 +108,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     --  Reset the layouts on the current workspace to default
     , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
     -- Resize viewed windows to the correct size
-    , ((modm .|. shiftMask, xK_r     ), refresh)
+    -- , ((modm .|. shiftMask, xK_r     ), refresh)
     -- Move focus to the next window
     , ((modm,               xK_j     ), windows W.focusDown)
     -- Move focus to the previous window
@@ -133,14 +147,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_grave ), toggleWS' ["NSP"])
     -- Toggle fullscreen for focused window
     , ((modm              , xK_o     ), withFocused toggleFullscreen)
-    -- Overview of all windows
-    -- , ((modm              , xK_f     ), goToSelected $ def { gs_navigate = navNSearch })
-    -- Toggle TTY
-    , ((modm              , xK_q     ), spawn "toggle-tty")
-
-    -- Contexts
-    , ((modm              , xK_q     ), C.listContextNames >>= D.dmenu >>= C.createAndSwitchContext)
-    , ((modm              , xK_y     ), C.listContextNames >>= D.dmenu >>= C.deleteContext >> return ())
 
     -- Prompts
     , ((modm              , xK_x     ), passwordPrompt myXPConfig)
@@ -148,9 +154,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- Various
     , ((modm              , xK_i     ), spawn "toggle-dock")
+    , ((modm .|. shiftMask, xK_slash ), spawn "sodomsg")
+    , ((modm              , xK_slash),  submapWithHints myXPConfig $
+        [ ("q - recompile xmonad"       , (0, xK_q), spawn "xmonad --recompile && xmonad --restart")
+        , ("m - draw dota minimap image", (0, xK_m), spawn "dota-minimap-image")
+        ])
 
     -- Floating Positions
-    , ((modm              , xK_f     ) , withFocused $ \w -> windows (W.float w (centeredRect 0.6 0.6)))
+    , ((modm              , xK_f     ) , withFocused makeFloatingCenterWindow)
     , ((modm              , xK_Left  ) , withFocused $ snapMove L Nothing)
     , ((modm              , xK_Right ) , withFocused $ snapMove R Nothing)
     , ((modm              , xK_Up    ) , withFocused $ snapMove U Nothing)
@@ -159,7 +170,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_Right ) , withFocused $ snapGrow R Nothing)
     , ((modm .|. shiftMask, xK_Up    ) , withFocused $ snapShrink D Nothing)
     , ((modm .|. shiftMask, xK_Down  ) , withFocused $ snapGrow D Nothing)
-    , ((modm              , xK_g     ) , withFocused floatCenterWindow)
+    , ((modm              , xK_g     ) , withFocused centerFloatingWindow)
+    , ((modm              , xK_r     ) , withFocused toggleEvasive)
 
 
     -- Screenshots
@@ -169,7 +181,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_0     ), spawn "upload-screenshot")
     , ((modm .|. shiftMask, xK_v     ), spawn "screenshot-google-image-search")
     , ((modm .|. shiftMask, xK_v     ), spawn "screenshot-google-image-search")
-    , ((modm              , xK_Print ), submapWithHints $ screenshotMap 1)
+    , ((modm              , xK_Print ), submapWithHints myXPConfig $ screenshotMap 1)
 
     -- Scratchpads
     , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
@@ -205,7 +217,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- mod-shift-{w,e,r}, Move client to screen 1, 2, or 3
     --
     [((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f))
-        | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
+        | (key, sc) <- zip [xK_w, xK_e] [0..]
         , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
 
 
@@ -226,7 +238,7 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList
 screenshotMap n =
     [ ("Current Screenshot: " ++ show n, (0, xK_q), mempty)
     , ("t   take screenshot with mode",
-        (0, xK_t), submapWithHints
+        (0, xK_t), submapWithHints myXPConfig
           [
             ("f - Full", (0, xK_f), spawn $ unwords ["import", "-window", "root", newScreenshotName])
           , ("c - Choose Window/Area", (0, xK_c), spawn $ unwords ["import", newScreenshotName])
@@ -245,7 +257,7 @@ screenshotMap n =
     , ("u   upload",
         (0, xK_u), spawn $ unwords ["upload", "--notify", "-p", filename])
     , ("U   upload with mode",
-        (shiftMask, xK_u), submapWithHints
+        (shiftMask, xK_u), submapWithHints myXPConfig
           [
             ("p - Private", (0, xK_p), spawn $ unwords ["upload", "--notify", "-p", filename])
           , ("a - Public", (0, xK_a), spawn $ unwords ["upload", "--notify", filename])
@@ -254,15 +266,15 @@ screenshotMap n =
     , ("D   delete",
         (shiftMask, xK_d), spawn $ unwords ["rm", filename])
     , ("1   operate on latest screenshot",
-        (0, xK_1), submapWithHints $ screenshotMap 1)
+        (0, xK_1), submapWithHints myXPConfig $ screenshotMap 1)
     , ("2   operate on second latest screenshot",
-        (0, xK_2), submapWithHints $ screenshotMap 2)
+        (0, xK_2), submapWithHints myXPConfig $ screenshotMap 2)
     , ("3   operate on third latest screenshot",
-        (0, xK_3), submapWithHints $ screenshotMap 3)
+        (0, xK_3), submapWithHints myXPConfig $ screenshotMap 3)
     , ("4   operate on fourth latest screenshot",
-        (0, xK_4), submapWithHints $ screenshotMap 4)
+        (0, xK_4), submapWithHints myXPConfig $ screenshotMap 4)
     , ("5   operate on fifth latest screenshot",
-        (0, xK_5), submapWithHints $ screenshotMap 5)
+        (0, xK_5), submapWithHints myXPConfig $ screenshotMap 5)
     ]
         where filename = "\"$(nth-last-screenshot " ++ show n ++ ")\""
               nextFilename = "\"$(nextname " ++ filename ++ ")\""
@@ -270,28 +282,27 @@ screenshotMap n =
 
 
 myLayout = onWorkspace "1" (full ||| fullscreen ||| tiled ||| mtiled) $
-           onWorkspace "2" (devLayout ||| tiled ||| mtiled ||| full) $
+           onWorkspace "2" defaultConf $
            onWorkspace "3" defaultConf $
            onWorkspace "4" defaultConf $
            onWorkspace "5" fullscreen $
-           onWorkspace "6" (fullscreen ||| full ||| tiled ||| mtiled) $
+           onWorkspace "6" defaultConf $
            onWorkspace "7" (smartBorders $ avoidStruts $ Tall 1 (3/100) (1/4)) $
            onWorkspace "8" (tiled ||| full) $
-           onWorkspace "9" (simpleFloat ||| tiled ||| full)
+           onWorkspace "9" defaultConf
            mtiled
     where
         -- default tiling algorithm partitions the screen into two panes
         tiled      = smartBorders $ avoidStruts $ Tall nmaster delta ratio
         mtiled     = smartBorders $ avoidStruts $ Mirror (Tall 1 (3/100) (1/2))
-        devLayout  = smartBorders $ avoidStruts $ OneBig (3/4) (4/5)
-        full       = smartBorders $ avoidStruts Full
+        full       = smartBorders $ avoidStruts $ Full
         fullscreen = noBorders Full
         defaultConf = tiled ||| mtiled ||| full
 
         -- The default number of windows in the master pane
         nmaster = 1
         -- Default proportion of screen occupied by master pane
-        ratio   = 1/2
+        ratio   = 0.6
         -- Percent of screen to increment by when resizing panes
         delta   = 3/100
 
@@ -309,7 +320,7 @@ myManageHook = composeAll
     , className =? "feh"                 --> doF W.shiftMaster <+> placeHook (fixed (0.5, 0.5)) <+> doFloat
     ]
 
-myEventHook = docksEventHook <+> fullscreenEventHook
+myEventHook = fullscreenEventHook -- <+> evasiveWindowEventHook
 
 myStartupHook = return ()
 
@@ -350,28 +361,31 @@ floatPlacement = placeHook (withGaps (0, 0, 0, 0) $ fixed (0, 0))
 
 myLogHook homeDir = dynamicLogWithPP $ def {
       ppCurrent         = clickable [dzenColor "#fffffd" "#268bd2" . addPadding . wsNum]
-    , ppVisible         = clickable [dzenColor "#fffffd" "#8a8a8a" . addPadding . wsNum]
-    , ppHidden          = onlyIf (/= "NSP") $ clickable [dzenColor "#586e75" "#eee8d5" . addPadding . wsNum]
-    , ppHiddenNoWindows = onlyIf (/= "NSP") $ clickable [dzenColor "#93a1a1" "#eee8d5" . addPadding . wsNum]
-    , ppUrgent          = clickable [dzenColor "red"     "#212121" . addPadding . wsNum]
-    , ppSep             = "^fg(#e0e0bb)^r(1x16)^fg(#efefef)^r(1x16)^bg()^fg()"
+    , ppVisible         = clickable [dzenColor "#fffffd" "#073642" . addPadding . wsNum]
+    , ppHidden          = onlyIf (/= "NSP") $ clickable [dzenColor "#586e75" "#002b36" . addPadding . wsNum]
+    -- , ppHiddenNoWindows = onlyIf (/= "NSP") $ clickable [dzenColor "#93a1a1" "#002b36" . addPadding . wsNum]
+    , ppHiddenNoWindows = \_ -> ""
+    , ppUrgent          = clickable [dzenColor "red" "#212121" . addPadding . wsNum]
+    , ppSep             = ""
     , ppWsSep           = ""
-    , ppLayout          = dzenColor "#657b83" "#eee8d5" . addPadding . layoutName
-    , ppTitle           = dzenColor "#657b83" "#eee8d5" . addPadding
-    , ppExtras          = [willFloatNextPP (addPadding . floatNextStr)]
+    , ppLayout          = dzenColor "#839496" "#002b36" . addPadding . layoutName
+    , ppTitle           = dzenColor "#839496" "#002b36" . addPadding
+    , ppExtras          = [willFloatNextPP floatNextStr]
     , ppOrder           = \(w:l:t:es) -> [w, l] ++ es ++ [t]
     , ppOutput          = writeFileUtf8 "/tmp/.workspace-info" . (++"\n")
     }
     where
-        addPadding      = ("    " ++) . (++ "    ")
+        addPadding      = ("   " ++) . (++ "   ")
         wsNum wid       = show . (+1) . fromJust $ elemIndex wid myWorkspaces
         layoutName s
-            | s == "Tall"             = "◧"
-            | s == "Mirror Tall"      = "⬒"
-            | s == "Full"             = "□"
-            | "OneBig" `isPrefixOf` s = "◰"
+            | s == "Tall"             = "T"
+            | s == "Mirror Tall"      = "M"
+            | s == "Full"             = "F"
+            | "OneBig" `isPrefixOf` s = "O"
             | otherwise               = "▦"
-        floatNextStr _ = "◈"
+        floatNextStr s = case s of
+            "Next" -> "·"
+            ""     -> " "
         dzenStartCa wid = "^ca(1, xdotool key 'alt+" ++ wsNum wid ++ "')"
         dzenEndCa _         = "^ca()"
         clickable fs = applyAll ([dzenStartCa] ++ fs ++ [dzenEndCa])
