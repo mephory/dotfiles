@@ -1,0 +1,4 @@
+rofi.theme: solarized_alternate
+rofi.width: 33
+rofi.location: 0
+rofi.monitor: -4
