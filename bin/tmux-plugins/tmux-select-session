@@ -1,0 +1,4 @@
+#!/bin/sh
+
+SESSION_ID=$(tmux list-sessions -F '#{session_id}' | head -n$1 | tail -n1)
+tmux switch-client -t $SESSION_ID
