@@ -17,10 +17,12 @@ export PATH="$PATH:$HOME/.gem/ruby/2.3.0/bin"
 export PATH="$PATH:$HOME/.gem/ruby/2.4.0/bin"
 export PATH="$PATH:$HOME/.gem/ruby/2.5.0/bin"
 export PATH="$PATH:$HOME/.gem/ruby/2.6.0/bin"
+export PATH="$PATH:$HOME/.gem/ruby/2.7.0/bin"
 export PATH="$PATH:$HOME/.cabal/bin"
 export PATH="$PATH:$HOME/bin"
 export PATH="$PATH:$HOME/bin/git-plugins"
 export PATH="$PATH:$HOME/bin/tmux-plugins"
+export PATH="$PATH:$HOME/bin/polybar"
 
 export FZF_COMPLETION_TRIGGER="~~"
 
@@ -153,6 +155,15 @@ move-after-first-word() {
 zle -N move-after-first-word
 bindkey '^g' move-after-first-word
 
+open-manpage() {
+    tokens=(${(z)LBUFFER[(ws:|:)-1]})
+    cmd=${tokens[1]}
+    man ${cmd}
+    zle redisplay
+}
+zle -N open-manpage
+bindkey '^T' open-manpage
+
 
 zstyle ':completion:tmux-pane-words-(prefix|anywhere):*' completer _tmux_pane_words
 zstyle ':completion:tmux-pane-words-(prefix|anywhere):*' ignore-line current
@@ -167,3 +178,20 @@ if [[ ! -f /tmp/todoread ]]; then
     touch /tmp/todoread
     ((sleep 3600 && rm /tmp/todoread) &)
 fi
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+# __conda_setup="$('/opt/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+# if [ $? -eq 0 ]; then
+#     eval "$__conda_setup"
+# else
+#     if [ -f "/opt/miniconda3/etc/profile.d/conda.sh" ]; then
+#         . "/opt/miniconda3/etc/profile.d/conda.sh"
+#     else
+#         export PATH="/opt/miniconda3/bin:$PATH"
+#     fi
+# fi
+# unset __conda_setup
+# <<< conda initialize <<<
+
+eval "$(rbenv init -)"

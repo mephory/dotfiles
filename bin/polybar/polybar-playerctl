@@ -1,0 +1,33 @@
+#!/bin/bash
+
+function format() {
+    stdbuf -oL tee >(stdbuf -oL cut -d' ' -f1 | while read p; do echo $p > /tmp/playerctl-current; done) \
+    | stdbuf -oL cut -d' ' -f2- \
+    | stdbuf -oL sed 's/PLAYING//' \
+    | stdbuf -oL sed 's/PAUSED//' \
+    | stdbuf -oL sed 's/STOPPED//' \
+    | stdbuf -oL sed 's/__spotify__//' \
+    | stdbuf -oL sed 's/__chrome__//' \
+    | stdbuf -oL sed 's/__chromium__//' \
+    | stdbuf -oL sed 's/__.*__//' &
+}
+
+function switch() {
+    CUR=$(cat /tmp/playerctl-current)
+    NXT=$(echo $(playerctl -l) $(playerctl -l) | tr ' ' "\n" | sed "0,/$CUR/d" | head -n1)
+    NXTTIT=$(playerctl -p $NXT metadata -f '{{title}}')
+    if [[ -z "$NXTTIT" ]]; then
+        echo "$NXT STOPPED No Title" | format
+    fi
+    if [[ -n "$NXT" ]] && [[ ! -z "$NXTTIT" ]]; then
+        playerctl -p $NXT metadata -f "{{playerInstance}} __{{playerName}}__ {{uc(status)}} {{title}}" | format
+    fi
+}
+
+trap switch USR1
+
+playerctl -F metadata -f '{{playerInstance}} __{{playerName}}__ {{uc(status)}} {{title}}' | format &
+
+while true; do
+    wait
+done

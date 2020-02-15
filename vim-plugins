@@ -20,3 +20,4 @@ git@github.com:vim-pandoc/vim-pandoc.git
 git@github.com:vim-scripts/taglist.vim.git
 git@github.com:junnegun/fzf.vim.git
 git@github.com:w0rp/ale.git
+git@github.com:junegunn/fzf.vim

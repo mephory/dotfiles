@@ -7,20 +7,12 @@ if [[ -e ~/.Xmodmap ]]; then
     xmodmap ~/.Xmodmap
 fi
 
-synclient HorizEdgeScroll=0
-synclient VertEdgeScroll=0
-synclient HorizTwoFingerScroll=1
-synclient VertTwoFingerScroll=1
-synclient TapButton1=1
-synclient TapButton2=2
-synclient TapButton3=3
+xrandr --output DP-1 --primary --auto
+xrandr --output DP-1 --auto --left-of HDMI-0
 
-xrandr --output HDMI-0 --primary --auto
-xrandr --output DVI-I-0 --auto --right-of HDMI-0
-
-feh --bg-scale ~/.background.jpg
+feh --bg-scale ~/.background.png
 dunst &
+receive-remote-notifications &
+polybar default &
 
 exec xmonad
-/* exec startkde */
-/* exec gnome-session --session=gnome-classic */

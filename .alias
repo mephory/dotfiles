@@ -17,7 +17,7 @@ alias pacman="pacman --color=auto"
 # Shortcuts                                                                  {{{
 alias l="ls -lsh"
 alias la="l -a"
-alias py="python2"
+alias py="python"
 alias k="setxkbmap"
 alias todo="cat ~/.todo"
 alias vitodo="$EDITOR ~/.todo"
@@ -224,6 +224,10 @@ xless() {
   } &!
 }
 
+
+function cdt() {
+    cd $(mktemp -d)
+}
 
 # Directly cd into ~/code with cdc. It even has tab completion! :-)
 function cdc() { cd ~/code/$1; }

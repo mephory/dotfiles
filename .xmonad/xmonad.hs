@@ -2,11 +2,11 @@
 import XMonad
 import XMonad.Actions.CopyWindow
 import XMonad.Actions.CycleWS
-import XMonad.Actions.DynamicProjects
 import XMonad.Actions.Submap
 import XMonad.Actions.NoBorders
 import XMonad.Actions.GridSelect
 import XMonad.Actions.FloatSnap
+import XMonad.Actions.TopicSpace
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.SimpleFloat
 import XMonad.Layout.NoBorders
@@ -14,6 +14,7 @@ import XMonad.Layout.OneBig
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.DynamicLog
 -- import MyManageDocks
+import XMonad.Hooks.FadeInactive
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.FloatNext
 import XMonad.Hooks.InsertPosition
@@ -21,6 +22,7 @@ import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.Place
 import XMonad.Util.NamedScratchpad
 import XMonad.Util.Loggers
+import XMonad.Util.Run (safeSpawn)
 import XMonad.Prompt
 import Data.List (elemIndex, isPrefixOf)
 import Data.Maybe (fromJust, fromMaybe)
@@ -30,12 +32,13 @@ import Graphics.X11.ExtraTypes.XF86
 
 import SubmapWithHints (submapWithHints)
 import Passwords (passwordPrompt, genPasswordPrompt)
-import UnicodeUtils (writeFileUtf8)
+import UnicodeUtils (appendFileUtf8)
 import FullscreenToggle (toggleFullscreen)
 import DynamicScratchpads (spawnDynamicSP, makeDynamicSP)
 import FloatCenterWindow (centerFloatingWindow, makeFloatingCenterWindow)
 import FloatsOnTop (floatsOnTop)
 import EvasiveWindow (toggleEvasive, evasiveWindowEventHook)
+import Polybar (addDock, delDock)
 
 import qualified XMonad.StackSet as W
 import qualified XMonad.Util.Dmenu as D
@@ -47,15 +50,16 @@ instance Read (Layout Window) where
 
 main = do
     homeDir <- getEnv "HOME"
-    xmonad $ ewmh $ docks $ dynamicProjects myProjects $ withUrgencyHook NoUrgencyHook def {
+    safeSpawn "mkfifo" ["/tmp/workspace-info"]
+    xmonad $ ewmh $ withUrgencyHook NoUrgencyHook def {
       -- simple stuff
         terminal           = "xterm"
       , focusFollowsMouse  = True
       , borderWidth        = 1
       , modMask            = mod1Mask
       , workspaces         = myWorkspaces
-      , normalBorderColor  = "#3a5c65"
-      , focusedBorderColor = "#fdf6e3"
+      , normalBorderColor  = "#2b2b2b"
+      , focusedBorderColor = "#383838"
 
       -- key bindings
       , keys               = myKeys
@@ -64,35 +68,30 @@ main = do
       -- hooks, layouts
       , layoutHook         = myLayout
       , manageHook         = floatsOnTop
+                             <+> addDock
+                             <+> manageDocks
                              <+> insertPosition Below Newer
                              <+> myManageHook
                              <+> namedScratchpadManageHook myScratchpads
                              <+> floatPlacement
                              <+> floatNextHook
-      , handleEventHook    = myEventHook
+      , handleEventHook    = delDock <+> docksEventHook <+> myEventHook
       , logHook            = myLogHook homeDir
-      , startupHook        = myStartupHook
+      , startupHook        = docksStartupHook <+> myStartupHook
     }
 
 myXPConfig = def
-    { bgColor     = "#002b36"
-    , fgColor     = "#fdf6e3"
-    , borderColor = "#fdf6e3"
-    , fgHLight    = "#002b36"
-    , bgHLight    = "#fdf6e3"
+    { bgColor     = "#282828"
+    , fgColor     = "#ebdbb2"
+    , borderColor = "#ebdbb2"
+    , fgHLight    = "#282828"
+    , bgHLight    = "#ebdbb2"
     , font        = "xft:inconsolata:size=12"
     , height      = 22
     }
 
 myWorkspaces    = ["1","2","3","4","5","6","7","8","9"] ++ ["NSP"]
 myBrowser    = "qutebrowser"
-
-myProjects = []
-    -- [ Project { projectName      = "steam"
-    --           , projectDirectory = "~/"
-    --           , projectStartHook = Just $ spawn "steam"
-    --           }
-    -- ]
 
 -- Key bindings. Add, modify or remove key bindings here.
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
@@ -153,11 +152,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_n     ), genPasswordPrompt myXPConfig)
 
     -- Various
-    , ((modm              , xK_i     ), spawn "toggle-dock")
+    , ((modm              , xK_i     ), spawn "polybar-msg cmd toggle" >> sendMessage ToggleStruts)
     , ((modm .|. shiftMask, xK_slash ), spawn "sodomsg")
     , ((modm              , xK_slash),  submapWithHints myXPConfig $
         [ ("q - recompile xmonad"       , (0, xK_q), spawn "xmonad --recompile && xmonad --restart")
         , ("m - draw dota minimap image", (0, xK_m), spawn "dota-minimap-image")
+        , ("f - view facebook graph"    , (0, xK_f), spawn "view-fbg filtered")
         ])
 
     -- Floating Positions
@@ -171,7 +171,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_Up    ) , withFocused $ snapShrink D Nothing)
     , ((modm .|. shiftMask, xK_Down  ) , withFocused $ snapGrow D Nothing)
     , ((modm              , xK_g     ) , withFocused centerFloatingWindow)
-    , ((modm              , xK_r     ) , withFocused toggleEvasive)
+    , ((modm              , xK_r     ) , withFocused $ \w -> setOpacity w 0.5)
+    , ((modm .|. shiftMask, xK_r     ) , withFocused $ \w -> setOpacity w 1.0)
 
 
     -- Screenshots
@@ -314,6 +315,7 @@ myManageHook = composeAll
     , className =? "explorer.exe"        --> doShift "9"
     , title     =? "Wine System Tray"    --> doShift "9"
     , className =? "dota2"               --> doShift "5" <+> (doF . W.sink =<< ask)
+    , resource  =? "polybar-pavucontrol" --> placeHook (fixed (0.5, 0.5)) <+> doFloat
     , title     =? "vselect"             --> placeHook (fixed (0.5, 0.5)) <+> doFloat
     , title     =? "vselect-record-area" --> placeHook (fixed (0, 0)) <+> doFloat
     , title     =? "pinentry"            --> doF W.shiftMaster <+> placeHook (fixed (0.5, 0.5)) <+> doFloat
@@ -347,8 +349,8 @@ myScratchpads = [ NS "terminal"   spawnTerminal  findTerminal  manageSP
         spawnIrc       = "xterm -name irc -e 'ssh -t mephory LANG=en_US.utf8 tmux attach -t irc'"
         -- spawnIrc       = "xterm -name irc -e 'ssh -t mephory tmux attach -t irc'"
         findIrc        = resource =? "irc"
-        spawnColor     = "gcolor2"
-        findColor      = resource =? "gcolor2"
+        spawnColor     = "gcolor3"
+        findColor      = resource =? "gcolor3"
         manageSP = customFloating $ centeredRect 0.5 0.5
         manageBotTermSP = customFloating $ W.RationalRect 0 (1-0.4) 1 0.4
         manageIrcSP = customFloating $ centeredRect 0.6 0.6
@@ -359,35 +361,71 @@ centeredRect w h = W.RationalRect ((1 - w) / 2) ((1 - h) / 2) w h
 
 floatPlacement = placeHook (withGaps (0, 0, 0, 0) $ fixed (0, 0))
 
+-- myLogHook homeDir = do
+--     ws <- gets windowset
+--     let ws = "abc\n"
+--     io $ appendFile "/tmp/workspace-info" ws
+
 myLogHook homeDir = dynamicLogWithPP $ def {
-      ppCurrent         = clickable [dzenColor "#fffffd" "#268bd2" . addPadding . wsNum]
-    , ppVisible         = clickable [dzenColor "#fffffd" "#073642" . addPadding . wsNum]
-    , ppHidden          = onlyIf (/= "NSP") $ clickable [dzenColor "#586e75" "#002b36" . addPadding . wsNum]
+      ppCurrent         = currentFmt
+    , ppVisible         = visibleFmt
+    , ppHidden          = onlyIf (/= "NSP") addPadding
     -- , ppHiddenNoWindows = onlyIf (/= "NSP") $ clickable [dzenColor "#93a1a1" "#002b36" . addPadding . wsNum]
     , ppHiddenNoWindows = \_ -> ""
-    , ppUrgent          = clickable [dzenColor "red" "#212121" . addPadding . wsNum]
-    , ppSep             = ""
+    , ppUrgent          = urgentFmt
+    , ppSep             = "  "
     , ppWsSep           = ""
-    , ppLayout          = dzenColor "#839496" "#002b36" . addPadding . layoutName
-    , ppTitle           = dzenColor "#839496" "#002b36" . addPadding
+    , ppLayout          = ("%{u#458588}%{+u} " ++) . (++ " %{-u}") . layoutName
+    , ppTitle           = \_ -> ""
     , ppExtras          = [willFloatNextPP floatNextStr]
     , ppOrder           = \(w:l:t:es) -> [w, l] ++ es ++ [t]
-    , ppOutput          = writeFileUtf8 "/tmp/.workspace-info" . (++"\n")
+    , ppOutput          = appendFileUtf8 "/tmp/workspace-info" . (++"\n")
     }
     where
-        addPadding      = ("   " ++) . (++ "   ")
-        wsNum wid       = show . (+1) . fromJust $ elemIndex wid myWorkspaces
+        addPadding      = ("  " ++) . (++ "  ")
+        currentFmt      = (" %{u#cc241d}%{+u} " ++) . (++ " %{-u} ")
+        visibleFmt      = (" %{u#484848}%{+u} " ++) . (++ " %{-u} ")
+        urgentFmt       = ("%{B#cc241d}  " ++) . (++ "  %{B-}")
         layoutName s
-            | s == "Tall"             = "T"
-            | s == "Mirror Tall"      = "M"
-            | s == "Full"             = "F"
+            | s == "Tall"             = "\xe002"
+            | s == "Mirror Tall"      = "\xe003"
+            | s == "Full"             = "\xe001"
             | "OneBig" `isPrefixOf` s = "O"
-            | otherwise               = "▦"
+            | otherwise               = "\xe005"
         floatNextStr s = case s of
             "Next" -> "·"
             ""     -> " "
-        dzenStartCa wid = "^ca(1, xdotool key 'alt+" ++ wsNum wid ++ "')"
-        dzenEndCa _         = "^ca()"
-        clickable fs = applyAll ([dzenStartCa] ++ fs ++ [dzenEndCa])
-        applyAll fs x   = fs >>= ($ x)
-        onlyIf p f x    = if p x then f x else ""
+        onlyIf p f x = if p x then f x else ""
+
+-- myLogHook homeDir = dynamicLogWithPP $ def {
+--       ppCurrent         = clickable [dzenColor "#fffffd" "#268bd2" . addPadding . wsNum]
+--     , ppVisible         = clickable [dzenColor "#fffffd" "#073642" . addPadding . wsNum]
+--     , ppHidden          = onlyIf (/= "NSP") $ clickable [dzenColor "#586e75" "#002b36" . addPadding . wsNum]
+--     -- , ppHiddenNoWindows = onlyIf (/= "NSP") $ clickable [dzenColor "#93a1a1" "#002b36" . addPadding . wsNum]
+--     , ppHiddenNoWindows = \_ -> ""
+--     , ppUrgent          = clickable [dzenColor "red" "#212121" . addPadding . wsNum]
+--     , ppSep             = ""
+--     , ppWsSep           = ""
+--     , ppLayout          = dzenColor "#839496" "#002b36" . addPadding . layoutName
+--     , ppTitle           = dzenColor "#839496" "#002b36" . addPadding
+--     , ppExtras          = [willFloatNextPP floatNextStr]
+--     , ppOrder           = \(w:l:t:es) -> [w, l] ++ es ++ [t]
+--     , ppOutput          = writeFileUtf8 "/tmp/workspace-info" . (++"\n")
+--     }
+--     where
+--         addPadding      = ("   " ++) . (++ "   ")
+--         wsNum wid       = show . (+1) . fromJust $ elemIndex wid myWorkspaces
+--         layoutName s
+--             | s == "Tall"             = "T"
+--             | s == "Mirror Tall"      = "M"
+--             | s == "Full"             = "F"
+--             | "OneBig" `isPrefixOf` s = "O"
+--             | otherwise               = "▦"
+--         floatNextStr s = case s of
+--             "Next" -> "·"
+--             ""     -> " "
+--         dzenStartCa wid = "^ca(1, xdotool key 'alt+" ++ wsNum wid ++ "')"
+--         dzenEndCa _         = "^ca()"
+--         clickable fs = applyAll ([dzenStartCa] ++ fs ++ [dzenEndCa])
+--         applyAll fs x   = fs >>= ($ x)
+--         onlyIf p f x    = if p x then f x else ""

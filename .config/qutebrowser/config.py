@@ -9,7 +9,7 @@ c.tabs.padding = { "top": 7, "bottom": 7, "left": 7, "right": 7 }
 c.tabs.favicons.scale = 1.5
 c.url.searchengines = { "DEFAULT": "https://google.com/search?q={}" }
 c.backend = "webengine"
-c.fonts.monospace = "meslo"
+c.fonts.default_family = "meslo"
 
 c.colors.tabs.odd.bg = '#002b36'
 c.colors.tabs.even.bg = '#002b36'

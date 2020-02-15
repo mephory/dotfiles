@@ -48,7 +48,7 @@ set t_Co=256
 set list listchars=tab:»·,trail:·
 
 set background=dark
-colorscheme solarized
+colorscheme gruvbox
 if $SSH_CONNECTION
     colorscheme delek
 end
@@ -68,6 +68,9 @@ augroup filetypes
     autocmd FileType go set ai sw=2 sts=2 et
     autocmd FileType lisp set ai sw=2 sts=2 et
     autocmd FileType javascript set ai sw=2 sts=2 et
+    autocmd FileType javascriptreact set ai sw=2 sts=2 et
+    autocmd FileType typescript set ai sw=2 sts=2 et
+    autocmd FileType typescriptreact set ai sw=2 sts=2 et
     autocmd FileType xml setlocal equalprg=xmllint\ --format\ --recover\ -\ 2>/dev/null    " = for xml
     autocmd BufEnter *.hy set filetype=lisp
     autocmd BufRead COMMIT_EDITMSG setlocal spell!    " enable spell checking for commit msgs
@@ -100,7 +103,7 @@ let g:table_mode_toggle_map = "q"
 let g:airline_powerline_fonts                                 = 0
 " don't count trailing whitespace since it lags in huge files
 let g:airline#extensions#whitespace#enabled                   = 0
-let g:airline_theme                                           = 'custom'
+let g:airline_theme                                           = 'gruvbox'
 " Just show the filename (no path) in the tab
 let g:airline#extensions#tabline#fnamemod                     = ':t'
 let g:airline_left_sep                                        = ''
@@ -376,6 +379,7 @@ nnoremap <leader>s !!$SHELL<cr>
 vnoremap <leader>s :!$SHELL<cr>
 nnoremap <leader>p !!python2 -<cr>
 vnoremap <leader>p :!python2 -<cr>
+nnoremap <leader>q :%!ruby -<cr>
 nnoremap <leader>r !!ruby -<cr>
 vnoremap <leader>r :!ruby -<cr>
 nnoremap <leader>e :!%<cr>

@@ -29,7 +29,47 @@ fzf-file-widget() {
   zle redisplay
 }
 zle     -N   fzf-file-widget
-bindkey '^T' fzf-file-widget
+# bindkey '^T' fzf-file-widget
+
+bindkey -r '^]'
+
+fzf-info-widget() {
+echo "
+a - audio input
+b - git branch
+f - file
+t - tabs\
+"
+zle redisplay
+}
+zle -N fzf-info-widget
+
+fzf-git-branch-widget() {
+    B=$(git branch --format '%(refname:lstrip=2)' | $(__fzfcmd))
+    LBUFFER="${LBUFFER}${B}"
+    zle redisplay
+}
+zle -N fzf-git-branch-widget
+
+fzf-audio-input-widget() {
+    B=$(pacmd list-sources | awk -vRS='>' -vFS='<' '/name:/ { print $2 }' | $(__fzfcmd))
+    LBUFFER="${LBUFFER}${B}"
+    zle redisplay
+}
+zle -N fzf-audio-input-widget
+
+fzf-tab-widget() {
+    B=$(lstab | urls | $(__fzfcmd))
+    LBUFFER="${LBUFFER}${B}"
+    zle redisplay
+}
+zle -N fzf-tab-widget
+
+bindkey '^]^]' fzf-info-widget
+bindkey '^]b' fzf-git-branch-widget
+bindkey '^]a' fzf-audio-input-widget
+bindkey '^]f' fzf-file-widget
+bindkey '^]t' fzf-tab-widget
 
 # ALT-C - cd into the selected directory
 # fzf-cd-widget() {
