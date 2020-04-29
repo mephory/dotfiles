@@ -24,6 +24,9 @@ export PATH="$PATH:$HOME/bin/git-plugins"
 export PATH="$PATH:$HOME/bin/tmux-plugins"
 export PATH="$PATH:$HOME/bin/polybar"
 
+export GOPATH="$HOME/.go"
+export PATH="$PATH:$GOPATH/bin"
+
 export FZF_COMPLETION_TRIGGER="~~"
 
 for f in ~/.zsh-env/*(@,.N); do
@@ -179,19 +182,8 @@ if [[ ! -f /tmp/todoread ]]; then
     ((sleep 3600 && rm /tmp/todoread) &)
 fi
 
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-# __conda_setup="$('/opt/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-# if [ $? -eq 0 ]; then
-#     eval "$__conda_setup"
-# else
-#     if [ -f "/opt/miniconda3/etc/profile.d/conda.sh" ]; then
-#         . "/opt/miniconda3/etc/profile.d/conda.sh"
-#     else
-#         export PATH="/opt/miniconda3/bin:$PATH"
-#     fi
-# fi
-# unset __conda_setup
-# <<< conda initialize <<<
-
 eval "$(rbenv init -)"
+
+# export PYENV_ROOT="$HOME/.pyenv"
+# export PATH="$PYENV_ROOT/bin:$PATH"
+# eval "$(pyenv init -)"

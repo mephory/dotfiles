@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Netflix
+Comment=Watch Netflix
+Exec=netflix
+Icon=netflix
+Type=Application
+Categories=Entertainment;
+

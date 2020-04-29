@@ -1,4 +1,4 @@
-rofi.theme: ~/.config/rofi/themes/gruvbox-rofi/gruvbox-dark.rasi
+rofi.theme: ~/.config/rofi/slate.rasi
 rofi.width: 33
 rofi.location: 0
 rofi.monitor: -4

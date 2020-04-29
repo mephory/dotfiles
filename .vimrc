@@ -7,9 +7,34 @@
 "   <cr> is free!
 
 set nocompatible
-filetype off
 
-execute pathogen#infect()
+call plug#begin()
+Plug 'dhruvasagar/vim-table-mode'
+Plug 'groenewege/vim-less'
+Plug 'junegunn/fzf.vim'
+Plug 'justinmk/vim-sneak'
+Plug 'ludovicchabant/vim-gutentags'
+Plug 'mattn/emmet-vim'
+Plug 'morhetz/gruvbox'
+Plug 'romainl/vim-qf'
+Plug 'tommcdo/vim-exchange'
+Plug 'tommcdo/vim-lion'
+Plug 'tpope/vim-abolish'
+Plug 'tpope/vim-bundler'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-eunuch'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-rails'
+Plug 'tpope/vim-rbenv'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-unimpaired'
+Plug 'vim-pandoc/vim-pandoc'
+Plug 'vim-pandoc/vim-pandoc-syntax'
+Plug 'w0rp/ale'
+Plug 'wellle/targets.vim'
+Plug 'xolox/vim-misc'
+call plug#end()
 
 "===============================================================================
 " Basic Settings                                                             {{{
@@ -36,6 +61,7 @@ set shiftround
 set backspace=indent,eol,start
 set relativenumber
 filetype plugin on
+filetype indent off
 
 "============================================================================}}}
 " Look                                                                       {{{
@@ -46,12 +72,10 @@ set nohlsearch      " don't highlight search matches
 set cursorline      " highlight the current line
 set t_Co=256
 set list listchars=tab:»·,trail:·
+set t_ut =
 
 set background=dark
 colorscheme gruvbox
-if $SSH_CONNECTION
-    colorscheme delek
-end
 
 set laststatus=2    " always show status bar
 set guifont=Inconsolata\ 13
@@ -72,6 +96,7 @@ augroup filetypes
     autocmd FileType typescript set ai sw=2 sts=2 et
     autocmd FileType typescriptreact set ai sw=2 sts=2 et
     autocmd FileType xml setlocal equalprg=xmllint\ --format\ --recover\ -\ 2>/dev/null    " = for xml
+    autocmd FileType cs set ai sw=4 sts=4 et
     autocmd BufEnter *.hy set filetype=lisp
     autocmd BufRead COMMIT_EDITMSG setlocal spell!    " enable spell checking for commit msgs
 augroup END
@@ -88,31 +113,13 @@ augroup END
 let g:netrw_banner = 0
 " let g:netrw_liststyle = 3
 
-let Tlist_Use_Right_Window = 1          " open tlist on the right
-let Tlist_GainFocus_On_ToggleOpen = 1   " focus tlist on first open
-let Tlist_Close_On_Select = 1           " exit vim when only the tlist window is opened
-let Tlist_Exit_OnlyWindow = 1           " exit vim when only the tlist window is opened
-
-let g:ctrlp_working_path_mode = 2
 let g:fzf_buffers_jump = 1
 
 let g:table_mode_corner_corner='+'
 let g:table_mode_header_fillchar='='
 let g:table_mode_toggle_map = "q"
 
-let g:airline_powerline_fonts                                 = 0
-" don't count trailing whitespace since it lags in huge files
-let g:airline#extensions#whitespace#enabled                   = 0
-let g:airline_theme                                           = 'gruvbox'
-" Just show the filename (no path) in the tab
-let g:airline#extensions#tabline#fnamemod                     = ':t'
-let g:airline_left_sep                                        = ''
-let g:airline_right_sep                                       = ''
-
 let g:user_emmet_mode = 'i'
-
-let g:syntastic_ruby_exec = '/usr/bin/ruby'
-let g:syntastic_ruby_checkers = ['mri']
 
 let g:pandoc#formatting#mode = 'hA'
 
@@ -196,10 +203,6 @@ map zB zb10<C-e>
 "----------------------------------------------------------------------------}}}
 " File and Project Management                                                {{{
 "-------------------------------------------------------------------------------
-nnoremap ''w :CtrlP /var/www/<cr>
-nnoremap ''c :CtrlP /home/mephory/code/crescent/<cr>
-nnoremap ''n :CtrlP /home/mephory/code/nexus/<cr>
-nnoremap ''a :CtrlP /home/mephory/code/alexandria/<cr>
 nnoremap ''v :e `=resolve(expand("~/.vimrc"))`<cr>
 nnoremap ''x :e `=resolve(expand("~/.xmonad/xmonad.hs"))`<cr>
 nnoremap ''w :e `=resolve(expand("~/.wiki/index.pandoc"))`<cr>
@@ -241,7 +244,8 @@ nnoremap <leader>tm :TableModeToggle<cr>
 vnoremap <leader>so :sort<cr>
 
 " Comment
-noremap <leader>c :TComment<cr>
+nmap <leader>c gcc
+vmap <leader>c gc
 
 " Split a line in two
 map S i<cr><esc>
@@ -330,6 +334,11 @@ nnoremap q; q:
 " use . in visual mode to repeat command on every visually selected line
 vnoremap . :norm.<cr>
 
+" add current line to quickfix
+nnoremap <leader>q :caddexpr expand("%") . ":" . line(".") . ":" . getline(".")<cr>
+autocmd FileType qf nnoremap <buffer> <silent> dd
+  \ :call setqflist(filter(getqflist(), {idx -> idx != line('.') - 1}), 'r') <Bar> cc<CR>
+
 " hilight words in different colors
 hi def InterestingWord1 guifg=#000000 ctermfg=16 guibg=#ffa724 ctermbg=208
 hi def InterestingWord2 guifg=#000000 ctermfg=16 guibg=#aeee00 ctermbg=040
@@ -367,8 +376,6 @@ vmap <cr>k :<C-u>call MoveToBeginningOfParagraphSameCol()<cr>
 nmap <cr>j v<cr>jv
 nmap <cr>k v<cr>kv
 
-map <leader>R ,^^.*React.createClass.*$<cr>,$^.*: function() {$<cr>
-
 "----------------------------------------------------------------------------}}}
 " Filter through external programs                                           {{{
 "-------------------------------------------------------------------------------
@@ -398,22 +405,6 @@ vnoremap <leader>P :<C-u>call VisualPipeToProgram('python2', 'py')<cr>
 nnoremap <leader>S :call PipeToProgram('/bin/zsh', 'sh')<cr>
 vnoremap <leader>S :<C-u>call VisualPipeToProgram('/bin/zsh', 'sh')<cr>
 " }}}
-
-let mapleader = ',w'
-
-" vimwiki bindings
-nmap ]w <Plug>VimwikiNextLink
-nmap [w <Plug>VimwikiPrevLink
-
-" nmap <leader>wf <Plug>VimwikiFollowLink
-
-" nmap <leader>ws <Plug>VimwikiSplitLink
-" nmap <leader>wv <Plug>VimwikiVSplitLink
-" nmap <leader>wl viwS]gvS]
-" vmap <leader>wl S]gvS]
-" nmap <leader>wa <leader>wl
-" vmap <leader>wa <leader>wl
-
 
 "============================================================================}}}
 " Custom Functions                                                           {{{
