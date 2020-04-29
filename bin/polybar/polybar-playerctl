@@ -9,7 +9,7 @@ function format() {
     | stdbuf -oL sed 's/__spotify__//' \
     | stdbuf -oL sed 's/__chrome__//' \
     | stdbuf -oL sed 's/__chromium__//' \
-    | stdbuf -oL sed 's/__.*__//' &
+    | stdbuf -oL sed 's/__.*__//'
 }
 
 function switch() {
@@ -26,7 +26,7 @@ function switch() {
 
 trap switch USR1
 
-playerctl -F metadata -f '{{playerInstance}} __{{playerName}}__ {{uc(status)}} {{title}}' | format &
+(playerctl -F metadata -f '{{playerInstance}} __{{playerName}}__ {{uc(status)}} {{title}}' 2>/dev/null | format) &
 
 while true; do
     wait
