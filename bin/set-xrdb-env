@@ -1,0 +1,4 @@
+#!/bin/sh
+
+xrdb -query | awk '/.*(background|foreground):/ { print "export XRDB" toupper($1) $2 }' | sed s/:/=/g | sed s/\*//g
+xrdb -query | awk '/.*(color[[:digit:]]+):/ { print "export XRDB" toupper($1) $2 }' | sed s/:/=/g | sed s/\*//g

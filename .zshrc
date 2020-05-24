@@ -12,6 +12,8 @@ export HISTFILE=~/.history
 export HISTSIZE=1000000
 export SAVEHIST=1000000
 
+export TERM="xterm-256color"
+
 export PATH="$PATH:$HOME/.gem/ruby/2.2.0/bin"
 export PATH="$PATH:$HOME/.gem/ruby/2.3.0/bin"
 export PATH="$PATH:$HOME/.gem/ruby/2.4.0/bin"
@@ -182,7 +184,7 @@ if [[ ! -f /tmp/todoread ]]; then
     ((sleep 3600 && rm /tmp/todoread) &)
 fi
 
-eval "$(rbenv init -)"
+# eval "$(rbenv init -)"
 
 # export PYENV_ROOT="$HOME/.pyenv"
 # export PATH="$PYENV_ROOT/bin:$PATH"

@@ -1,0 +1,95 @@
+#!/bin/env ruby
+
+class PolybarTimer
+  def initialize
+    unless File.exist?('/tmp/polybar-timer')
+      File.mkfifo('/tmp/polybar-timer')
+    end
+  end
+
+  def run
+    queue = Queue.new
+
+    Thread.start do
+      f = File.open('/tmp/polybar-timer', 'r+')
+      loop do
+        queue << f.gets.strip.to_sym
+      end
+    end
+
+    Thread.start do
+      loop do
+        queue << :tick
+        sleep 1
+
+      end
+    end
+
+    time = 0
+    running = false
+    mode = :timer
+    loop do
+      cmd = queue.pop
+
+      case cmd
+      when :tick
+        if running
+          time += 1 if mode == :timer
+          time -= 1 if mode == :stopwatch
+          time = 0 if time < 0
+
+          if mode == :stopwatch && time <= 0 && running
+            %x{notify-send "Timer finished" &}
+            running = false
+          end
+        end
+      when :reset
+        time = mode == :timer ? 0 : 5 * 60
+        running = false
+      when :timer
+        mode = :timer
+        time = 0
+      when :toggle_mode
+        if mode == :stopwatch
+          mode = :timer
+          time = 0
+        else
+          mode = :stopwatch
+          time = 5 * 60
+        end
+      when :stopwatch
+        mode = :stopwatch
+        time = 5 * 60
+      when :toggle
+        running = !running
+      when :start
+        running = true
+      when :stop
+        running = false
+      when :increase_time
+        time += 30 unless running
+      when :decrease_time
+        time -= 30 unless running
+        time = 0 if time < 0
+      end
+
+      if mode == :stopwatch && time <= 0
+        print "%{F#ff0000}"
+      end
+
+      if time < 60 * 60
+        puts Time.at(time).utc.strftime("%M:%S")
+      else
+        puts Time.at(time).utc.strftime("%H:%M:%S")
+      end
+      STDOUT.flush
+    end
+  end
+end
+
+if ARGV.first
+  puts ARGV.first
+  File.write('/tmp/polybar-timer', "#{ARGV.first}\n")
+else
+  PolybarTimer.new.run
+end

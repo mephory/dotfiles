@@ -1,55 +1,25 @@
-;==========================================================
-;
-;
-;   ██████╗  ██████╗ ██╗  ██╗   ██╗██████╗  █████╗ ██████╗
-;   ██╔══██╗██╔═══██╗██║  ╚██╗ ██╔╝██╔══██╗██╔══██╗██╔══██╗
-;   ██████╔╝██║   ██║██║   ╚████╔╝ ██████╔╝███████║██████╔╝
-;   ██╔═══╝ ██║   ██║██║    ╚██╔╝  ██╔══██╗██╔══██║██╔══██╗
-;   ██║     ╚██████╔╝███████╗██║   ██████╔╝██║  ██║██║  ██║
-;   ╚═╝      ╚═════╝ ╚══════╝╚═╝   ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝
-;
-;
-;   To learn more about how to configure Polybar
-;   go to https://github.com/polybar/polybar
-;
-;   The README contains a lot of information
-;
-;==========================================================
-
 [colors]
-; background = ${xrdb:background:#282828}
-background = #ee282828
+background = ${xrdb:background:#282828}
 background-alt = #444
 foreground = ${xrdb:foreground:#ebdbb2}
 foreground-alt = #555
 primary = ${xrdb:color9:#fb4934}
+
 secondary = #e60053
 alert = #bd2c40
-black = #282828
-dark_grey = #928374
-dark_red = #cc241d
-red = #fb4934
-dark_green = #98971a
-green = #b8bb26
-dark_yellow = #d79921
-yellow = #fabd2f
-dark_blue = #458588
-alt_blue = #4585dd
-blue = #83a598
-dark_magenta = #b16286
-magenta = #d3869b
-dark_cyan = #689d6a
-cyan = #8ec07c
-light_grey = #a89984
-white = #ebdbb2
+black = ${xrdb:background:#282828}
+red = ${xrdb:color9:#fb4934}
+green = ${xrdb:color10:#b8bb26}
+yellow = ${xrdb:color11:#fabd2f}
+alt_blue = ${xrdb:color4:#4585dd}
+blue = ${xrdb:color12:#83a598}
 
 [bar/default]
 enable-ipc = true
-;monitor = ${env:MONITOR:HDMI-1}
 width = 100%
 height = 22
 radius = 0
-fixed-center = false
+fixed-center = true
 
 background = ${colors.background}
 foreground = ${colors.foreground}
@@ -73,9 +43,9 @@ font-3 = Font Awesome 5 Free:style=Solid:size=10:antialias=true;2
 font-4 = Source Han Sans JP:size=11
 font-5 = "waffle:size=12;2"
 
-modules-left = xmonad playerctl xwindow
-modules-center = 
-modules-right = pbstatus xkeyboard pulseaudio date
+modules-left = xmonad playerctl
+modules-center = xwindow
+modules-right = pbstatus timer pulseaudio date
 
 tray-position = none
 tray-padding = 2
@@ -88,22 +58,6 @@ cursor-scroll = ns-resize
 type = internal/xwindow
 label = %title:0:50:…%
 
-[module/xkeyboard]
-type = internal/xkeyboard
-blacklist-0 = num lock
-
-format-prefix = " "
-format-prefix-foreground = ${colors.foreground}
-format-prefix-underline = 
-
-label-layout = %layout%
-label-layout-underline = 
-
-label-indicator-padding = 2
-label-indicator-margin = 1
-label-indicator-background = ${colors.secondary}
-label-indicator-underline = 
-
 [module/filesystem]
 type = internal/fs
 interval = 25
@@ -114,44 +68,6 @@ mount-1 = /tmp
 label-mounted = %{F#0a81f5}%mountpoint%%{F-}: %percentage_used%%
 label-unmounted = %mountpoint% not mounted
 label-unmounted-foreground = ${colors.foreground-alt}
-
-format-mounted-underline = ${colors.alt_blue}
-format-unmounted-underline = ${colors.alt_blue}
-
-[module/mpd]
-type = internal/mpd
-format-online = <label-song>  <icon-prev> <icon-stop> <toggle> <icon-next>
-
-icon-prev = 
-icon-stop = 
-icon-play = 
-icon-pause = 
-icon-next = 
-
-label-song-maxlen = 25
-label-song-ellipsis = true
-
-[module/xbacklight]
-type = internal/xbacklight
-
-format = <label> <bar>
-label = BL
-
-bar-width = 10
-bar-indicator = |
-bar-indicator-foreground = #fff
-bar-indicator-font = 2
-bar-fill = ─
-bar-fill-font = 2
-bar-fill-foreground = #9f78e1
-bar-empty = ─
-bar-empty-font = 2
-bar-empty-foreground = ${colors.foreground-alt}
-
-[module/backlight-acpi]
-inherit = module/xbacklight
-type = internal/backlight
-card = intel_backlight
 
 [module/cpu]
 type = internal/cpu
@@ -226,7 +142,7 @@ label = %date% %time%
 type = internal/pulseaudio
 
 format-volume = <label-volume> <bar-volume>
-label-volume = %{F#ebdbb2} %percentage%%
+label-volume =  %percentage%%
 format-prefix = 
 label-volume-foreground = ${root.foreground}
 
@@ -338,35 +254,6 @@ ramp-1 = 
 ramp-2 = 
 ramp-foreground = ${colors.foreground-alt}
 
-[module/powermenu]
-type = custom/menu
-
-expand-right = true
-
-format-spacing = 1
-
-label-open = 
-label-open-foreground = ${colors.secondary}
-label-close =  cancel
-label-close-foreground = ${colors.secondary}
-label-separator = |
-label-separator-foreground = ${colors.foreground-alt}
-
-menu-0-0 = reboot
-menu-0-0-exec = menu-open-1
-menu-0-1 = power off
-menu-0-1-exec = menu-open-2
-
-menu-1-0 = cancel
-menu-1-0-exec = menu-open-0
-menu-1-1 = reboot
-menu-1-1-exec = sudo reboot
-
-menu-2-0 = power off
-menu-2-0-exec = sudo poweroff
-menu-2-1 = cancel
-menu-2-1-exec = menu-open-0
-
 [module/xmonad]
 type = custom/script
 exec = tail -F /tmp/workspace-info
@@ -393,17 +280,16 @@ format-underline = ${colors.alt_blue}
 format = <label>
 label = %output:0:40:…%
 
-[module/redshift]
+[module/timer]
 type = custom/script
-exec = polybar-redshift
+exec = polybar-timer
 exec-if = true
 tail = true
-click-left = kill -USR1 %pid%
-
-[module/test]
-type = custom/script
-exec = polybar-test
-interval = 1
+click-left = polybar-timer toggle
+click-right = polybar-timer reset
+click-middle = polybar-timer toggle_mode
+scroll-up = polybar-timer increase_time
+scroll-down = polybar-timer decrease_time
 
 [settings]
 screenchange-reload = true

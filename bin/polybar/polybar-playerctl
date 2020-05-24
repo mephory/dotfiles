@@ -15,12 +15,12 @@ function format() {
 function switch() {
     CUR=$(cat /tmp/playerctl-current)
     NXT=$(echo $(playerctl -l) $(playerctl -l) | tr ' ' "\n" | sed "0,/$CUR/d" | head -n1)
-    NXTTIT=$(playerctl -p $NXT metadata -f '{{title}}')
+    NXTTIT=$(playerctl -p $NXT metadata -f '{{title}}' 2>/dev/null)
     if [[ -z "$NXTTIT" ]]; then
         echo "$NXT STOPPED No Title" | format
     fi
     if [[ -n "$NXT" ]] && [[ ! -z "$NXTTIT" ]]; then
-        playerctl -p $NXT metadata -f "{{playerInstance}} __{{playerName}}__ {{uc(status)}} {{title}}" | format
+        playerctl -p $NXT metadata -f "{{playerInstance}} __{{playerName}}__ {{uc(status)}} {{title}}" 2>/dev/null | format
     fi
 }
 

@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
-module FullscreenToggle (
-    toggleFullscreen
+module ZoomWindow (
+    toggleZoom
   ) where
 
 import Graphics.X11.Types
@@ -10,11 +10,6 @@ import XMonad.Core
 import XMonad.Operations
 import qualified XMonad.StackSet as W
 import qualified XMonad.Util.ExtensibleState as XS
-
--- Wenn Fenster kein Fullscreen:
---   → Position speichern und Fullscreenen
--- Wenn Fenster Fullscreen:
---   → Gemerkte Position wiederherstellen oder nichts
 
 type WindowPosition = (W.RationalRect, Bool)
 
@@ -27,8 +22,8 @@ instance ExtensionClass PositionStorage where
 fullscreenLocation :: W.RationalRect
 fullscreenLocation = W.RationalRect 0 0 1 1
 
-toggleFullscreen :: Window -> X ()
-toggleFullscreen w = do
+toggleZoom :: Window -> X ()
+toggleZoom w = do
     full <- isFullscreen w
     if full
     then restoreWindow w

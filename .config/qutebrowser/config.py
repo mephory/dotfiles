@@ -1,4 +1,5 @@
 import quickmarks
+import os
 
 c.url.start_pages = 'file:///home/mephory/data/homepage/index.html'
 c.url.default_page = 'file:///home/mephory/data/homepage/index.html'
@@ -12,23 +13,23 @@ c.url.searchengines = { "DEFAULT": "https://google.com/search?q={}" }
 c.backend = "webengine"
 c.fonts.default_family = "meslo"
 
-c.colors.tabs.odd.bg = '#282828'
-c.colors.tabs.even.bg = '#282828'
-c.colors.tabs.odd.fg = '#ebdbb2'
-c.colors.tabs.even.fg = '#ebdbb2'
-c.colors.tabs.selected.odd.bg = '#ebdbb2'
-c.colors.tabs.selected.even.bg = '#ebdbb2'
-c.colors.tabs.selected.odd.fg = '#282828'
-c.colors.tabs.selected.even.fg = '#282828'
-c.colors.completion.even.bg = '#282828'
-c.colors.completion.odd.bg = '#1d2021'
-c.colors.completion.item.selected.bg = '#458588'
-c.colors.completion.item.selected.fg = '#ebdbb2'
-c.colors.completion.item.selected.border.bottom = '#458588'
-c.colors.completion.item.selected.border.top = '#458588'
-c.colors.completion.fg = '#ebdbb2'
-c.colors.completion.match.fg = '#d3869b'
-c.colors.completion.category.bg = 'qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #282828, stop:1 #1d2021)'
+c.colors.tabs.odd.bg = os.environ.get('XRDBBACKGROUND', '#282828')
+c.colors.tabs.even.bg = os.environ.get('XRDBBACKGROUND', '#282828')
+c.colors.tabs.odd.fg = os.environ.get('XRDBFOREGROUND', '#ebdbb2')
+c.colors.tabs.even.fg = os.environ.get('XRDBFOREGROUND', '#ebdbb2')
+c.colors.tabs.selected.odd.bg = os.environ.get('XRDBFOREGROUND', '#ebdbb2')
+c.colors.tabs.selected.even.bg = os.environ.get('XRDBFOREGROUND', '#ebdbb2')
+c.colors.tabs.selected.odd.fg = os.environ.get('XRDBBACKGROUND', '#282828')
+c.colors.tabs.selected.even.fg = os.environ.get('XRDBBACKGROUND', '#282828')
+c.colors.completion.even.bg = os.environ.get('XRDBBACKGROUND', '#282828')
+c.colors.completion.odd.bg = os.environ.get('XRDBCOLOR0', '#1d2021')
+c.colors.completion.item.selected.bg = os.environ.get('XRDBCOLOR4', '#458588')
+c.colors.completion.item.selected.fg = os.environ.get('XRDBFOREGROUND', '#ebdbb2')
+c.colors.completion.item.selected.border.bottom = os.environ.get('XRDBCOLOR4', '#458588')
+c.colors.completion.item.selected.border.top = os.environ.get('XRDBCOLOR4', '#458588')
+c.colors.completion.fg = os.environ.get('XRDBFOREGROUND', '#ebdbb2')
+c.colors.completion.match.fg = os.environ.get('XRDBCOLOR13', '#d3869b')
+c.colors.completion.category.bg = 'qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 {}, stop:1 {})'.format(os.environ.get('XRDBBACKGROUND', '#282828'), os.environ.get('XRDBCOLOR0', '#1d2021'))
 
 config.bind('t', 'set-cmd-text -s :open -t')
 config.bind('T', 'set-cmd-text :open -t {url}')
