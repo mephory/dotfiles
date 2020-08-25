@@ -7,6 +7,8 @@ alias -g ,,s3='$(echo ~/data/screenshots/*(om[3]))'
 alias -g ,,s4='$(echo ~/data/screenshots/*(om[4]))'
 alias -g ,,s5='$(echo ~/data/screenshots/*(om[5]))'
 
+alias vim="nvim"
+
 # Colors                                                                     {{{
 alias ls="ls --color=auto"
 alias grep="grep --color=auto"
@@ -15,7 +17,7 @@ alias pacman="pacman --color=auto"
 
 #                                                                            }}}
 # Shortcuts                                                                  {{{
-alias l="ls -lsh"
+alias l="ls -l"
 alias la="l -a"
 alias py="python"
 alias k="setxkbmap"
@@ -34,20 +36,18 @@ alias d="drop"
 alias g="grep"
 alias j="jobs"
 alias mshare="sshfs mephory:shared ~/shared"
-alias psg="ps -e | grep"
-alias tc="teamocil --here"
+alias psg="ps -e | grep -i"
 alias ]="git diff --color"
 alias ]]="git diff --staged --color"
-alias st="git st"
-alias c]="git checkout-branch"
+alias s="git st"
 alias mupen="mupen64plus --fullscreen"
 alias oot="mupen $HOME/data/rom/*Ocarina*"
 alias s.="du -hs"
 alias grepip="grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'"
 alias cd-="cd -"
-
-alias notouchpad="synclient TouchpadOff=1"
-alias touchpad="synclient TouchpadOff=0"
+alias e="exa"
+alias el="exa -l"
+alias D="devour"
 
 #                                                                            }}}
 # dice                                                                       {{{
@@ -75,7 +75,6 @@ alias w20='echo $((RANDOM%20+1))'
 # Typos                                                                      {{{
 alias sl="ls"
 alias Grep="grep"
-alias Mpc="mpc"
 alias les="less"
 alias Less="less"
 alias gt="git"
@@ -86,9 +85,6 @@ alias p="xsel -b"
 alias record="ffmpeg -f x11grab -s 1920x1080 -r 25 -i :0"
 alias wocs="tr -cs A-Za-z '\n' | tr A-Z a-z | sort | uniq -c | sort -rn" # Prints number of occurences of words
 alias histat="cat ~/.history | sed 's/^[0-9 ]*//' | sed 's/ *| */\n/g' | sort | uniq -c | sort -rn | head -n 100"
-alias temp="acpi -t"
-alias twoscreen="xrandr --output eDP1 --auto --output DP2 --auto --right-of eDP1"
-alias onescreen="xrandr --output DP2 --off"
 # Trailing space causes first argument to also be checked
 # for alias substition
 alias watch="watch "
@@ -192,10 +188,6 @@ total() {
   awk $F -v f=${1:-1} '{s+=$f} END{print s}'
 }
 
-function twitch() {
-    mpv "http://twitch.tv/$1"
-}
-
 # up [|N|pat] -- go up 1, N or until basename matches pat many directories
 #   just output directory when not used interactively, e.g. in backticks
 up() {
@@ -217,41 +209,25 @@ up() {
 }
 
 function f() {
-    find . -iname $1
+    find . -iname $@
 }
-
-# xless - run less in seperate terminal
-xless() {
-  {
-    exec {stdin}<&0 {stderr}>&2
-    exec xterm -e sh -c "less ${(j: :)${(qq)@}} </dev/fd/$stdin 2>/dev/fd/$stderr"
-  } &!
-}
-
 
 function cdt() {
     cd $(mktemp -d)
+}
+
+timer() {
+    date1=`date +%s`; 
+    while true; do 
+        echo -ne "\r$(date -u --date @$((`date +%s` - $date1)) +%H:%M:%S)";
+        sleep 0.1
+    done
 }
 
 # Directly cd into ~/code with cdc. It even has tab completion! :-)
 function cdc() { cd ~/code/$1; }
 function _cdc() { _files -W ~/code -/; }
 compdef _cdc cdc
-
-# Directly cd into /mnt/external/{image,video,} with cdX. It even has tab completion! :-)
-function cde() { cd /mnt/external/$1; }
-function _cde() { _files -W /mnt/external -/; }
-compdef _cde cde
-function cdv() { cd /mnt/external/video/$1; }
-function _cdv() { _files -W /mnt/external/video -/; }
-compdef _cdv cdv
-function cdi() { cd /mnt/external/image/$1; }
-function _cdi() { _files -W /mnt/image -/; }
-compdef _cdi cdi
-
-#                                                                            }}}
-# Unused                                                                     {{{
-
 
 #                                                                            }}}
 

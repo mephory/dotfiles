@@ -13,6 +13,7 @@ import qualified XMonad.Util.ExtensibleState as XS
 
 data SPStorage = SPStorage (M.Map String Window)
     deriving (Typeable,Read,Show)
+
 instance ExtensionClass SPStorage where
     initialValue = SPStorage $ M.fromList []
     extensionType = PersistentExtension
@@ -52,7 +53,6 @@ hideWindow = windows . W.shiftWin "NSP"
 showWindow :: Window -> X ()
 showWindow w = windows $ \ws ->
     (W.focusWindow w) . (W.shiftWin (W.currentTag ws) w) $ ws
-
 
 alterSPStorage :: (Maybe Window -> Maybe Window) -> String -> SPStorage -> SPStorage
 alterSPStorage f k (SPStorage m) = SPStorage $ M.alter f k m

@@ -5,13 +5,19 @@ module PictureInPicture (
     view,
     greedyView,
     pipEventHook,
+    pipLogHook,
     pipPP
 ) where
+
+import Graphics.X11.Xlib.Atom (getAtomName, getAtomNames)
+import qualified Debug.Trace as T
+import Control.Monad.IO.Class (liftIO)
 
 import Control.Monad
 import Data.Monoid
 import Graphics.X11.Types
-import Graphics.X11.Xlib.Extras (Event(CrossingEvent, ClientMessageEvent, ev_event_type, ev_window, ev_message_type))
+import Graphics.X11.Xlib.Extras (Event(CrossingEvent, ClientMessageEvent, ev_event_type, ev_window, ev_message_type, ev_atom))
+import XMonad
 import XMonad.Core
 import XMonad.Operations
 import XMonad.Hooks.ToggleHook (runLogHook)
@@ -33,6 +39,22 @@ toggle w = do
     case win of
         Just _ -> disable
         Nothing -> enable w
+
+-- enable :: Window -> X ()
+-- enable w = do
+--     pos <- currentWindowPosition w
+--     XS.modify $ \_ -> PipStorage $ Just (w, pos, False)
+--     windows $ W.float w pos1
+--     unmanage w
+
+-- disable :: X ()
+-- disable = do
+--     PipStorage win <- XS.get
+--     case win of
+--         Just (w, pos, _) -> manage w >> setWindowPosition w pos
+--         Nothing -> mempty
+--     XS.modify $ \_ -> PipStorage Nothing
+
 
 enable :: Window -> X ()
 enable w = do
@@ -75,15 +97,21 @@ pipEventHook e@(CrossingEvent {ev_event_type=t, ev_window=win})
         return $ All True
     | otherwise = return $ All True
 
-pipEventHook e@(ClientMessageEvent {ev_event_type=t, ev_window=win, ev_message_type=mt}) = do
-    a_aw <- getAtom "_NET_ACTIVE_WINDOW"
-    when (mt == a_aw) $ do
-        (PipStorage ps) <- XS.get
-        case ps of
-            Just (w, _, _) -> if w == win then windows W.focusDown else mempty
-            Nothing -> mempty
-    return $ All True
-pipEventHook _ = return $ All True
+-- pipEventHook e = do
+--     withDisplay $ \dpy -> do
+--         atomName <- liftIO $ getAtomNames dpy [(ev_atom e)]
+--         T.trace (show atomName) $ return ()
+--     T.trace (show e) $ return $ All True
+
+-- pipEventHook e@(ClientMessageEvent {ev_event_type=t, ev_window=win, ev_message_type=mt}) = do
+--     a_aw <- getAtom "_NET_ACTIVE_WINDOW"
+--     when (mt == a_aw) $ do
+--         (PipStorage ps) <- XS.get
+--         case ps of
+--             Just (w, _, _) -> if w == win then windows W.focusDown else mempty
+--             Nothing -> mempty
+--     return $ All True
+-- pipEventHook _ = return $ All True
 
 isPip :: Window -> X Bool
 isPip w = do
@@ -130,3 +158,18 @@ pipPP f = do
     case pip of
         Just _ -> return . Just . f $ "PiP"
         Nothing -> return Nothing
+
+pipLogHook :: X ()
+
+pipLogHook = do
+    (PipStorage pip) <- XS.get
+    case pip of
+        Just (w, _, _) -> do
+            winset <- gets windowset
+            let ms = (W.stack . W.workspace . W.current) winset
+            case ms of
+                Just stack -> if (W.focus stack) == w
+                                then windows W.focusDown
+                                else mempty
+                Nothing -> mempty
+        Nothing -> mempty

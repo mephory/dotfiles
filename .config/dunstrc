@@ -149,7 +149,7 @@
 
     corner_radius = 3
 
-    max_icon_size = 64
+    max_icon_size = 48
 
 [frame]
     width = 1
@@ -216,6 +216,11 @@
 [dota]
 summary = "Matchmaking Status"
 script = d2-accept
+
+# [sound]
+# summary = "*"
+# script = ~/bin/play-notification
+
 #[espeak]
 #    summary = "*"
 #    script = dunst_espeak.sh

@@ -8,8 +8,8 @@ if [[ -e ~/.Xmodmap ]]; then
     xmodmap ~/.Xmodmap
 fi
 
-xrandr --output DP-1 --primary --auto
-xrandr --output DP-1 --auto --left-of HDMI-0
+xrandr --output DP-2 --auto --primary --pos 0x0
+xrandr --output HDMI-0 --auto --right-of DP-2 --scale-from 2560x1440 --pos 2560x0
 
 /* feh --bg-scale ~/.background.png */
 switch-dynamic-background

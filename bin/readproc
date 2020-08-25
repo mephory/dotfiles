@@ -5,4 +5,4 @@ if [[ $# -ne 1 ]]; then
     echo "Usage: readproc <pid>"
     exit 1;
 fi
-sudo strace -ewrite -p $1 -s1024 2>&1 | ruby -e 'loop { puts $stdin.readline.rpartition("\\n")[0].partition("\"")[2] }'
+sudo strace -ewrite -p $1 -s1024 2>&1 | ruby -e 'loop { puts $stdin.readline.rpartition("\\n")[0].partition("\"")[2]; STDOUT.flush }'

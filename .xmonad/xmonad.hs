@@ -16,25 +16,25 @@ import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.FloatNext
-import XMonad.Hooks.InsertPosition
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.Place
 import XMonad.Util.NamedScratchpad
 import XMonad.Util.Run (safeSpawn, runInTerm)
 import XMonad.Prompt
-import Data.List (elemIndex, isPrefixOf, isInfixOf)
+import Data.List (elemIndex, isPrefixOf, isInfixOf, find)
 import Data.Maybe (fromJust, fromMaybe)
+import Data.Monoid
 import System.Exit
 import System.Environment
 import Graphics.X11.ExtraTypes.XF86
 
+import WorkspaceHelpers
 import SubmapWithHints (submapWithHints)
 import Passwords (passwordPrompt, genPasswordPrompt)
 import UnicodeUtils (appendFileUtf8)
 import ZoomWindow (toggleZoom)
 import DynamicScratchpads (spawnDynamicSP, makeDynamicSP)
 import FloatCenterWindow (centerFloatingWindow, makeFloatingCenterWindow)
-import FloatsOnTop (floatsOnTop)
 import Opacity (changeOpacity, setOpacity)
 import SetXrdbEnv (setXrdbEnv)
 import LowerDocks (addDock, delDock)
@@ -43,6 +43,35 @@ import qualified PictureInPicture as P
 import qualified XMonad.StackSet as W
 import qualified XMonad.Util.Dmenu as D
 import qualified Data.Map as M
+
+myWorkspaces :: [WS]
+myWorkspaces = [ WS "1"       (Just xK_1)           True
+               , WS "2"       (Just xK_2)           True
+               , WS "3"       (Just xK_3)           True
+               , WS "4"       (Just xK_4)           True
+               , WS "5"       (Just xK_5)           True
+               , WS "6"       (Just xK_6)           True
+               , WS "7"       (Just xK_7)           True
+               , WS "8"       (Just xK_8)           True
+               , WS "9"       (Just xK_9)           True
+               , WS "\xf362"  (Just xK_Tab)         True
+               , WS "'"       (Just xK_apostrophe)  True
+               , WS "sys"     (Just xK_F1)          False
+               , WS "F2"      (Just xK_F2)          True
+               , WS "NSP"     Nothing               False
+               ]
+
+wsNames :: [String]
+wsNames = map wsName myWorkspaces
+
+findWs :: String -> Maybe WS
+findWs s = find (\w -> wsName w == s) myWorkspaces
+
+workspaceKey :: String -> Maybe KeySym
+workspaceKey s = findWs s >>= wsKey
+
+workspaceVisible :: String -> Bool
+workspaceVisible s = fromMaybe False $ findWs s >>= Just . wsVisible
 
 main = do
     homeDir <- getEnv "HOME"
@@ -56,9 +85,9 @@ main = do
       , focusFollowsMouse  = True
       , borderWidth        = 0
       , modMask            = mod1Mask
-      , workspaces         = ["1","2","3","4","5","6","7","8","9","q","'","sys","F2","F3","F4"] ++ ["NSP"]
-      , normalBorderColor  = "#2b2b2b"
-      , focusedBorderColor = "#383838"
+      , workspaces         = wsNames
+      , normalBorderColor  = "#3b4252"
+      , focusedBorderColor = "#3c5a70"
 
       -- key bindings
       , keys               = \x -> myKeys x xpc
@@ -67,13 +96,12 @@ main = do
       -- hooks, layouts
       , layoutHook         = myLayout focusIndicatorTheme
       , manageHook         = addDock
-                             <+> floatsOnTop
-                             <+> insertPosition Below Newer
                              <+> myManageHook
                              <+> namedScratchpadManageHook myScratchpads
                              <+> floatPlacement
                              <+> floatNextHook
       , handleEventHook    = delDock <+> myEventHook
+      -- , logHook            = P.pipLogHook <+> myLogHook homeDir
       , logHook            = myLogHook homeDir
       , startupHook        = myStartupHook
     }
@@ -87,7 +115,7 @@ projects =
                     runInTerm "" "htop"
                     spawn "termite"
               }
-    , Project { projectName      = "q"
+    , Project { projectName      = "\xf362"
               , projectDirectory = "~/"
               , projectStartHook = Just $ do
                     spawn "spotify"
@@ -95,180 +123,114 @@ projects =
     ]
 
 -- Key bindings. Add, modify or remove key bindings here.
-myKeys conf@(XConfig {XMonad.modMask = modm}) xpc = M.fromList $ map (\(a, b, c) -> (b, c)) (keysWithDescription conf xpc)
-keysWithDescription conf@(XConfig {XMonad.modMask = modm}) xpc =
-    [ ("Launch a Terminal",
-        (modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
-    , ("Run Program",
-        (modm,               xK_p     ), spawn "rofi -modi drun,run -show drun -show-icons")
-    , ("Select and Kill Window",
-        (modm .|. shiftMask, xK_x     ), spawn "xkill")
-    , ("Close Focused Window",
-        (modm .|. shiftMask, xK_c     ), kill)
-    , ("Rotate through the available layouts",
-        (modm,               xK_space ), sendMessage NextLayout)
-    , ("Reset the layout to default",
-        (modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
-    , ("Move focus to the next window",
-        (modm,               xK_j     ), windows W.focusDown)
-    , ("Move focus to the previous window",
-        (modm,               xK_k     ), windows W.focusUp  )
-    , ("Move focus to the master window",
-        (modm,               xK_m     ), windows W.focusMaster  )
-    , ("Swap the focused window and the master window",
-        (modm,               xK_Return), windows W.swapMaster)
-    , ("Swap the focused window with the next window",
-        (modm .|. shiftMask, xK_j     ), windows W.swapDown  )
-    , ("Swap the focused window with the previous window",
-        (modm .|. shiftMask, xK_k     ), windows W.swapUp    )
-    , ("Shrink the master area",
-        (modm,               xK_h     ), sendMessage Shrink)
-    , ("Expand the master area",
-        (modm,               xK_l     ), sendMessage Expand)
-    , ("Push window back into tiling",
-        (modm,               xK_t     ), withFocused $ windows . W.sink)
-    , ("Increment the number of windows in the master area",
-        (modm              , xK_comma ), sendMessage (IncMasterN 1))
-    , ("Deincrement the number of windows in the master area",
-        (modm              , xK_period), sendMessage (IncMasterN (-1)))
-    , ("Float next window",
-        (modm .|. shiftMask, xK_f     ), toggleFloatNext >> runLogHook)
-    , ("Toggle border",
-        (modm              , xK_u     ), withFocused toggleBorder)
-    , ("Lock screen",
-        (modm              , xK_Escape), spawn "gllock")
-    , ("Toggle between two most recently viewed workspaces",
-        (modm              , xK_grave ), toggleWS' ["NSP"])
-    , ("Toggle fullscreen for focused window",
-        (modm              , xK_o     ), withFocused toggleZoom)
+myKeys conf@(XConfig {XMonad.modMask = modm}) xpc = M.fromList $
+    [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
+    , ((modm,               xK_p     ), spawn "rofi -modi drun,run -show drun -show-icons")
+    , ((modm .|. shiftMask, xK_x     ), spawn "xkill")
+    , ((modm .|. shiftMask, xK_c     ), kill)
+    , ((modm,               xK_space ), sendMessage NextLayout)
+    , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
+    , ((modm,               xK_j     ), windows W.focusDown)
+    , ((modm,               xK_k     ), windows W.focusUp)
+    , ((modm,               xK_m     ), windows W.focusMaster)
+    , ((modm,               xK_Return), windows W.swapMaster)
+    , ((modm .|. shiftMask, xK_j     ), windows W.swapDown)
+    , ((modm .|. shiftMask, xK_k     ), windows W.swapUp)
+    , ((modm,               xK_h     ), sendMessage Shrink)
+    , ((modm,               xK_l     ), sendMessage Expand)
+    , ((modm,               xK_t     ), withFocused $ windows . W.sink)
+    , ((modm              , xK_comma ), sendMessage (IncMasterN 1))
+    , ((modm              , xK_period), sendMessage (IncMasterN (-1)))
+    , ((modm .|. shiftMask, xK_f     ), toggleFloatNext >> runLogHook)
+    , ((modm              , xK_Escape), spawn "gllock")
+    , ((modm              , xK_grave ), toggleWS' ["NSP"])
+    , ((modm              , xK_o     ), withFocused toggleZoom)
 
     -- Prompts
-    , ("Copy password to clipboard",
-        (modm              , xK_n     ), passwordPrompt xpc)
-    , ("Generate password",
-        (modm .|. shiftMask, xK_n     ), genPasswordPrompt xpc)
+    , ((modm              , xK_n     ), passwordPrompt xpc)
+    , ((modm .|. shiftMask, xK_n     ), genPasswordPrompt xpc)
 
     -- Various
-    , ("Toggle Polybar",
-        (modm              , xK_i     ), spawn "polybar-msg cmd toggle" >> sendMessage ToggleStruts)
-    , ("sodomsg",
-        (modm .|. shiftMask, xK_slash ), spawn "sodomsg")
-    , ("Toggle Picture-In-Picture",
-        (modm              , xK_semicolon), withFocused P.toggle)
-    , ("Action Menu",
-        (modm              , xK_slash),  submapWithHints xpc $
-            [ ("q - recompile xmonad"       , (0, xK_q), spawn "xmonad --recompile && xmonad --restart")
-            , ("m - draw dota minimap image", (0, xK_m), spawn "dota-minimap-image")
-            , ("f - view facebook graph"    , (0, xK_f), spawn "view-fbg filtered")
-            , ("k - default keyboard layout", (0, xK_k), spawn "setxkbmap us -option compose:ralt")
-            , ("e - edit config file"       , (0, xK_e), spawn "edit-config")
-            , ("m-Q - exit xmonad"          , (modm .|. shiftMask, xK_q     ), io exitSuccess)
-            ])
+    , ((modm              , xK_i     ), spawn "tesstest")
+    , ((modm .|. shiftMask, xK_slash ), spawn "sodomsg")
+    -- , ((modm              , xK_semicolon), withFocused P.toggle)
+    , ((modm .|. shiftMask, xK_semicolon), spawn "rofi-twitch")
+    , ((modm              , xK_slash),  submapWithHints xpc $
+        [ ("q   recompile xmonad"       , (0, xK_q), spawn "xmonad --recompile && xmonad --restart")
+        , ("m   draw dota minimap image", (0, xK_m), spawn "dota-minimap-image")
+        , ("f   view facebook graph"    , (0, xK_f), spawn "view-fbg filtered")
+        , ("k   default keyboard layout", (0, xK_k), spawn "setxkbmap us -option compose:ralt")
+        , ("e   edit config file"       , (0, xK_e), spawn "edit-config")
+        , ("m-Q   exit xmonad"          , (modm .|. shiftMask, xK_q     ), io exitSuccess)
+        ])
+    , ((modm              , xK_u     ), spawn "qutebrowser")
 
     -- Floating Positions
-    , ("Float current window in the center of the screen",
-        (modm              , xK_f     ) , withFocused makeFloatingCenterWindow)
-    , ("Move window to the left",
-        (modm              , xK_Left  ) , withFocused $ snapMove L Nothing)
-    , ("Move window the the right",
-        (modm              , xK_Right ) , withFocused $ snapMove R Nothing)
-    , ("Move window up",
-        (modm              , xK_Up    ) , withFocused $ snapMove U Nothing)
-    , ("Move window down",
-        (modm              , xK_Down  ) , withFocused $ snapMove D Nothing)
-    , ("Resize window left",
-        (modm .|. shiftMask, xK_Left  ) , withFocused $ snapShrink R Nothing)
-    , ("Resize window right",
-        (modm .|. shiftMask, xK_Right ) , withFocused $ snapGrow R Nothing)
-    , ("Resize window down",
-        (modm .|. shiftMask, xK_Up    ) , withFocused $ snapShrink D Nothing)
-    , ("Resize window up",
-        (modm .|. shiftMask, xK_Down  ) , withFocused $ snapGrow D Nothing)
-    , ("Center window",
-        (modm              , xK_g     ) , withFocused centerFloatingWindow)
-    , ("Make window transparent",
-        (modm              , xK_r     ) , withFocused $ \w -> setOpacity w (2/3))
-    , ("Make window opaque",
-        (modm .|. shiftMask, xK_r     ) , withFocused $ \w -> setOpacity w 1.0)
+    , ((modm              , xK_f     ) , withFocused makeFloatingCenterWindow)
+    , ((modm              , xK_Left  ) , withFocused $ snapMove L Nothing)
+    , ((modm              , xK_Right ) , withFocused $ snapMove R Nothing)
+    , ((modm              , xK_Up    ) , withFocused $ snapMove U Nothing)
+    , ((modm              , xK_Down  ) , withFocused $ snapMove D Nothing)
+    , ((modm .|. shiftMask, xK_Left  ) , withFocused $ snapShrink R Nothing)
+    , ((modm .|. shiftMask, xK_Right ) , withFocused $ snapGrow R Nothing)
+    , ((modm .|. shiftMask, xK_Up    ) , withFocused $ snapShrink D Nothing)
+    , ((modm .|. shiftMask, xK_Down  ) , withFocused $ snapGrow D Nothing)
+    , ((modm              , xK_g     ) , withFocused centerFloatingWindow)
+    , ((modm              , xK_r     ) , withFocused $ \w -> setOpacity w (2/3))
+    , ((modm .|. shiftMask, xK_r     ) , withFocused $ \w -> setOpacity w 1.0)
 
     -- Screenshots
-    , ("Take a screenshot",
-        (0                 , xK_Print ), spawn "import -window root $HOME/data/screenshots/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png")
-    , ("Take a screenshot of an area",
-        (shiftMask         , xK_Print ), spawn "import +repage $HOME/data/screenshots/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png")
-    , ("Take and upload a screenshot",
-        (modm              , xK_0     ), spawn "upload-screenshot -window root")
-    , ("Take and upload a screenshot of an area",
-        (modm .|. shiftMask, xK_0     ), spawn "upload-screenshot")
-    , ("Search google images for screenshot",
-        (modm .|. shiftMask, xK_v     ), spawn "screenshot-google-image-search")
-    , ("Various screenshot actions",
-        (modm              , xK_Print ), submapWithHints xpc $ screenshotMap 1 xpc)
+    , ((0                 , xK_Print ), spawn "import -window root $HOME/data/screenshots/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png")
+    , ((shiftMask         , xK_Print ), spawn "import +repage $HOME/data/screenshots/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png")
+    , ((modm              , xK_0     ), spawn "upload-screenshot -window root")
+    , ((modm .|. shiftMask, xK_0     ), spawn "upload-screenshot")
+    , ((modm .|. shiftMask, xK_v     ), spawn "screenshot-google-image-search")
+    , ((modm              , xK_Print ), submapWithHints xpc $ screenshotMap 1 xpc)
 
     -- Scratchpads
-    , ("Spawn Terminal 1",
-        (modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
-    , ("Spawn Terminal 2",
-        (modm              , xK_c     ), namedScratchpadAction myScratchpads "terminal-2")
-    , ("Spawn Music/Volume control",
-        (modm              , xK_z     ), namedScratchpadAction myScratchpads "music")
-    , ("Spawn IRC",
-        (modm              , xK_b     ), namedScratchpadAction myScratchpads "irc")
-    , ("Spawn Color Picker",
-        (modm .|. shiftMask, xK_p     ), namedScratchpadAction myScratchpads "color")
-    , ("Spawn Terminal 3",
-        (modm              , xK_backslash), namedScratchpadAction myScratchpads "bot-term")
-    , ("Spawn iCloud",
-        (modm .|. shiftMask, xK_o     ), namedScratchpadAction myScratchpads "icloud")
-    , ("Spawn Discord",
-        (modm              , xK_x     ), namedScratchpadAction myScratchpads "discord")
-    , ("Spawn Dynamic 1",
-        (modm              , xK_a     ), spawnDynamicSP "dyn1")
-    , ("Set Dynamic 1",
-        (modm .|. shiftMask, xK_a     ), withFocused $ makeDynamicSP "dyn1")
-    , ("Spawn Dynamic 2",
-        (modm              , xK_s     ), spawnDynamicSP "dyn2")
-    , ("Set Dynamic 2",
-        (modm .|. shiftMask, xK_s     ), withFocused $ makeDynamicSP "dyn2")
-    , ("Spawn Dynamic 3",
-        (modm              , xK_d     ), spawnDynamicSP "dyn3")
-    , ("Set Dynamic 3",
-        (modm .|. shiftMask, xK_d     ), withFocused $ makeDynamicSP "dyn3")
+    , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
+    , ((modm              , xK_c     ), namedScratchpadAction myScratchpads "terminal-2")
+    , ((modm              , xK_z     ), namedScratchpadAction myScratchpads "music")
+    , ((modm              , xK_b     ), namedScratchpadAction myScratchpads "irc")
+    , ((modm .|. shiftMask, xK_p     ), namedScratchpadAction myScratchpads "color")
+    , ((modm              , xK_backslash), namedScratchpadAction myScratchpads "bot-term")
+    , ((modm .|. shiftMask, xK_o     ), namedScratchpadAction myScratchpads "icloud")
+    , ((modm              , xK_x     ), namedScratchpadAction myScratchpads "discord")
+    , ((modm              , xK_a     ), spawnDynamicSP "dyn1")
+    , ((modm .|. shiftMask, xK_a     ), withFocused $ makeDynamicSP "dyn1")
+    , ((modm              , xK_s     ), spawnDynamicSP "dyn2")
+    , ((modm .|. shiftMask, xK_s     ), withFocused $ makeDynamicSP "dyn2")
+    , ((modm              , xK_d     ), spawnDynamicSP "dyn3")
+    , ((modm .|. shiftMask, xK_d     ), withFocused $ makeDynamicSP "dyn3")
 
     -- Media Keys
-    , ("Toggle Mute",
-        (0, xF86XK_AudioMute), spawn "amixer sset Master toggle")
-    , ("Decrease Volumne",
-        (0, xF86XK_AudioLowerVolume), spawn "amixer sset Master 2dB-")
-    , ("Increase Volume",
-        (0, xF86XK_AudioRaiseVolume), spawn "amixer sset Master 2dB+")
-    , ("Lower Backlight",
-        (0, xF86XK_MonBrightnessDown), spawn "xbacklight -dec 5")
-    , ("Raise Backlight",
-        (0, xF86XK_MonBrightnessUp), spawn "xbacklight -inc 5")
-    , ("Set Defualt Backlight",
-        (0, xF86XK_Display), spawn "xbacklight -set 85")
+    , ((0, xF86XK_AudioMute), spawn "amixer sset Master toggle")
+    , ((0, xF86XK_AudioLowerVolume), spawn "pulsemixer --change-volume -1")
+    , ((0, xF86XK_AudioRaiseVolume), spawn "pulsemixer --change-volume +1")
+    , ((0, xF86XK_AudioPlay), spawn "playerctl play-pause")
+    , ((0, xF86XK_AudioPrev), spawn "playerctl previous")
+    , ((0, xF86XK_AudioNext), spawn "playerctl next")
+    , ((0, xF86XK_MonBrightnessDown), spawn "xbacklight -dec 5")
+    , ((0, xF86XK_MonBrightnessUp), spawn "xbacklight -inc 5")
+    , ((0, xF86XK_Display), spawn "xbacklight -set 85")
     ]
     ++
 
     -- mod-[1..9], Switch to workspace N
     -- mod-shift-[1..9], Move client to workspace N
-    [("Switch to workspace " ++ (show i), (m .|. modm, k), f i)
-        | (i, k) <- (zip (XMonad.workspaces conf) [xK_1 .. xK_9]) ++ [
-              ("sys", xK_F1)
-            , ("q", xK_q)
-            , ("'", xK_apostrophe)
-            , ("F2", xK_F2)
-            , ("F3", xK_F3)
-        ]
-        , (f, m) <- [(P.greedyView, 0), (windows . W.shift, shiftMask)]]
+    [((m .|. modm, k), f i)
+        | (i, (Just k)) <- map (\ws -> (wsName ws, wsKey ws)) myWorkspaces
+        , (f, m) <- [(windows . W.greedyView, 0), (windows . W.shift, shiftMask)]]
+
     ++
     -- mod-{w,e,r}, Switch to physical/Xinerama screens 1, 2, or 3
     -- mod-shift-{w,e,r}, Move client to screen 1, 2, or 3
     --
-    [("Move window to workspace " ++ (show sc), (m .|. modm, key), screenWorkspace sc >>= flip whenJust (f))
-        | (key, sc) <- zip [xK_w, xK_e] [0..]
-        , (f, m) <- [(P.view, 0), (windows . W.shift, shiftMask)]]
+    [((m .|. modm, key), screenWorkspace sc >>= flip whenJust (f))
+        | (key, sc) <- zip [xK_w, xK_e, xK_q] [0..]
+        , (f, m) <- [(windows . W.view, 0), (windows . W.shift, shiftMask)]]
+
+
 
 
 runUnlessIgnored action w = runQuery mouseIgnore w >>= \b -> if b then mempty else action w
@@ -285,6 +247,9 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList
     -- you may also bind events to the mouse scroll wheel (button4 and button5)
     , ((modm , button4) , \w -> changeOpacity w (5/100))
     , ((modm , button5) , \w -> changeOpacity w (-5/100))
+    , ((0    , 10 :: Button), \_ -> spawn "polybar-playerctl toggle")
+    , ((0    , 11 :: Button), \_ -> spawn "polybar-playerctl next")
+    , ((0    , 12 :: Button), \_ -> spawn "polybar-playerctl switch")
     ]
 
 screenshotMap n xpc =
@@ -292,11 +257,12 @@ screenshotMap n xpc =
     , ("t   take screenshot with mode",
         (0, xK_t), submapWithHints xpc
           [
-            ("f - Full", (0, xK_f), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", newScreenshotName])
-          , ("c - Choose Window/Area", (0, xK_c), spawn $ unwords ["sleep", "0.2", ";", "import", newScreenshotName])
-          , ("w - Focused Window", (0, xK_w), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "$(xdotool getwindowfocus -f)", newScreenshotName])
-          , ("1 - Screen 1", (0, xK_1), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", "-crop", "1920x1080+0+0", "+repage", newScreenshotName])
-          , ("2 - Screen 2", (0, xK_2), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", "-crop", "1920x1080+1920+0", "+repage", newScreenshotName])
+            ("f   Full", (0, xK_f), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", newScreenshotName])
+          , ("c   Choose Window/Area", (0, xK_c), spawn $ unwords ["sleep", "0.2", ";", "import", newScreenshotName])
+          , ("w   Focused Window", (0, xK_w), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "$(xdotool getwindowfocus -f)", newScreenshotName])
+          , ("1   Screen 1", (0, xK_1), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", "-crop", "2560x1440+0+0", "+repage", newScreenshotName])
+          , ("2   Screen 2", (0, xK_2), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", "-crop", "2560x1440+2560+0", "+repage", newScreenshotName])
+          , ("3   Screen 3", (0, xK_3), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", "-crop", "2560x1440+5120+0", "+repage", newScreenshotName])
           ])
     , ("v   view",
         (0, xK_v), spawn $ unwords ["feh", filename])
@@ -333,16 +299,10 @@ screenshotMap n xpc =
               newScreenshotName = "\"$HOME/data/screenshots/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png\""
 
 
-myLayout fiTheme =
+myLayout fiTheme = noBorders $ 
     onWorkspace "1" (full ||| fullscreen ||| tiled ||| mtiled) $
-    onWorkspace "2" defaultConf $
-    onWorkspace "3" defaultConf $
-    onWorkspace "4" defaultConf $
     onWorkspace "5" fullscreen $
-    onWorkspace "6" defaultConf $
     onWorkspace "7" (focusIndicator $ avoidStruts $ Tall 1 (3/100) (1/4)) $
-    onWorkspace "8" defaultConf $
-    onWorkspace "9" defaultConf $
     onWorkspace "sys" (focusIndicator $ spacingRaw True (Border 0 10 10 10) True (Border 10 10 10 10) True $ avoidStruts $ Grid)
     defaultConf
     where
@@ -380,13 +340,14 @@ myManageHook = composeAll
     , title     =? "Picture-in-Picture"  --> (customFloating $ W.RationalRect 0.65 0.65 0.3 0.3)
     ]
 
-floatPlacement = placeHook (withGaps (0, 0, 0, 0) $ fixed (0.5, 0.5))
+floatPlacement = placeHook (withGaps (10, 10, 10, 10) $ smart (0.5, 0.2))
 
-myEventHook = P.pipEventHook
+myEventHook = mempty
 
 myStartupHook = do
     safeSpawn "reload-termite-config" []
     safeSpawn "restart-polybar" []
+    safeSpawn "restart-dunst" []
 
 myScratchpads = [ NS "terminal"   spawnTerminal  findTerminal  manageSP
                 , NS "terminal-2" spawnTerminal2 findTerminal2 manageSP
@@ -428,16 +389,14 @@ myScratchpads = [ NS "terminal"   spawnTerminal  findTerminal  manageSP
         centeredRect w h = W.RationalRect ((1 - w) / 2) ((1 - h) / 2) w h
 
 myLogHook homeDir = dynamicLogWithPP $ def {
-      ppCurrent         = currentFmt
-    , ppVisible         = visibleFmt
-    , ppHidden          = onlyIf (not . \x -> x `elem` ["NSP", "sys"]) addPadding
+      ppCurrent         = clickable currentFmt
+    , ppVisible         = clickable visibleFmt
+    , ppHidden          = onlyIf workspaceVisible (clickable addPadding)
     -- , ppHiddenNoWindows = onlyIf (/= "NSP") $ clickable [dzenColor "#93a1a1" "#002b36" . addPadding . wsNum]
     , ppHiddenNoWindows = \_ -> ""
-    , ppUrgent          = urgentFmt
+    , ppUrgent          = clickable urgentFmt
     , ppSep             = "  "
-    , ppWsSep           = ""
-    , ppLayout          = ("%{u#458588}%{+u} " ++) . (++ " %{-u}") . layoutName
-    , ppTitle           = \_ -> ""
+    , ppWsSep           = "" , ppLayout          = ("%{u#458588}%{+u} " ++) . (++ " %{-u}") . layoutName , ppTitle           = \_ -> ""
     , ppExtras          = [willFloatNextPP floatNextStr, P.pipPP pipStr]
     , ppOrder           = \(w:l:t:es) -> [w, l] ++ es ++ [t]
     , ppOutput          = appendFileUtf8 "/tmp/workspace-info" . (++"\n")
@@ -447,6 +406,7 @@ myLogHook homeDir = dynamicLogWithPP $ def {
         currentFmt      = (" %{u#cc241d}%{+u} " ++) . (++ " %{-u} ")
         visibleFmt      = (" %{u#484848}%{+u} " ++) . (++ " %{-u} ")
         urgentFmt       = ("%{B#cc241d}  " ++) . (++ "  %{B-}")
+        clickable f w   = fromMaybe (f w) (elemIndex w wsNames >>= \i -> Just $ "%{A1:wmctrl -s " ++ show i ++ ":}" ++ f w ++ "%{A}")
         layoutName s
             | "Mirror Tall" `isInfixOf` s = "\xe003"
             | "Tall" `isInfixOf` s        = "\xe002"
@@ -454,8 +414,8 @@ myLogHook homeDir = dynamicLogWithPP $ def {
             | "OneBig" `isPrefixOf` s     = "O"
             | otherwise                   = "\xe005"
         floatNextStr s = case s of
-            "Next" -> "·"
-            ""     -> " "
+            ""        -> " "
+            otherwise -> "·"
         pipStr s = case s of
             "PiP" -> "\xf2d2"
             ""    -> " "

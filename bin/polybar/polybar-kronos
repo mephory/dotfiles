@@ -1,0 +1,29 @@
+#!/bin/bash
+
+function toggle()
+{
+  pactl list modules | grep module-loopback >/dev/null
+  if [ "$?" = 0 ]; then
+    pactl unload-module module-loopback
+  else
+    pactl load-module module-loopback source=alsa_input.usb-KORG_INC._KRONOS-00.analog-stereo latency_msec=1
+  fi
+}
+
+function monitor()
+{
+  pactl list modules | grep module-loopback >/dev/null
+  if [ "$?" = 0 ]; then
+    echo "%{B$XRDBCOLOR12}  %{B-}"
+  else
+    echo "%{B$XRDBBACKGROUND}  %{B-}"
+  fi
+}
+
+trap toggle USR1
+
+sleep infinity &
+while true; do
+  monitor
+  wait
+done;

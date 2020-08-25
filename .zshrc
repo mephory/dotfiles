@@ -25,6 +25,8 @@ export PATH="$PATH:$HOME/bin"
 export PATH="$PATH:$HOME/bin/git-plugins"
 export PATH="$PATH:$HOME/bin/tmux-plugins"
 export PATH="$PATH:$HOME/bin/polybar"
+export PATH="$PATH:$HOME/bin/wisp"
+export PATH="$PATH:$HOME/bin/rofi"
 
 export GOPATH="$HOME/.go"
 export PATH="$PATH:$GOPATH/bin"
@@ -167,7 +169,7 @@ open-manpage() {
     zle redisplay
 }
 zle -N open-manpage
-bindkey '^T' open-manpage
+# bindkey '^T' open-manpage
 
 
 zstyle ':completion:tmux-pane-words-(prefix|anywhere):*' completer _tmux_pane_words

@@ -13,7 +13,6 @@ centerFloatingWindow :: Window -> X ()
 centerFloatingWindow win = do
     (_, W.RationalRect x y w h) <- floatLocation win
     windows $ W.float win (W.RationalRect ((1 - w) / 2) ((1 - h) / 2) w h)
-    return ()
 
 makeFloatingCenterWindow :: Window -> X ()
 makeFloatingCenterWindow win = do

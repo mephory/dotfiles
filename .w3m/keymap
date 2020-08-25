@@ -145,7 +145,7 @@ keymap	M-[28~	MENU
 keymap  o   GOTO
 keymap  t   TAB_GOTO
 keymap  O   GOTO_RELATIVE
-keymap  T   TAB_GOTO_RELATIVE
+keymap  T   TAB_LINK
 keymap  h   MOVE_LEFT
 keymap  j   MOVE_DOWN
 keymap  k   MOVE_UP

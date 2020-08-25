@@ -2,7 +2,7 @@
 background = ${xrdb:background:#282828}
 background-alt = #444
 foreground = ${xrdb:foreground:#ebdbb2}
-foreground-alt = #555
+foreground-alt = ${xrdb:color8:#555}
 primary = ${xrdb:color9:#fb4934}
 
 secondary = #e60053
@@ -13,6 +13,7 @@ green = ${xrdb:color10:#b8bb26}
 yellow = ${xrdb:color11:#fabd2f}
 alt_blue = ${xrdb:color4:#4585dd}
 blue = ${xrdb:color12:#83a598}
+icon = ${xrdb:foreground:#555}
 
 [bar/default]
 enable-ipc = true
@@ -33,11 +34,12 @@ border-color = #181818
 padding-left = 0
 padding-right = 2
 
-module-margin-left = 1
-module-margin-right = 2
+module-margin-left = 2
+module-margin-right = 1
 
 font-0 = Inconsolata:weight=bold:size=11:antialias=true;1
-font-1 = Font Awesome 5 Brands:size=10:antialias=true;1
+# font-0 = xos4 Terminus:size=10:antialias=true;1
+font-1 = Font Awesome 5 Brands:size=10:antialias=true;2
 font-2 = siji:size=12:antialias=true;1
 font-3 = Font Awesome 5 Free:style=Solid:size=10:antialias=true;2
 font-4 = Source Han Sans JP:size=11
@@ -45,7 +47,7 @@ font-5 = "waffle:size=12;2"
 
 modules-left = xmonad playerctl
 modules-center = xwindow
-modules-right = pbstatus timer pulseaudio date
+modules-right = kronos pbstatus ping timer pulseaudio date
 
 tray-position = none
 tray-padding = 2
@@ -134,6 +136,7 @@ time = %H:%M
 time-alt = %H:%M:%S
 
 format-prefix = 
+format-prefix-foreground = ${colors.icon}
 format-underline = 
 
 label = %date% %time%
@@ -141,118 +144,21 @@ label = %date% %time%
 [module/pulseaudio]
 type = internal/pulseaudio
 
-format-volume = <label-volume> <bar-volume>
-label-volume =  %percentage%%
-format-prefix = 
+format-volume = <label-volume>
+label-volume = %percentage%%
+format-volume-prefix = " "
+format-volume-prefix-foreground = ${colors.icon}
 label-volume-foreground = ${root.foreground}
 
-format-muted = <label-muted> <bar-volume>
+format-muted = <label-muted>
 label-muted = %{F#555} %percentage%%
 label-muted-foreground = #666
-
-bar-volume-width = 10
-bar-volume-gradient = false
-bar-volume-indicator = 
-bar-volume-indicator-foreground = ${colors.blue}
-bar-volume-indicator-font = 1
-bar-volume-fill = 
-bar-volume-foreground-0 = ${colors.green}
-bar-volume-foreground-1 = ${colors.green}
-bar-volume-foreground-2 = ${colors.green}
-bar-volume-foreground-3 = ${colors.green}
-bar-volume-foreground-4 = ${colors.green}
-bar-volume-foreground-5 = ${colors.yellow}
-bar-volume-foreground-6 = ${colors.red}
-bar-volume-fill-font = 1
-bar-volume-empty = 
-bar-volume-empty-foreground = ${colors.background-alt}
-bar-volume-empty-font = 1
 
 click-right = pavucontrol --name polybar-pavucontrol &
 use-ui-max = false
 
 format-muted-underline =
 format-volume-underline =
-
-[module/alsa]
-type = internal/alsa
-
-format-volume = <label-volume> <bar-volume>
-label-volume = VOL
-label-volume-foreground = ${root.foreground}
-
-format-muted-prefix = " "
-format-muted-foreground = ${colors.foreground-alt}
-label-muted = sound muted
-
-bar-volume-width = 10
-bar-volume-foreground-0 = #55aa55
-bar-volume-foreground-1 = #55aa55
-bar-volume-foreground-2 = #55aa55
-bar-volume-foreground-3 = #55aa55
-bar-volume-foreground-4 = #55aa55
-bar-volume-foreground-5 = #f5a70a
-bar-volume-foreground-6 = #ff5555
-bar-volume-gradient = false
-bar-volume-indicator = |
-bar-volume-indicator-font = 2
-bar-volume-fill = ─
-bar-volume-fill-font = 2
-bar-volume-empty = ─
-bar-volume-empty-font = 2
-bar-volume-empty-foreground = ${colors.foreground-alt}
-
-[module/battery]
-type = internal/battery
-battery = BAT0
-adapter = ADP1
-full-at = 98
-
-format-charging = <animation-charging> <label-charging>
-format-charging-underline = #ffb52a
-
-format-discharging = <animation-discharging> <label-discharging>
-format-discharging-underline = ${self.format-charging-underline}
-
-format-full-prefix = " "
-format-full-prefix-foreground = ${colors.foreground-alt}
-format-full-underline = ${self.format-charging-underline}
-
-ramp-capacity-0 = 
-ramp-capacity-1 = 
-ramp-capacity-2 = 
-ramp-capacity-foreground = ${colors.foreground-alt}
-
-animation-charging-0 = 
-animation-charging-1 = 
-animation-charging-2 = 
-animation-charging-foreground = ${colors.foreground-alt}
-animation-charging-framerate = 750
-
-animation-discharging-0 = 
-animation-discharging-1 = 
-animation-discharging-2 = 
-animation-discharging-foreground = ${colors.foreground-alt}
-animation-discharging-framerate = 750
-
-[module/temperature]
-type = internal/temperature
-thermal-zone = 0
-warn-temperature = 60
-
-format = <ramp> <label>
-format-underline = ${colors.alt_blue}
-format-warn = <ramp> <label-warn>
-format-warn-underline = ${self.format-underline}
-
-label = %temperature-c%
-label-warn = %temperature-c%
-label-warn-foreground = ${colors.secondary}
-
-ramp-0 = 
-ramp-1 = 
-ramp-2 = 
-ramp-foreground = ${colors.foreground-alt}
 
 [module/xmonad]
 type = custom/script
@@ -273,9 +179,9 @@ type = custom/script
 exec = polybar-playerctl
 exec-if = true
 tail = true
-click-left = playerctl -p $(cat /tmp/playerctl-current) play-pause
-click-middle = kill -USR1 %pid%
-click-right = playerctl -p $(cat /tmp/playerctl-current) next
+click-left = polybar-playerctl toggle
+click-middle = polybar-playerctl switch
+click-right = polybar-playerctl next
 format-underline = ${colors.alt_blue}
 format = <label>
 label = %output:0:40:…%
@@ -290,6 +196,21 @@ click-right = polybar-timer reset
 click-middle = polybar-timer toggle_mode
 scroll-up = polybar-timer increase_time
 scroll-down = polybar-timer decrease_time
+format-prefix = " "
+format-prefix-foreground = ${colors.icon}
+
+[module/ping]
+type = custom/script
+exec = polybar-ping
+interval = 10
+
+[module/kronos]
+type = custom/script
+exec = polybar-kronos
+exec-if = true
+tail = true
+click-left = kill -USR1 %pid%
+
 
 [settings]
 screenchange-reload = true

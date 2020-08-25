@@ -1,33 +1,103 @@
-#!/bin/bash
+#!/bin/env ruby
+# frozen_string_literal: true
 
-function format() {
-    stdbuf -oL tee >(stdbuf -oL cut -d' ' -f1 | while read p; do echo $p > /tmp/playerctl-current; done) \
-    | stdbuf -oL cut -d' ' -f2- \
-    | stdbuf -oL sed 's/PLAYING//' \
-    | stdbuf -oL sed 's/PAUSED//' \
-    | stdbuf -oL sed 's/STOPPED//' \
-    | stdbuf -oL sed 's/__spotify__//' \
-    | stdbuf -oL sed 's/__chrome__//' \
-    | stdbuf -oL sed 's/__chromium__//' \
-    | stdbuf -oL sed 's/__.*__//'
-}
+require 'open3'
 
-function switch() {
-    CUR=$(cat /tmp/playerctl-current)
-    NXT=$(echo $(playerctl -l) $(playerctl -l) | tr ' ' "\n" | sed "0,/$CUR/d" | head -n1)
-    NXTTIT=$(playerctl -p $NXT metadata -f '{{title}}' 2>/dev/null)
-    if [[ -z "$NXTTIT" ]]; then
-        echo "$NXT STOPPED No Title" | format
-    fi
-    if [[ -n "$NXT" ]] && [[ ! -z "$NXTTIT" ]]; then
-        playerctl -p $NXT metadata -f "{{playerInstance}} __{{playerName}}__ {{uc(status)}} {{title}}" 2>/dev/null | format
-    fi
-}
+PLAYERCTL_FORMAT = '{{playerInstance}}|||{{playerName}}|||{{uc(status)}}|||{{title}}'
 
-trap switch USR1
+STATUS_ICONS = {
+  'PLAYING' => '',
+  'PAUSED' => '',
+  'STOPPED' => ''
+}.freeze
 
-(playerctl -F metadata -f '{{playerInstance}} __{{playerName}}__ {{uc(status)}} {{title}}' 2>/dev/null | format) &
+PLAYER_ICONS = {
+  'spotify' => '',
+  'chrome' => '',
+  'chromium' => ''
+}.freeze
 
-while true; do
-    wait
-done
+def parse_playerdata(str)
+  id, name, status, title = str.strip.split('|||')
+  {
+    id: id,
+    name: name,
+    status: status,
+    title: title
+  }
+end
+
+def format(playerdata)
+  player_icon = PLAYER_ICONS[playerdata[:name]] || ''
+  status_icon = STATUS_ICONS[playerdata[:status]] || ''
+  "#{player_icon} #{status_icon} #{playerdata[:title]}".strip
+end
+
+def next_player(player)
+  p, = players_with_title.cycle(2)
+                         .drop_while { |id, _| id != player }
+                         .drop(1)
+                         .select { |_, title| !title.nil? && !title.empty? }
+                         .first
+  return if p.nil?
+
+  d = `playerctl -p #{p} metadata -f '#{PLAYERCTL_FORMAT}' 2>/dev/null`.strip
+  Q << [:playerdata, parse_playerdata(d)]
+end
+
+def current_title(player)
+  `playerctl -p #{player} metadata -f '{{title}}' 2>/dev/null`.strip
+end
+
+def players_with_title
+  `playerctl -l`.split("\n").map(&:strip).map do |id|
+    [id, current_title(id)]
+  end
+end
+
+Q = Queue.new
+
+def main
+  File.mkfifo('/tmp/polybar-playerctl') unless File.exist?('/tmp/polybar-playerctl')
+
+  Thread.start do
+    Open3.popen2("playerctl -F metadata -f '#{PLAYERCTL_FORMAT}' 2>/dev/null") do |_, stdout, _|
+      stdout.each_line do |line|
+        playerdata = parse_playerdata(line)
+        Q << [:playerdata, playerdata]
+      end
+    end
+  end
+
+  Thread.start do
+    f = File.open('/tmp/polybar-playerctl', 'r+')
+    loop do
+      Q << [f.gets.strip.to_sym, nil]
+    end
+  end
+
+  current_player = nil
+
+  loop do
+    cmd, payload = Q.pop
+
+    case cmd
+    when :playerdata
+      current_player = payload[:id]
+      puts format(payload)
+      STDOUT.flush
+    when :switch
+      next_player(current_player)
+    when :toggle
+      system "playerctl -p #{current_player} play-pause", out: File::NULL, err: File::NULL
+    when :next
+      system "playerctl -p #{current_player} next", out: File::NULL, err: File::NULL
+    end
+  end
+end
+
+if ARGV.empty?
+  main
+else
+  File.write('/tmp/polybar-playerctl', "#{ARGV.first}\n")
+end

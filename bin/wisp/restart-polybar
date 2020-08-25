@@ -1,0 +1,8 @@
+#!/bin/sh
+
+killall polybar
+
+rm /tmp/workspace-info
+mkfifo /tmp/workspace-info
+
+polybar default &

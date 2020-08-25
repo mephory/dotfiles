@@ -1,0 +1,12 @@
+#!/bin/sh
+
+killall dunst
+
+dunst \
+    -lb "$XRDBCOLOR4" \
+    -lf "$XRDBFOREGROUND" \
+    -nb "$XRDBBACKGROUND" \
+    -nf "$XRDBFOREGROUND" \
+    -cb "$XRDBCOLOR1" \
+    -cf "$XRDBBACKGROUND" \
+    -bf "$XRDBBACKGROUND" &

@@ -15,7 +15,7 @@ import qualified XMonad.StackSet as W
 
 submapWithHints :: XPConfig -> [(String, (KeyMask, KeySym), X ())] -> X ()
 submapWithHints conf xs = do
-    xmf <- initXMF "xft:monaco:size=10"
+    xmf <- initXMF (font conf)
     hints <- getHints (map (\(a, _, _) -> a) xs) xmf Nothing
     w <- createHintWindow conf hints
     submap $ M.fromList submapMap

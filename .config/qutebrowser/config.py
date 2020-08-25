@@ -1,6 +1,10 @@
 import quickmarks
 import os
 
+for line in os.popen('set-xrdb-env').readlines():
+    var, val = line.split(' ')[1].strip().split('=')
+    os.environ[var] = val
+
 c.url.start_pages = 'file:///home/mephory/data/homepage/index.html'
 c.url.default_page = 'file:///home/mephory/data/homepage/index.html'
 c.hints.mode = 'number'
@@ -12,6 +16,8 @@ c.tabs.show = 'multiple'
 c.url.searchengines = { "DEFAULT": "https://google.com/search?q={}" }
 c.backend = "webengine"
 c.fonts.default_family = "meslo"
+c.content.pdfjs = True
+c.editor.command = ["termite", "-e", "nvim -f {file}"]
 
 c.colors.tabs.odd.bg = os.environ.get('XRDBBACKGROUND', '#282828')
 c.colors.tabs.even.bg = os.environ.get('XRDBBACKGROUND', '#282828')

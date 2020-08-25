@@ -1,0 +1,6 @@
+#!/bin/sh
+
+pactl load-module module-null-sink sink_name=kronos-and-mic sink_properties=device.description=KronosAndMicrophone
+pactl load-module module-loopback source=alsa_input.usb-KORG_INC._KRONOS-00.analog-stereo latency_msec=1 sink=kronos-and-mic
+# pactl load-module module-loopback latency_msec=1 sink=kronos-and-mic
+pactl load-module module-loopback source=echoCancel_source latency_msec=1 sink=kronos-and-mic

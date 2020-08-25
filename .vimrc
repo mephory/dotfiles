@@ -34,6 +34,9 @@ Plug 'vim-pandoc/vim-pandoc-syntax'
 Plug 'w0rp/ale'
 Plug 'wellle/targets.vim'
 Plug 'xolox/vim-misc'
+Plug 'arcticicestudio/nord-vim'
+Plug '~/code/vim-mtg'
+Plug '~/code/vim-mpv'
 call plug#end()
 
 "===============================================================================
@@ -60,6 +63,7 @@ set spelllang=en,de
 set shiftround
 set backspace=indent,eol,start
 set relativenumber
+set path+=**
 filetype plugin on
 filetype indent off
 
@@ -74,8 +78,11 @@ set t_Co=256
 set list listchars=tab:»·,trail:·
 set t_ut =
 
-set background=dark
 colorscheme gruvbox
+set background=dark
+" colorscheme nord
+" set background=light
+" set background=dark
 
 set laststatus=2    " always show status bar
 set guifont=Inconsolata\ 13
@@ -99,6 +106,9 @@ augroup filetypes
     autocmd FileType cs set ai sw=4 sts=4 et
     autocmd BufEnter *.hy set filetype=lisp
     autocmd BufRead COMMIT_EDITMSG setlocal spell!    " enable spell checking for commit msgs
+
+    autocmd FileType pandoc nmap <buffer> ,n <Plug>(pandoc-keyboard-next-li)
+    autocmd FileType pandoc nmap <buffer> ,p <Plug>(pandoc-keyboard-prev-li)
 augroup END
 
 
@@ -122,6 +132,7 @@ let g:table_mode_toggle_map = "q"
 let g:user_emmet_mode = 'i'
 
 let g:pandoc#formatting#mode = 'hA'
+let g:pandoc#hypertext#open_editable_alternates = 1
 
 
 "============================================================================}}}
@@ -151,7 +162,7 @@ map <C-k> <C-W>k
 map <C-l> <C-W>l
 map <F1> :ls<cr>:b 
 map <C-p> :GFiles<cr>
-nmap <Return>p :Files<cr>
+nmap <space>p :Files<cr>
 
 
 " unmap the above <leader>-mappings in operator pending mode,
@@ -187,6 +198,8 @@ map <C-\> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
 " Use Tab and S-Tab as ; and ,
 nnoremap <Tab> ;
 nnoremap <S-Tab> ,
+map <Tab> <Plug>Sneak_;
+map <S-Tab> <Plug>Sneak_,
 nnoremap <leader>o <C-i>
 nnoremap <leader>j :jumps<cr>
 nnoremap <PageUp> <C-o>
@@ -205,6 +218,7 @@ map zB zb10<C-e>
 "-------------------------------------------------------------------------------
 nnoremap ''v :e `=resolve(expand("~/.vimrc"))`<cr>
 nnoremap ''x :e `=resolve(expand("~/.xmonad/xmonad.hs"))`<cr>
+nnoremap ''z :e `=resolve(expand("~/.zshrc"))`<cr>
 nnoremap ''w :e `=resolve(expand("~/.wiki/index.pandoc"))`<cr>
 nnoremap ''' :cd %:p:h<cr>
 nnoremap \e :e <C-r>=expand('%:h')<cr>/
@@ -248,7 +262,7 @@ nmap <leader>c gcc
 vmap <leader>c gc
 
 " Split a line in two
-map S i<cr><esc>
+" map S i<cr><esc>
 
 " Easier emmet key
 imap <C-l> <C-y>,
@@ -303,6 +317,8 @@ vnoremap <leader>P :call PostSnippet('public')<cr>
 
 " View diff of buffer against original file
 nnoremap <leader>d :w !git diff --no-index % -<cr>
+
+vnoremap <leader>y :w !xsel -ib<cr><cr>
 
 " Improve command line navigation a bit
 cnoremap <C-a> <Home>
@@ -371,10 +387,10 @@ nmap         ++  vip++
 
 nmap - :tabnew<cr>:e.<cr>
 
-vmap <cr>j :<C-u>call MoveToEndOfParagraphSameCol()<cr>
-vmap <cr>k :<C-u>call MoveToBeginningOfParagraphSameCol()<cr>
-nmap <cr>j v<cr>jv
-nmap <cr>k v<cr>kv
+vmap <space>j :<C-u>call MoveToEndOfParagraphSameCol()<cr>
+vmap <space>k :<C-u>call MoveToBeginningOfParagraphSameCol()<cr>
+nmap <space>j v<space>jv
+nmap <space>k v<space>kv
 
 "----------------------------------------------------------------------------}}}
 " Filter through external programs                                           {{{
@@ -384,8 +400,8 @@ nnoremap Q !!$SHELL<cr>
 vnoremap Q :!$SHELL<cr>
 nnoremap <leader>s !!$SHELL<cr>
 vnoremap <leader>s :!$SHELL<cr>
-nnoremap <leader>p !!python2 -<cr>
-vnoremap <leader>p :!python2 -<cr>
+" nnoremap <leader>p !!python2 -<cr>
+" vnoremap <leader>p :!python2 -<cr>
 nnoremap <leader>q :%!ruby -<cr>
 nnoremap <leader>r !!ruby -<cr>
 vnoremap <leader>r :!ruby -<cr>
@@ -716,6 +732,15 @@ function! s:IndTxtObj(inner)
     endwhile
     normal! $
   endif
+endfunction
+
+function! MtgTest()
+  vertical new
+  setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap
+  call setline(1, 'Test')
+  setlocal nomodifiable
+  nnoremap <nowait> <buffer> q :q<cr>
+  1
 endfunction
 
 "============================================================================}}}

@@ -58,6 +58,13 @@ fzf-audio-input-widget() {
 }
 zle -N fzf-audio-input-widget
 
+fzf-audio-output-widget() {
+    B=$(pacmd list-sinks | awk -vRS='>' -vFS='<' '/name:/ { print $2 }' | $(__fzfcmd))
+    LBUFFER="${LBUFFER}${B}"
+    zle redisplay
+}
+zle -N fzf-audio-output-widget
+
 fzf-tab-widget() {
     B=$(lstab | urls | $(__fzfcmd))
     LBUFFER="${LBUFFER}${B}"
@@ -68,6 +75,7 @@ zle -N fzf-tab-widget
 bindkey '^]^]' fzf-info-widget
 bindkey '^]b' fzf-git-branch-widget
 bindkey '^]a' fzf-audio-input-widget
+bindkey '^]o' fzf-audio-output-widget
 bindkey '^]f' fzf-file-widget
 bindkey '^]t' fzf-tab-widget
 

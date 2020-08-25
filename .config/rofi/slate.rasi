@@ -40,5 +40,6 @@ element {
 }
 
 element selected {
-  background-color: #458588;
+  background-color: ${XRDBFOREGROUND};
+  text-color: ${XRDBBACKGROUND};
 }
