@@ -1,3 +1,5 @@
+FZF_TMUX_OPTS="-p"
+
 # Auto-completion
 # ---------------
 if [[ -f /usr/share/fzf/completion.zsh ]]; then
@@ -21,7 +23,7 @@ __fsel() {
 }
 
 __fzfcmd() {
-  [ ${FZF_TMUX:-1} -eq 1 ] && echo "fzf-tmux -d${FZF_TMUX_HEIGHT:-40%}" || echo "fzf"
+  [ ${FZF_TMUX:-1} -eq 1 ] && echo "fzf-tmux ${FZF_TMUX_OPTS:--d${FZF_TMUX_HEIGHT:-40%}}" || echo "fzf"
 }
 
 fzf-file-widget() {

@@ -4,6 +4,7 @@ extra/ruby
 extra/gvim
 extra/gnome-keyring
 community/tmux
+community/ack
 
 # Fonts
 extra/xorg-fonts-type1

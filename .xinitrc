@@ -8,11 +8,10 @@ if [[ -e ~/.Xmodmap ]]; then
     xmodmap ~/.Xmodmap
 fi
 
-xrandr --output DP-2 --auto --primary --pos 0x0
-xrandr --output HDMI-0 --auto --right-of DP-2 --scale-from 2560x1440 --pos 2560x0
+xrandr --output HDMI-0 --auto --left-of DP-2 --scale-from 2560x1440 --pos 0x0
+xrandr --output DP-0 --auto --primary --pos 2560x0
 
-/* feh --bg-scale ~/.background.png */
-switch-dynamic-background
+feh --bg-scale ~/.background.png
 dunst-xrdb &
 receive-remote-notifications &
 

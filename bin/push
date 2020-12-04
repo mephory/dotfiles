@@ -55,4 +55,5 @@ curl -s \
   --form-string "title=$ARG_TITLE" \
   --form-string "url=$ARG_URL" \
   --form-string "priority=$ARG_PRIO" \
+  --form-string "sound=$ARG_SOUND" \
   "https://api.pushover.net/1/messages.json"

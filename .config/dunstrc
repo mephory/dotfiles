@@ -13,6 +13,8 @@
     # message.
     allow_markup = yes
 
+    always_run_script = no
+
     # The format of the message.  Possible variables are:
     #   %a  appname
     #   %s  summary
@@ -163,18 +165,18 @@
     # Xev might be helpful to find names for keys.
 
     # Close notification.
-    close = mod1+bracketright
+    # close = mod1+bracketright
 
     # Close all notifications.
-    close_all = mod1+shift+bracketright
+    # close_all = mod1+shift+bracketright
 
     # Redisplay last message(s).
     # On the US keyboard layout "grave" is normally above TAB and left
     # of "1".
-    history = mod1+bracketleft
+    # history = mod1+bracketleft
 
     # Context menu.
-    context = mod1+shift+bracketleft
+    # context = mod1+shift+bracketleft
 
 [urgency_low]
     # IMPORTANT: colors have to be defined in quotation marks.
@@ -217,9 +219,9 @@
 summary = "Matchmaking Status"
 script = d2-accept
 
-# [sound]
-# summary = "*"
-# script = ~/bin/play-notification
+[sound]
+summary = "*"
+script = ~/bin/play-notification
 
 #[espeak]
 #    summary = "*"

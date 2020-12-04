@@ -1,6 +1,7 @@
 #!/bin/sh
 
 cat $HOME/.config/termite/config.template \
+    | sed s/\$XRDBBACKGROUNDRGBA/$XRDBBACKGROUNDRGBA/g \
     | sed s/\$XRDBBACKGROUND/$XRDBBACKGROUND/g \
     | sed s/\$XRDBFOREGROUND/$XRDBFOREGROUND/g \
     | sed s/\$XRDBCOLOR15/$XRDBCOLOR15/g \

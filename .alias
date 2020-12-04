@@ -137,6 +137,12 @@ function N() {
         notify-send "$1 failed" "Your job has failed."
 }
 
+function NN() {
+    $1 ${@: 2} && \
+        push -sclassical -p1 "$1 finished" || \
+        push -sclassical -p1 "$1 failed"
+}
+
 # Shorten a url via google url shortener
 function shorturl() {
     if [[ -z $1 ]]; then

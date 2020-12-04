@@ -11,7 +11,7 @@ import System.Environment (setEnv, getEnv)
 import Control.Monad (forM_)
 
 resourceNames :: [String]
-resourceNames = ["background", "foreground", "theme"] ++ map (\x -> "color" ++ show x) [0..15]
+resourceNames = ["background", "backgroundrgba", "foreground", "theme"] ++ map (\x -> "color" ++ show x) [0..15]
 
 getResource :: String -> [String] -> Maybe String
 getResource k xs = fmap (drop 1 . dropWhile (/= '\t')) resource

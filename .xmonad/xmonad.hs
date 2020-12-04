@@ -83,11 +83,11 @@ main = do
       -- simple stuff
         terminal           = "termite"
       , focusFollowsMouse  = True
-      , borderWidth        = 0
+      , borderWidth        = 1
       , modMask            = mod1Mask
       , workspaces         = wsNames
-      , normalBorderColor  = "#3b4252"
-      , focusedBorderColor = "#3c5a70"
+      , normalBorderColor  = "#333"
+      , focusedBorderColor = "#ccc"
 
       -- key bindings
       , keys               = \x -> myKeys x xpc
@@ -110,9 +110,7 @@ projects =
     [ Project { projectName      = "sys"
               , projectDirectory = "~/"
               , projectStartHook = Just $ do
-                    spawn "termite"
                     spawn "pavucontrol"
-                    runInTerm "" "htop"
                     spawn "termite"
               }
     , Project { projectName      = "\xf362"
@@ -142,13 +140,19 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) xpc = M.fromList $
     , ((modm              , xK_comma ), sendMessage (IncMasterN 1))
     , ((modm              , xK_period), sendMessage (IncMasterN (-1)))
     , ((modm .|. shiftMask, xK_f     ), toggleFloatNext >> runLogHook)
-    , ((modm              , xK_Escape), spawn "gllock")
+    , ((modm              , xK_Escape), spawn "slock")
     , ((modm              , xK_grave ), toggleWS' ["NSP"])
     , ((modm              , xK_o     ), withFocused toggleZoom)
 
     -- Prompts
     , ((modm              , xK_n     ), passwordPrompt xpc)
     , ((modm .|. shiftMask, xK_n     ), genPasswordPrompt xpc)
+
+    -- Dunst
+    , ((modm              , xK_bracketleft), spawn "dunstctl history-pop")
+    , ((modm .|. shiftMask, xK_bracketleft), spawn "dunstctl context")
+    , ((modm              , xK_bracketright), spawn "dunstctl close")
+    , ((modm .|. shiftMask, xK_bracketright), spawn "dunstctl close-all")
 
     -- Various
     , ((modm              , xK_i     ), spawn "tesstest")
@@ -227,7 +231,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) xpc = M.fromList $
     -- mod-shift-{w,e,r}, Move client to screen 1, 2, or 3
     --
     [((m .|. modm, key), screenWorkspace sc >>= flip whenJust (f))
-        | (key, sc) <- zip [xK_w, xK_e, xK_q] [0..]
+        | (key, sc) <- zip [xK_w, xK_q] [0..]
         , (f, m) <- [(windows . W.view, 0), (windows . W.shift, shiftMask)]]
 
 
@@ -303,7 +307,7 @@ myLayout fiTheme = noBorders $
     onWorkspace "1" (full ||| fullscreen ||| tiled ||| mtiled) $
     onWorkspace "5" fullscreen $
     onWorkspace "7" (focusIndicator $ avoidStruts $ Tall 1 (3/100) (1/4)) $
-    onWorkspace "sys" (focusIndicator $ spacingRaw True (Border 0 10 10 10) True (Border 10 10 10 10) True $ avoidStruts $ Grid)
+    onWorkspace "sys" (focusIndicator $ spacingRaw True (Border 0 10 10 10) True (Border 10 10 10 10) True $ avoidStruts $ Mirror Grid)
     defaultConf
     where
         -- default tiling algorithm partitions the screen into two panes
@@ -457,3 +461,4 @@ buildFocusIndicatorTheme = do
         , urgentTextColor       = "#ff0000"
         , decoHeight            = 4
         }
+
