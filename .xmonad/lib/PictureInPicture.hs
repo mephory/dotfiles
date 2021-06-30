@@ -67,9 +67,8 @@ disable :: X ()
 disable = do
     PipStorage win <- XS.get
     case win of
-        Just (w, pos, _) -> setWindowPosition w pos
+        Just (w, pos, _) -> setWindowPosition w pos >> (XS.modify $ \_ -> PipStorage Nothing) >> windows (W.focusWindow w)
         Nothing          -> mempty
-    XS.modify $ \_ -> PipStorage Nothing
     runLogHook
 
 view :: WorkspaceId -> X ()
@@ -166,10 +165,23 @@ pipLogHook = do
     case pip of
         Just (w, _, _) -> do
             winset <- gets windowset
-            let ms = (W.stack . W.workspace . W.current) winset
-            case ms of
-                Just stack -> if (W.focus stack) == w
-                                then windows W.focusDown
-                                else mempty
-                Nothing -> mempty
+            preventFocus winset w
+            followView winset w
         Nothing -> mempty
+
+preventFocus :: WindowSet -> Window -> X ()
+preventFocus set w = case (W.stack . W.workspace . W.current) set of
+                     Just stack -> if (W.focus stack) == w && hasWindows stack
+                                   then windows W.focusDown
+                                   else mempty
+                     Nothing -> mempty
+
+followView :: WindowSet -> Window -> X () 
+followView set w = case W.findTag w set of
+                   Just n -> if (n == (W.currentTag set))
+                             then mempty
+                             else windows (W.shiftWin (W.currentTag set) w)
+                   Nothing -> mempty
+
+hasWindows :: Eq a => W.Stack a -> Bool
+hasWindows stack = (length (W.up stack) + length (W.down stack)) > 0

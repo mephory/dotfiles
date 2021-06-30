@@ -92,6 +92,8 @@ def main
       system "playerctl -p #{current_player} play-pause", out: File::NULL, err: File::NULL
     when :next
       system "playerctl -p #{current_player} next", out: File::NULL, err: File::NULL
+    when :previous
+      system "playerctl -p #{current_player} previous", out: File::NULL, err: File::NULL
     end
   end
 end

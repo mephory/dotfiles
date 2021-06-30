@@ -1,0 +1,13 @@
+#!/bin/sh
+
+FILE="$1"
+DIR="$(dirname "$(realpath "$1")")"
+FILENAME="$(basename "$1")"
+
+mkdir -p output
+
+docker run \
+    -v $DIR:/input \
+    -v $PWD/output:/output \
+    researchdeezer/spleeter \
+    separate -i "/input/$FILENAME" -o /output

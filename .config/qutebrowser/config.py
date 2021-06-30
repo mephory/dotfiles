@@ -1,6 +1,8 @@
 import quickmarks
 import os
 
+config.load_autoconfig(False)
+
 for line in os.popen('set-xrdb-env').readlines():
     var, val = line.split(' ')[1].strip().split('=')
     os.environ[var] = val
@@ -43,7 +45,7 @@ config.bind('O', 'set-cmd-text :open {url}')
 config.bind('gh', 'tab-prev')
 config.bind('gl', 'tab-next')
 config.bind('gr', 'tab-prev')
-config.bind('gt', 'tab-focus')
+config.bind('gt', 'tab-next')
 config.bind('gH', 'tab-move -')
 config.bind('gL', 'tab-move +')
 config.bind('<Ctrl-Tab>', 'tab-next')
@@ -54,7 +56,7 @@ config.bind(',m', 'set-cmd-text -s :tab-move')
 config.bind(',b', 'set-cmd-text -s :buffer')
 config.bind(',,', 'tab-focus last')
 config.bind(',.', 'config-source')
-config.bind('<escape>', 'leave-mode ;; jseval -q document.activeElement.blur()', mode='insert')
+config.bind('<escape>', 'mode-leave ;; jseval -q document.activeElement.blur()', mode='insert')
 config.bind(',q', 'set-cmd-text -s :quickmark-load')
 config.bind(',Q', 'set-cmd-text -s :quickmark-load -t')
 config.bind('<Ctrl-e>', 'scroll down')

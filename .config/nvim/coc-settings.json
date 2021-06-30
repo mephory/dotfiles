@@ -1,0 +1,5 @@
+{
+    "suggest.autoTrigger": "none",
+    "solargraph.useBundler": false,
+    "coc.preferences.rootPatterns": ["Gemfile", ".git", ".hg"]
+}

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+mpv ~/.local/share/sounds/notification.ogg

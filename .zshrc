@@ -7,6 +7,14 @@ setopt histignorespace
 setopt incappendhistory
 
 
+# autocompletion settings
+autoload -Uz compinit
+zstyle ':completion:*' completer _complete _ignored
+zstyle ':completion:*' expand prefix
+zstyle :compinstall filename '/home/mephory/.zshrc'
+fpath=(~/.zsh-completions $fpath)
+compinit
+
 # settings and environment
 export HISTFILE=~/.history
 export HISTSIZE=1000000
@@ -22,6 +30,7 @@ export PATH="$PATH:$HOME/.gem/ruby/2.6.0/bin"
 export PATH="$PATH:$HOME/.gem/ruby/2.7.0/bin"
 export PATH="$PATH:$HOME/.cabal/bin"
 export PATH="$PATH:$HOME/.npm-global/bin"
+export PATH="$PATH:$HOME/.local/bin"
 export PATH="$PATH:$HOME/bin"
 export PATH="$PATH:$HOME/bin/git-plugins"
 export PATH="$PATH:$HOME/bin/tmux-plugins"
@@ -46,27 +55,25 @@ hash -d cam="$HOME/data/images/webcam"
 hash -d ext="/mnt/external"
 hash -d eimg="/mnt/external/image"
 hash -d evid="/mnt/external/video"
+hash -d poe="/home/mephory/.local/share/Steam/steamapps/compatdata/238960/pfx/drive_c/users/steamuser/My Documents/My Games/Path of Exile"
 
 
-# autocompletion settings
-autoload -Uz compinit
-compinit
-zstyle ':completion:*' completer _complete _ignored
-zstyle ':completion:*' expand prefix
-zstyle :compinstall filename '/home/mephory/.zshrc'
-fpath=(~/.zsh-completions $fpath)
 
-
-# prompt
-function zle-line-init zle-keymap-select {
-    if [[ $KEYMAP = "vicmd" ]]; then
-        PCOLOR="%{$fg[yellow]%}"
-    else
-        PCOLOR="%{$reset_color%}"
-    fi;
-    PROMPT="%(#.%{$fg[red]%}.%{$fg[yellow]%})%n %{$fg[blue]%}%~ %{$fg[magenta]%}$(gitprompt)%(1j.%{$fg[green]%}[%j] .)$PCOLOR$%{$reset_color%} "
-    zle reset-prompt
-}
+# # prompt
+# function zle-line-init zle-keymap-select {
+#     if [[ $KEYMAP = "vicmd" ]]; then
+#         PCOLOR="%{$fg[yellow]%}"
+#     else
+#         PCOLOR="%{$reset_color%}"
+#     fi;
+#     PROMPT="\
+# %(#.%{$fg[red]%}.%{$fg[yellow]%})%n \
+# %{$fg[blue]%}%~ \
+# %{$fg[magenta]%}$(gitprompt)\
+# %{$fg[cyan]%}$(rbpyenvprompt)\
+# %(1j.%{$fg[green]%}[%j] .)$PCOLOR$%{$reset_color%} "
+#     zle reset-prompt
+# }
 
 # kill word but have / as word separator
 function backward-kill-dirword {
@@ -83,8 +90,8 @@ zle -N insert-newest-file-glob
 
 autoload -Uz colors
 colors
-zle -N zle-line-init
-zle -N zle-keymap-select
+# zle -N zle-line-init
+# zle -N zle-keymap-select
 export KEYTIMEOUT=1
 
 
@@ -192,3 +199,4 @@ fi
 # export PYENV_ROOT="$HOME/.pyenv"
 # export PATH="$PYENV_ROOT/bin:$PATH"
 # eval "$(pyenv init -)"
+eval "$(starship init zsh)"

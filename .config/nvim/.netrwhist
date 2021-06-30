@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =6
+let g:netrw_dirhist_6='/home/mephory/code/muerte-de-documentos/loeschui/src/documents'
+let g:netrw_dirhist_5='/home/mephory/code/muerte-de-documentos/LoeschService/LoeschService.Web/migrations'
+let g:netrw_dirhist_4='/home/mephory/code/muerte-de-documentos'
+let g:netrw_dirhist_3='/home/mephory/code/ihksuite/hook/modules'
+let g:netrw_dirhist_2='/home/mephory/code/ihksuite'
+let g:netrw_dirhist_1='/x/backup/code/textgen/mtg/complete/output/1.2/10'
+let g:netrw_dirhist_0='/x/backup/code/textgen/mtg/complete/output/1.2/1'
+let g:netrw_dirhist_9='/x/backup/code/textgen/mtg/complete/output/1.3/1'
+let g:netrw_dirhist_8='/x/backup/code/textgen/mtg/complete/output/1.3/10'
+let g:netrw_dirhist_7='/x/backup/code/textgen/mtg/complete/output/1.3/1'

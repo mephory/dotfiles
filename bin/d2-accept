@@ -5,3 +5,4 @@ sleep 0.3
 xdotool windowfocus --sync $WID
 sleep 0.3
 xdotool key --window $WID Return
+push -p1 "Match ready"

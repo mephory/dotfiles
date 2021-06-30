@@ -223,6 +223,10 @@ script = d2-accept
 summary = "*"
 script = ~/bin/play-notification
 
+[dashboard]
+summary = "*"
+script = /home/mephory/code/kindle-dashboard/add_notification
+
 #[espeak]
 #    summary = "*"
 #    script = dunst_espeak.sh

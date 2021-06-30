@@ -1,17 +1,23 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 
+import XMonad.Util.WindowProperties
 import XMonad
+import XMonad.Layout.Tabbed
+import XMonad.Actions.ShowText
 import XMonad.Actions.CycleWS
 import XMonad.Actions.Submap
 import XMonad.Actions.NoBorders
 import XMonad.Actions.FloatSnap
 import XMonad.Actions.DynamicProjects
+import XMonad.Actions.Search
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.NoBorders
 import XMonad.Layout.NoFrillsDecoration
 import XMonad.Layout.Spacing
 import XMonad.Layout.Grid
+import XMonad.Layout.LayoutBuilder
+import XMonad.Hooks.FadeInactive
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
@@ -58,6 +64,9 @@ myWorkspaces = [ WS "1"       (Just xK_1)           True
                , WS "'"       (Just xK_apostrophe)  True
                , WS "sys"     (Just xK_F1)          False
                , WS "F2"      (Just xK_F2)          True
+               , WS "F3"      (Just xK_F3)          True
+               , WS ","       (Just xK_comma)       True
+               , WS "."       (Just xK_period)      True
                , WS "NSP"     Nothing               False
                ]
 
@@ -81,7 +90,7 @@ main = do
     safeSpawn "mkfifo" ["/tmp/workspace-info"]
     xmonad $ docks $ ewmh $ dynamicProjects projects $ withUrgencyHook NoUrgencyHook def {
       -- simple stuff
-        terminal           = "termite"
+        terminal           = "alacritty"
       , focusFollowsMouse  = True
       , borderWidth        = 1
       , modMask            = mod1Mask
@@ -111,7 +120,7 @@ projects =
               , projectDirectory = "~/"
               , projectStartHook = Just $ do
                     spawn "pavucontrol"
-                    spawn "termite"
+                    spawn "alacritty"
               }
     , Project { projectName      = "\xf362"
               , projectDirectory = "~/"
@@ -119,6 +128,8 @@ projects =
                     spawn "spotify"
               }
     ]
+
+jisho = searchEngine "jisho" "https://jisho.org/search/"
 
 -- Key bindings. Add, modify or remove key bindings here.
 myKeys conf@(XConfig {XMonad.modMask = modm}) xpc = M.fromList $
@@ -137,8 +148,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) xpc = M.fromList $
     , ((modm,               xK_h     ), sendMessage Shrink)
     , ((modm,               xK_l     ), sendMessage Expand)
     , ((modm,               xK_t     ), withFocused $ windows . W.sink)
-    , ((modm              , xK_comma ), sendMessage (IncMasterN 1))
-    , ((modm              , xK_period), sendMessage (IncMasterN (-1)))
+    , ((modm              , xK_minus ), sendMessage (IncMasterN (-1)))
+    , ((modm .|. shiftMask, xK_minus ), sendMessage (IncMasterN (1)))
     , ((modm .|. shiftMask, xK_f     ), toggleFloatNext >> runLogHook)
     , ((modm              , xK_Escape), spawn "slock")
     , ((modm              , xK_grave ), toggleWS' ["NSP"])
@@ -155,19 +166,16 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) xpc = M.fromList $
     , ((modm .|. shiftMask, xK_bracketright), spawn "dunstctl close-all")
 
     -- Various
-    , ((modm              , xK_i     ), spawn "tesstest")
-    , ((modm .|. shiftMask, xK_slash ), spawn "sodomsg")
-    -- , ((modm              , xK_semicolon), withFocused P.toggle)
-    , ((modm .|. shiftMask, xK_semicolon), spawn "rofi-twitch")
+    , ((modm              , xK_y     ), selectSearch jisho)
+    , ((modm .|. shiftMask, xK_slash ), spawn "ruby /home/mephory/code/poe/click.rb")
     , ((modm              , xK_slash),  submapWithHints xpc $
         [ ("q   recompile xmonad"       , (0, xK_q), spawn "xmonad --recompile && xmonad --restart")
-        , ("m   draw dota minimap image", (0, xK_m), spawn "dota-minimap-image")
         , ("f   view facebook graph"    , (0, xK_f), spawn "view-fbg filtered")
         , ("k   default keyboard layout", (0, xK_k), spawn "setxkbmap us -option compose:ralt")
-        , ("e   edit config file"       , (0, xK_e), spawn "edit-config")
         , ("m-Q   exit xmonad"          , (modm .|. shiftMask, xK_q     ), io exitSuccess)
         ])
     , ((modm              , xK_u     ), spawn "qutebrowser")
+    , ((modm              , xK_semicolon), spawn "xterm")
 
     -- Floating Positions
     , ((modm              , xK_f     ) , withFocused makeFloatingCenterWindow)
@@ -180,8 +188,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) xpc = M.fromList $
     , ((modm .|. shiftMask, xK_Up    ) , withFocused $ snapShrink D Nothing)
     , ((modm .|. shiftMask, xK_Down  ) , withFocused $ snapGrow D Nothing)
     , ((modm              , xK_g     ) , withFocused centerFloatingWindow)
-    , ((modm              , xK_r     ) , withFocused $ \w -> setOpacity w (2/3))
-    , ((modm .|. shiftMask, xK_r     ) , withFocused $ \w -> setOpacity w 1.0)
+    -- , ((modm              , xK_r     ) , withFocused $ \w -> setOpacity w (2/3))
+    -- , ((modm .|. shiftMask, xK_r     ) , withFocused $ \w -> setOpacity w 1.0)
 
     -- Screenshots
     , ((0                 , xK_Print ), spawn "import -window root $HOME/data/screenshots/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png")
@@ -194,12 +202,13 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) xpc = M.fromList $
     -- Scratchpads
     , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
     , ((modm              , xK_c     ), namedScratchpadAction myScratchpads "terminal-2")
+    , ((modm              , xK_x     ), namedScratchpadAction myScratchpads "terminal-3")
     , ((modm              , xK_z     ), namedScratchpadAction myScratchpads "music")
     , ((modm              , xK_b     ), namedScratchpadAction myScratchpads "irc")
     , ((modm .|. shiftMask, xK_p     ), namedScratchpadAction myScratchpads "color")
     , ((modm              , xK_backslash), namedScratchpadAction myScratchpads "bot-term")
     , ((modm .|. shiftMask, xK_o     ), namedScratchpadAction myScratchpads "icloud")
-    , ((modm              , xK_x     ), namedScratchpadAction myScratchpads "discord")
+    , ((modm              , xK_r     ), namedScratchpadAction myScratchpads "discord")
     , ((modm              , xK_a     ), spawnDynamicSP "dyn1")
     , ((modm .|. shiftMask, xK_a     ), withFocused $ makeDynamicSP "dyn1")
     , ((modm              , xK_s     ), spawnDynamicSP "dyn2")
@@ -211,9 +220,11 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) xpc = M.fromList $
     , ((0, xF86XK_AudioMute), spawn "amixer sset Master toggle")
     , ((0, xF86XK_AudioLowerVolume), spawn "pulsemixer --change-volume -1")
     , ((0, xF86XK_AudioRaiseVolume), spawn "pulsemixer --change-volume +1")
-    , ((0, xF86XK_AudioPlay), spawn "playerctl play-pause")
-    , ((0, xF86XK_AudioPrev), spawn "playerctl previous")
-    , ((0, xF86XK_AudioNext), spawn "playerctl next")
+    , ((0, xF86XK_AudioPlay), spawn "polybar-playerctl toggle")
+    , ((0, xF86XK_AudioPrev), spawn "polybar-playerctl previous")
+    , ((0, xF86XK_AudioNext), spawn "polybar-playerctl next")
+    , ((shiftMask, xF86XK_AudioPlay), spawn "polybar-playerctl switch")
+    , ((0, xF86XK_Tools), spawn "polybar-playerctl switch")
     , ((0, xF86XK_MonBrightnessDown), spawn "xbacklight -dec 5")
     , ((0, xF86XK_MonBrightnessUp), spawn "xbacklight -inc 5")
     , ((0, xF86XK_Display), spawn "xbacklight -set 85")
@@ -231,7 +242,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) xpc = M.fromList $
     -- mod-shift-{w,e,r}, Move client to screen 1, 2, or 3
     --
     [((m .|. modm, key), screenWorkspace sc >>= flip whenJust (f))
-        | (key, sc) <- zip [xK_w, xK_q] [0..]
+        | (key, sc) <- zip [xK_w, xK_q, xK_e] [0..]
         , (f, m) <- [(windows . W.view, 0), (windows . W.shift, shiftMask)]]
 
 
@@ -252,8 +263,8 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList
     , ((modm , button4) , \w -> changeOpacity w (5/100))
     , ((modm , button5) , \w -> changeOpacity w (-5/100))
     , ((0    , 10 :: Button), \_ -> spawn "polybar-playerctl toggle")
-    , ((0    , 11 :: Button), \_ -> spawn "polybar-playerctl next")
-    , ((0    , 12 :: Button), \_ -> spawn "polybar-playerctl switch")
+    -- , ((0    , 11 :: Button), \_ -> spawn "polybar-playerctl next")
+    -- , ((0    , 12 :: Button), \_ -> spawn "polybar-playerctl switch")
     ]
 
 screenshotMap n xpc =
@@ -307,6 +318,7 @@ myLayout fiTheme = noBorders $
     onWorkspace "1" (full ||| fullscreen ||| tiled ||| mtiled) $
     onWorkspace "5" fullscreen $
     onWorkspace "7" (focusIndicator $ avoidStruts $ Tall 1 (3/100) (1/4)) $
+    -- onWorkspace "7" steam $
     onWorkspace "sys" (focusIndicator $ spacingRaw True (Border 0 10 10 10) True (Border 10 10 10 10) True $ avoidStruts $ Mirror Grid)
     defaultConf
     where
@@ -316,6 +328,9 @@ myLayout fiTheme = noBorders $
         full       = avoidStruts $ spaced $ Full
         fullscreen = Full
         defaultConf = tiled ||| mtiled ||| full
+        -- steam = layoutP (And (ClassName "Steam") (Title "Friends List")) (relBox 0 0 (1/4) 1) Nothing tiled $
+        --         layoutP (And (ClassName "Steam") (Not (Title "Steam"))) (relBox (1/4) 0 1 (1/2)) Nothing tiled $
+        --         layoutAll (relBox (1/4) (1/2) 1 1) tiled
 
         -- The default number of windows in the master pane
         nmaster = 1
@@ -323,7 +338,7 @@ myLayout fiTheme = noBorders $
         ratio   = 0.6
         -- Percent of screen to increment by when resizing panes
         delta   = 3/100
-        spaced = spacingRaw True (Border 5 5 5 5) False (Border 8 8 8 8) True
+        spaced = spacingRaw True (Border 5 5 5 5) False (Border 5 5 5 5) True
         focusIndicator = noFrillsDeco shrinkText fiTheme
 
 myManageHook = composeAll
@@ -342,6 +357,7 @@ myManageHook = composeAll
     , className =? "feh-float"           --> doF W.shiftMaster <+> placeHook (fixed (0.5, 0.5)) <+> doFloat
     , title     =? "Microsoft Teams Notification" --> placeHook (fixed (1, 1)) <+> doFloat
     , title     =? "Picture-in-Picture"  --> (customFloating $ W.RationalRect 0.65 0.65 0.3 0.3)
+    , className =? "Steam"               --> doShift "7"
     ]
 
 floatPlacement = placeHook (withGaps (10, 10, 10, 10) $ smart (0.5, 0.2))
@@ -349,7 +365,7 @@ floatPlacement = placeHook (withGaps (10, 10, 10, 10) $ smart (0.5, 0.2))
 myEventHook = mempty
 
 myStartupHook = do
-    safeSpawn "reload-termite-config" []
+    safeSpawn "reload-alacritty-config" []
     safeSpawn "restart-polybar" []
     safeSpawn "restart-dunst" []
 
@@ -364,18 +380,18 @@ myScratchpads = [ NS "terminal"   spawnTerminal  findTerminal  manageSP
                 , NS "discord"    spawnDiscord   findDiscord   manageDiscordSP
                 ]
     where
-        spawnTerminal  = "termite --name scratchpad"
+        spawnTerminal  = "alacritty --class scratchpad"
         findTerminal   = resource =? "scratchpad"
-        spawnTerminal2 = "termite --name scratchpad-2"
+        spawnTerminal2 = "alacritty --class scratchpad-2"
         findTerminal2  = resource =? "scratchpad-2"
-        spawnTerminal3 = "termite --name scratchpad-3"
+        spawnTerminal3 = "alacritty --class scratchpad-3"
         findTerminal3  = resource =? "scratchpad-3"
-        spawnBotTerm   = "termite --name bot-term --class invertedTerm"
+        spawnBotTerm   = "alacritty --class bot-term"
         findBotTerm    = resource =? "bot-term"
-        spawnMusic     = "termite --name music -e 'pulsemixer'"
+        spawnMusic     = "alacritty --class music -e 'pulsemixer'"
         findMusic      = resource =? "music"
         -- spawnIrc       = "xterm -name irc -e 'tmux-attach-or-new irc weechat'"
-        spawnIrc       = "termite --name irc -e 'ssh -t mephory LANG=en_US.utf8 TERM=xterm-256color tmux attach -t irc'"
+        spawnIrc       = "alacritty --class irc -e ssh -t mephory LANG=en_US.utf8 TERM=xterm-256color tmux attach -t irc"
         -- spawnIrc       = "xterm -name irc -e 'ssh -t mephory tmux attach -t irc'"
         findIrc        = resource =? "irc"
         spawnColor     = "gcolor3"
@@ -389,7 +405,8 @@ myScratchpads = [ NS "terminal"   spawnTerminal  findTerminal  manageSP
         manageIrcSP = (customFloating $ centeredRect 0.6 0.6)
         manageColorSP = placeHook (fixed (0.5, 0.5)) <+> doFloat
         manageIcloudSP = customFloating $ W.RationalRect 0 0 1 0.6
-        manageDiscordSP = (customFloating $ centeredRect 0.7 0.7) <+> (ask >>= \w -> liftX (setOpacity w (9/10)) >> mempty)
+        manageDiscordSP = (customFloating $ centeredRect 0.7 0.7)
+        -- manageDiscordSP = (customFloating $ centeredRect 0.7 0.7) <+> (ask >>= \w -> liftX (setOpacity w (9/10)) >> mempty)
         centeredRect w h = W.RationalRect ((1 - w) / 2) ((1 - h) / 2) w h
 
 myLogHook homeDir = dynamicLogWithPP $ def {
@@ -416,7 +433,7 @@ myLogHook homeDir = dynamicLogWithPP $ def {
             | "Tall" `isInfixOf` s        = "\xe002"
             | "Full" `isInfixOf` s        = "\xe001"
             | "OneBig" `isPrefixOf` s     = "O"
-            | otherwise                   = "\xe005"
+            | otherwise                   = "\xe004"
         floatNextStr s = case s of
             ""        -> " "
             otherwise -> "·"
