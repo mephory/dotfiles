@@ -1,0 +1,10 @@
+configuration {
+  theme: "~/.config/rofi/slate.rasi";
+  width: 33;
+  location: 0;
+  monitor: -4;
+}
+
+element {
+  children: [element-icon, element-text];
+}

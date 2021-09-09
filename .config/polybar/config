@@ -1,5 +1,7 @@
 [colors]
-background = ${xrdb:background:#282828}
+; background = ${xrdb:background:#282828}
+; background = #45282828
+background = #000000
 background-alt = #444
 foreground = ${xrdb:foreground:#ebdbb2}
 foreground-alt = ${xrdb:color8:#555}
@@ -23,12 +25,15 @@ radius = 0
 fixed-center = true
 
 background = ${colors.background}
+; background-0 = #ff111111
+; background-1 = #00111111
+; background-1 = ${colors.background}
 foreground = ${colors.foreground}
 
 line-size = 3
 line-color = #f00
 
-border-size = 1
+border-size = 0
 border-color = #181818
 
 padding-left = 0
@@ -47,12 +52,14 @@ font-5 = "waffle:size=12;2"
 
 modules-left = xmonad playerctl
 modules-center = xwindow
-modules-right = progress kronos pbstatus ping timer pulseaudio date
+modules-right = progress ping timer pulseaudio date
 
-tray-position = none
+tray-position = right
 tray-padding = 2
+tray-reparent = false
 
 override-redirect = false
+wm-restack = generic
 cursor-click = pointer
 cursor-scroll = ns-resize
 
@@ -224,6 +231,7 @@ screenchange-reload = true
 ;compositing-foreground = source
 ;compositing-border = over
 ;pseudo-transparency = false
+compositing-foreground = add
 
 [global/wm]
 margin-top = 0

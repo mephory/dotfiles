@@ -35,7 +35,8 @@ xterm*termName: xterm-256color
 *VT100.Translations: #override \
   Super<KeyPress>: string(0x1b) insert()
 
-#define nord0 #2E3440
+! #define nord0 #2E3440
+#define nord0 #292e39
 #define nord1 #3B4252
 #define nord2 #434C5E
 #define nord3 #4C566A

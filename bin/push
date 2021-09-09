@@ -18,6 +18,10 @@ while [ "$#" -gt 0 ]; do
         -s*) ARG_SOUND="${1:2}"; shift 1;;
         --sound=*) ARG_SOUND="${1#*=}"; shift 1;;
 
+        -a) ARG_ATTACH="$2"; shift 2;;
+        -a*) ARG_ATTACH="${1:2}"; shift 1;;
+        --attachment=*) ARG_ATTACH="${1#*=}"; shift 1;;
+
         -h) ARG_HELP=true; shift 1;;
         --help) ARG_HELP=true; shift 1;;
 
@@ -48,12 +52,25 @@ if [ "$ARG_HELP" = true ]; then
 fi
 
 
-curl -s \
-  --form-string "token=$PUSHOVER_APP_TOKEN" \
-  --form-string "user=$PUSHOVER_USER_TOKEN" \
-  --form-string "message=$ARG_MESSAGE" \
-  --form-string "title=$ARG_TITLE" \
-  --form-string "url=$ARG_URL" \
-  --form-string "priority=$ARG_PRIO" \
-  --form-string "sound=$ARG_SOUND" \
-  "https://api.pushover.net/1/messages.json"
+if [ -z "$ARG_ATTACH" ]; then
+  curl -s \
+    --form-string "token=$PUSHOVER_APP_TOKEN" \
+    --form-string "user=$PUSHOVER_USER_TOKEN" \
+    --form-string "message=$ARG_MESSAGE" \
+    --form-string "title=$ARG_TITLE" \
+    --form-string "url=$ARG_URL" \
+    --form-string "priority=$ARG_PRIO" \
+    --form-string "sound=$ARG_SOUND" \
+    "https://api.pushover.net/1/messages.json"
+else
+  curl -s \
+    --form-string "token=$PUSHOVER_APP_TOKEN" \
+    --form-string "user=$PUSHOVER_USER_TOKEN" \
+    --form-string "message=$ARG_MESSAGE" \
+    --form-string "title=$ARG_TITLE" \
+    --form-string "url=$ARG_URL" \
+    --form-string "priority=$ARG_PRIO" \
+    --form-string "sound=$ARG_SOUND" \
+    -F "attachment=@$ARG_ATTACH" \
+    "https://api.pushover.net/1/messages.json"
+fi

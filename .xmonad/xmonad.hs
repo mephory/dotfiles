@@ -65,8 +65,6 @@ myWorkspaces = [ WS "1"       (Just xK_1)           True
                , WS "sys"     (Just xK_F1)          False
                , WS "F2"      (Just xK_F2)          True
                , WS "F3"      (Just xK_F3)          True
-               , WS ","       (Just xK_comma)       True
-               , WS "."       (Just xK_period)      True
                , WS "NSP"     Nothing               False
                ]
 
@@ -279,8 +277,16 @@ screenshotMap n xpc =
           , ("2   Screen 2", (0, xK_2), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", "-crop", "2560x1440+2560+0", "+repage", newScreenshotName])
           , ("3   Screen 3", (0, xK_3), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", "-crop", "2560x1440+5120+0", "+repage", newScreenshotName])
           ])
+    , ("f   Full", (0, xK_f), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", newScreenshotName])
+    , ("a   Choose Window/Area", (0, xK_a), spawn $ unwords ["sleep", "0.2", ";", "import", newScreenshotName])
+    , ("w   Focused Window", (0, xK_w), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "$(xdotool getwindowfocus -f)", newScreenshotName])
+    , ("Q   Screen 1", (shiftMask, xK_q), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", "-crop", "2560x1440+0+0", "+repage", newScreenshotName])
+    , ("W   Screen 2", (shiftMask, xK_w), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", "-crop", "2560x1440+2560+0", "+repage", newScreenshotName])
+    , ("E   Screen 3", (shiftMask, xK_e), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", "-crop", "2560x1440+5120+0", "+repage", newScreenshotName])
     , ("v   view",
         (0, xK_v), spawn $ unwords ["feh", filename])
+    , ("y   clipboard",
+        (0, xK_y), spawn $ unwords ["xclip", "-target", "image/png", "-selection", "clipboard", filename])
     , ("c   draw a circle",
         (0, xK_c), spawn $ unwords ["vcircle", filename, nextFilename])
     , ("r   draw a rectangle",
@@ -338,7 +344,8 @@ myLayout fiTheme = noBorders $
         ratio   = 0.6
         -- Percent of screen to increment by when resizing panes
         delta   = 3/100
-        spaced = spacingRaw True (Border 5 5 5 5) False (Border 5 5 5 5) True
+        -- spaced = spacingRaw True (Border 5 5 5 5) False (Border 5 5 5 5) True
+        spaced = spacingRaw True (Border 1 1 1 1) False (Border 0 0 0 0) True
         focusIndicator = noFrillsDeco shrinkText fiTheme
 
 myManageHook = composeAll
