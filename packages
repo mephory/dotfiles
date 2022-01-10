@@ -52,8 +52,6 @@ moreutils
 net-tools
 ntp
 openssh
-pulseaudio
-pulseaudio-alsa
 ruby
 sudo
 zsh
@@ -97,3 +95,13 @@ aur/spotify-tui
 man-db
 xorg
 nodejs
+pipewire
+pipewire-alsa
+pipewire-jack
+pipewire-media-session
+pipewire-pulse
+lib32-pipewire
+easyeffects
+jack2
+qjackctl
+carla
