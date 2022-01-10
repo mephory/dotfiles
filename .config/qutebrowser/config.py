@@ -3,10 +3,6 @@ import os
 
 config.load_autoconfig(False)
 
-for line in os.popen('set-xrdb-env').readlines():
-    var, val = line.split(' ')[1].strip().split('=')
-    os.environ[var] = val
-
 c.url.start_pages = 'file:///home/mephory/data/homepage/index.html'
 c.url.default_page = 'file:///home/mephory/data/homepage/index.html'
 c.hints.mode = 'number'
@@ -19,25 +15,25 @@ c.url.searchengines = { "DEFAULT": "https://google.com/search?q={}" }
 c.backend = "webengine"
 c.fonts.default_family = "meslo"
 c.content.pdfjs = True
-c.editor.command = ["termite", "-e", "nvim -f {file}"]
+c.editor.command = ["wezterm", "start", "nvim", "--", "-f", "{file}"]
 
-c.colors.tabs.odd.bg = os.environ.get('XRDBBACKGROUND', '#282828')
-c.colors.tabs.even.bg = os.environ.get('XRDBBACKGROUND', '#282828')
-c.colors.tabs.odd.fg = os.environ.get('XRDBFOREGROUND', '#ebdbb2')
-c.colors.tabs.even.fg = os.environ.get('XRDBFOREGROUND', '#ebdbb2')
-c.colors.tabs.selected.odd.bg = os.environ.get('XRDBFOREGROUND', '#ebdbb2')
-c.colors.tabs.selected.even.bg = os.environ.get('XRDBFOREGROUND', '#ebdbb2')
-c.colors.tabs.selected.odd.fg = os.environ.get('XRDBBACKGROUND', '#282828')
-c.colors.tabs.selected.even.fg = os.environ.get('XRDBBACKGROUND', '#282828')
-c.colors.completion.even.bg = os.environ.get('XRDBBACKGROUND', '#282828')
-c.colors.completion.odd.bg = os.environ.get('XRDBCOLOR0', '#1d2021')
-c.colors.completion.item.selected.bg = os.environ.get('XRDBCOLOR4', '#458588')
-c.colors.completion.item.selected.fg = os.environ.get('XRDBFOREGROUND', '#ebdbb2')
-c.colors.completion.item.selected.border.bottom = os.environ.get('XRDBCOLOR4', '#458588')
-c.colors.completion.item.selected.border.top = os.environ.get('XRDBCOLOR4', '#458588')
-c.colors.completion.fg = os.environ.get('XRDBFOREGROUND', '#ebdbb2')
-c.colors.completion.match.fg = os.environ.get('XRDBCOLOR13', '#d3869b')
-c.colors.completion.category.bg = 'qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 {}, stop:1 {})'.format(os.environ.get('XRDBBACKGROUND', '#282828'), os.environ.get('XRDBCOLOR0', '#1d2021'))
+c.colors.tabs.odd.bg = os.environ.get('WISP_BACKGROUND', '#282828')
+c.colors.tabs.even.bg = os.environ.get('WISP_BACKGROUND', '#282828')
+c.colors.tabs.odd.fg = os.environ.get('WISP_FOREGROUND', '#ebdbb2')
+c.colors.tabs.even.fg = os.environ.get('WISP_FOREGROUND', '#ebdbb2')
+c.colors.tabs.selected.odd.bg = os.environ.get('WISP_FOREGROUND', '#ebdbb2')
+c.colors.tabs.selected.even.bg = os.environ.get('WISP_FOREGROUND', '#ebdbb2')
+c.colors.tabs.selected.odd.fg = os.environ.get('WISP_BACKGROUND', '#282828')
+c.colors.tabs.selected.even.fg = os.environ.get('WISP_BACKGROUND', '#282828')
+c.colors.completion.even.bg = os.environ.get('WISP_BACKGROUND', '#282828')
+c.colors.completion.odd.bg = os.environ.get('WISP_COLOR0', '#1d2021')
+c.colors.completion.item.selected.bg = os.environ.get('WISP_COLOR4', '#458588')
+c.colors.completion.item.selected.fg = os.environ.get('WISP_FOREGROUND', '#ebdbb2')
+c.colors.completion.item.selected.border.bottom = os.environ.get('WISP_COLOR4', '#458588')
+c.colors.completion.item.selected.border.top = os.environ.get('WISP_COLOR4', '#458588')
+c.colors.completion.fg = os.environ.get('WISP_FOREGROUND', '#ebdbb2')
+c.colors.completion.match.fg = os.environ.get('WISP_COLOR13', '#d3869b')
+c.colors.completion.category.bg = 'qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 {}, stop:1 {})'.format(os.environ.get('WISP_BACKGROUND', '#282828'), os.environ.get('WISP_COLOR0', '#1d2021'))
 
 config.bind('t', 'set-cmd-text -s :open -t')
 config.bind('T', 'set-cmd-text :open -t {url}')
@@ -50,7 +46,8 @@ config.bind('gH', 'tab-move -')
 config.bind('gL', 'tab-move +')
 config.bind('<Ctrl-Tab>', 'tab-next')
 config.bind('<Ctrl-Shift-Tab>', 'tab-prev')
-config.bind('gi', 'hint inputs ;; later 50 follow-hint 0')
+config.bind('gi', 'hint inputs --first')
+config.bind('gI', 'hint inputs')
 config.bind(';', 'set-cmd-text :')
 config.bind(',m', 'set-cmd-text -s :tab-move')
 config.bind(',b', 'set-cmd-text -s :buffer')

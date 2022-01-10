@@ -1,32 +1,17 @@
-" TODO
-"   maybe   <C-j> move line down
-"   maybe   <C-k> move line up
-"   maybe   <C-h> move character left
-"   maybe   <C-l> move chatarter right
-"   maybe   vnoremap qq :norm! qq
-"   <cr> is free!
-
 set nocompatible
 
 call plug#begin()
-" Plug 'neovim/nvim-lspconfig'
 Plug 'dhruvasagar/vim-table-mode'
-Plug 'groenewege/vim-less'
 Plug 'junegunn/fzf.vim'
 Plug 'justinmk/vim-sneak'
 Plug 'ludovicchabant/vim-gutentags'
-Plug 'mattn/emmet-vim'
-Plug 'morhetz/gruvbox'
 Plug 'romainl/vim-qf'
 Plug 'tommcdo/vim-exchange'
 Plug 'tommcdo/vim-lion'
 Plug 'tpope/vim-abolish'
-Plug 'tpope/vim-bundler'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-eunuch'
 Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-rails'
-Plug 'tpope/vim-rbenv'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
@@ -35,12 +20,18 @@ Plug 'vim-pandoc/vim-pandoc-syntax'
 Plug 'w0rp/ale'
 Plug 'wellle/targets.vim'
 Plug 'xolox/vim-misc'
-Plug 'arcticicestudio/nord-vim'
-Plug '~/code/vim-mtg'
-Plug '~/code/vim-mpv'
 Plug 'leafgarland/typescript-vim'
 Plug 'peitalin/vim-jsx-typescript'
 Plug 'neoclide/coc.nvim', { 'branch': 'release' }
+Plug 'nvim-lua/plenary.nvim'
+Plug 'tpope/vim-bundler'
+Plug 'tpope/vim-rails'
+Plug 'tpope/vim-rbenv'
+Plug 'metakirby5/codi.vim'
+
+Plug 'arcticicestudio/nord-vim'
+Plug 'morhetz/gruvbox'
+Plug 'dracula/vim', { 'as': 'dracula' }
 call plug#end()
 
 "===============================================================================
@@ -76,34 +67,11 @@ filetype indent off
 " LSP                                                                        {{{
 "===============================================================================
 
-" let g:lsp_log_verbose = 1
-" let g:lsp_log_file = expand('/tmp/lsp-log.txt')
-
-" lua << EOF
-"     local nvim_lsp = require'nvim_lsp'
-
-"     nvim_lsp.solargraph.setup{name = "solargraph", cmd = { "solargraph", "stdio" }, settings = {
-"         solargraph = {
-"             useBundler = true
-"         }
-"     }}
-
-"     -- nvim_lsp.omnisharp.setup{}
-"     nvim_lsp.tsserver.setup{}
-" EOF
-
 inoremap <silent><expr> <c-space> coc#refresh()
 nnoremap <silent> K :call CocAction('doHover')<cr>
 inoremap <silent> <C-l> <cmd>call CocAction('showSignatureHelp')<cr>
 noremap <silent> <C-k> <cmd>call CocAction('showSignatureHelp')<cr>
-" noremap <silent> gD <cmd>call CocAction('jumpDefinition')<cr>
-nmap <silent> gD <Plug>(coc-definition)
-
-" nnoremap K <cmd>lua vim.lsp.buf.hover()<CR>
-" nnoremap gD <cmd>lua vim.lsp.buf.definition()<CR>
-" nnoremap <C-k> <cmd>lua vim.lsp.buf.signature_help()<CR>
-" inoremap <C-l> <cmd>lua vim.lsp.buf.signature_help()<CR>
-" inoremap <C-f> <cmd>lua vim.lsp.buf.signature_help()<CR>
+nnoremap <silent> gD <Plug>(coc-definition)
 
 "============================================================================}}}
 " Look                                                                       {{{
@@ -116,15 +84,17 @@ set t_Co=256
 set list listchars=tab:»·,trail:·
 set t_ut =
 
-colorscheme gruvbox
-execute 'colorscheme ' . system('get-xrdb-env THEME')
-set background=dark
-" colorscheme nord
-" set background=light
-" set background=dark
+" if exists('+termguicolors')
+"   let &t_8f="\<Esc>[38;2;%lu;%lu;%lum"
+"   let &t_8b="\<Esc>[48;2;%lu;%lu;%lum"
+"   set termguicolors
+" endif
 
+let g:gruvbox_contrast_dark = 'hard'
+colorscheme gruvbox
+" colorscheme default
+" hi CursorLine cterm=NONE ctermbg=0
 set laststatus=2    " always show status bar
-set guifont=Inconsolata\ 13
 
 "============================================================================}}}
 " Autocmds                                                                   {{{
@@ -167,15 +137,12 @@ augroup END
 " Plugin-specific Configuration                                              {{{
 "===============================================================================
 let g:netrw_banner = 0
-" let g:netrw_liststyle = 3
 
 let g:fzf_buffers_jump = 1
 
 let g:table_mode_corner_corner='+'
 let g:table_mode_header_fillchar='='
 let g:table_mode_toggle_map = "q"
-
-let g:user_emmet_mode = 'i'
 
 let g:pandoc#formatting#mode = 'hA'
 let g:pandoc#hypertext#open_editable_alternates = 1
@@ -268,10 +235,12 @@ map zB zb10<C-e>
 nnoremap ''v :e `=resolve(expand("~/.config/nvim/init.vim"))`<cr>
 nnoremap ''x :e `=resolve(expand("~/.xmonad/xmonad.hs"))`<cr>
 nnoremap ''z :e `=resolve(expand("~/.zshrc"))`<cr>
+nnoremap ''t :e `=resolve(expand("~/.config/wezterm/wezterm.lua"))`<cr>
 nnoremap ''w :e `=resolve(expand("~/.wiki/index.pandoc"))`<cr>
 nnoremap ''' :cd %:p:h<cr>
 nnoremap \e :e <C-r>=expand('%:h')<cr>/
 nnoremap \r :r <C-r>=expand('%:h')<cr>/
+nnoremap \w :w <C-r>=expand('%:h')<cr>/
 
 "----------------------------------------------------------------------------}}}
 " Format                                                                     {{{
@@ -310,9 +279,6 @@ vmap <leader>c gc
 " Split a line in two
 map gs i<cr><esc>
 
-" Easier emmet key
-" imap <C-l> <C-y>,
-
 "----------------------------------------------------------------------------}}}
 " Git                                                                        {{{
 "-------------------------------------------------------------------------------
@@ -334,9 +300,6 @@ nnoremap <leader>gB :!git branch -a<cr>
 "----------------------------------------------------------------------------}}}
 " Other                                                                      {{{
 "-------------------------------------------------------------------------------
-" Open the file openend by gf in a new tab
-" nnoremap gf <C-w>gF
-
 " Y yanks until the end of line
 nnoremap Y y$
 

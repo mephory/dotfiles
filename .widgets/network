@@ -1,6 +1,0 @@
-#!/bin/bash
-netbw wlp3s0 | stdbuf -oL awk '{
-    print "^fg(#bbb)⬊ ^fg()" $1 " KB/s    ^fg(#bbb)⬈ ^fg()" $2 " KB/s"
-}'
-
-# echo "^fg(#bbb)battery ^fg()$BATTERY_BAR $BATTERY_PERCENT%"

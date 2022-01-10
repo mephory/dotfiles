@@ -1,8 +1,8 @@
+@theme "~/.config/rofi/slate.rasi"
+
 configuration {
-  theme: "~/.config/rofi/slate.rasi";
-  width: 33;
   location: 0;
-  monitor: -4;
+  monitor: "-4";
 }
 
 element {

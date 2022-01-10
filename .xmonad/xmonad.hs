@@ -1,12 +1,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 
-import XMonad.Util.WindowProperties
 import XMonad
-import XMonad.Layout.Tabbed
-import XMonad.Actions.ShowText
 import XMonad.Actions.CycleWS
-import XMonad.Actions.Submap
 import XMonad.Actions.NoBorders
 import XMonad.Actions.FloatSnap
 import XMonad.Actions.DynamicProjects
@@ -16,8 +12,6 @@ import XMonad.Layout.NoBorders
 import XMonad.Layout.NoFrillsDecoration
 import XMonad.Layout.Spacing
 import XMonad.Layout.Grid
-import XMonad.Layout.LayoutBuilder
-import XMonad.Hooks.FadeInactive
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
@@ -31,9 +25,10 @@ import Data.List (elemIndex, isPrefixOf, isInfixOf, find)
 import Data.Maybe (fromJust, fromMaybe)
 import Data.Monoid
 import System.Exit
-import System.Environment
+import System.Environment (getEnv)
 import Graphics.X11.ExtraTypes.XF86
 
+import Wisp as Wisp
 import WorkspaceHelpers
 import SubmapWithHints (submapWithHints)
 import Passwords (passwordPrompt, genPasswordPrompt)
@@ -42,13 +37,13 @@ import ZoomWindow (toggleZoom)
 import DynamicScratchpads (spawnDynamicSP, makeDynamicSP)
 import FloatCenterWindow (centerFloatingWindow, makeFloatingCenterWindow)
 import Opacity (changeOpacity, setOpacity)
-import SetXrdbEnv (setXrdbEnv)
 import LowerDocks (addDock, delDock)
-import qualified PictureInPicture as P
 
 import qualified XMonad.StackSet as W
 import qualified XMonad.Util.Dmenu as D
 import qualified Data.Map as M
+
+myWispConfig = Wisp.gruvbox
 
 myWorkspaces :: [WS]
 myWorkspaces = [ WS "1"       (Just xK_1)           True
@@ -82,13 +77,10 @@ workspaceVisible s = fromMaybe False $ findWs s >>= Just . wsVisible
 
 main = do
     homeDir <- getEnv "HOME"
-    setXrdbEnv
-    xpc <- buildXPC
-    focusIndicatorTheme <- buildFocusIndicatorTheme
     safeSpawn "mkfifo" ["/tmp/workspace-info"]
     xmonad $ docks $ ewmh $ dynamicProjects projects $ withUrgencyHook NoUrgencyHook def {
       -- simple stuff
-        terminal           = "alacritty"
+        terminal           = "wezterm"
       , focusFollowsMouse  = True
       , borderWidth        = 1
       , modMask            = mod1Mask
@@ -97,18 +89,17 @@ main = do
       , focusedBorderColor = "#ccc"
 
       -- key bindings
-      , keys               = \x -> myKeys x xpc
+      , keys               = myKeys
       , mouseBindings      = myMouseBindings
 
       -- hooks, layouts
-      , layoutHook         = myLayout focusIndicatorTheme
+      , layoutHook         = myLayout
       , manageHook         = addDock
                              <+> myManageHook
                              <+> namedScratchpadManageHook myScratchpads
                              <+> floatPlacement
                              <+> floatNextHook
       , handleEventHook    = delDock <+> myEventHook
-      -- , logHook            = P.pipLogHook <+> myLogHook homeDir
       , logHook            = myLogHook homeDir
       , startupHook        = myStartupHook
     }
@@ -117,8 +108,7 @@ projects =
     [ Project { projectName      = "sys"
               , projectDirectory = "~/"
               , projectStartHook = Just $ do
-                    spawn "pavucontrol"
-                    spawn "alacritty"
+                    spawn "easyeffects"
               }
     , Project { projectName      = "\xf362"
               , projectDirectory = "~/"
@@ -130,9 +120,9 @@ projects =
 jisho = searchEngine "jisho" "https://jisho.org/search/"
 
 -- Key bindings. Add, modify or remove key bindings here.
-myKeys conf@(XConfig {XMonad.modMask = modm}) xpc = M.fromList $
+myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
-    , ((modm,               xK_p     ), spawn "rofi -modi drun,run -show drun -show-icons")
+    , ((modm,               xK_p     ), spawn "rofi -modi drun,run -show drun -show-icons -display-drun '\xf0e7'")
     , ((modm .|. shiftMask, xK_x     ), spawn "xkill")
     , ((modm .|. shiftMask, xK_c     ), kill)
     , ((modm,               xK_space ), sendMessage NextLayout)
@@ -168,12 +158,16 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) xpc = M.fromList $
     , ((modm .|. shiftMask, xK_slash ), spawn "ruby /home/mephory/code/poe/click.rb")
     , ((modm              , xK_slash),  submapWithHints xpc $
         [ ("q   recompile xmonad"       , (0, xK_q), spawn "xmonad --recompile && xmonad --restart")
-        , ("f   view facebook graph"    , (0, xK_f), spawn "view-fbg filtered")
+        , ("f   view-fbg"               , (0, xK_f), spawn "view-fbg filtered")
         , ("k   default keyboard layout", (0, xK_k), spawn "setxkbmap us -option compose:ralt")
+        , ("w   watch for changes"      , (0, xK_w), spawn "push-screenshot-change")
         , ("m-Q   exit xmonad"          , (modm .|. shiftMask, xK_q     ), io exitSuccess)
         ])
-    , ((modm              , xK_u     ), spawn "qutebrowser")
+    , ((modm              , xK_u     ), spawn "qutebrowser :yank")
     , ((modm              , xK_semicolon), spawn "xterm")
+    , ((modm              , xK_period), spawn "plover -s plover_send_command toggle")
+    , ((modm              , xK_comma), spawn "plover -s plover_send_command lookup")
+    , ((modm              , xK_BackSpace), spawn "rofi-spotify-tui")
 
     -- Floating Positions
     , ((modm              , xK_f     ) , withFocused makeFloatingCenterWindow)
@@ -186,8 +180,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) xpc = M.fromList $
     , ((modm .|. shiftMask, xK_Up    ) , withFocused $ snapShrink D Nothing)
     , ((modm .|. shiftMask, xK_Down  ) , withFocused $ snapGrow D Nothing)
     , ((modm              , xK_g     ) , withFocused centerFloatingWindow)
-    -- , ((modm              , xK_r     ) , withFocused $ \w -> setOpacity w (2/3))
-    -- , ((modm .|. shiftMask, xK_r     ) , withFocused $ \w -> setOpacity w 1.0)
 
     -- Screenshots
     , ((0                 , xK_Print ), spawn "import -window root $HOME/data/screenshots/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png")
@@ -195,7 +187,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) xpc = M.fromList $
     , ((modm              , xK_0     ), spawn "upload-screenshot -window root")
     , ((modm .|. shiftMask, xK_0     ), spawn "upload-screenshot")
     , ((modm .|. shiftMask, xK_v     ), spawn "screenshot-google-image-search")
-    , ((modm              , xK_Print ), submapWithHints xpc $ screenshotMap 1 xpc)
+    , ((modm              , xK_Print ), spawn "screenshot-menu")
 
     -- Scratchpads
     , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
@@ -251,80 +243,19 @@ runUnlessIgnored action w = runQuery mouseIgnore w >>= \b -> if b then mempty el
 
 -- Mouse bindings: default actions bound to mouse events
 myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList
-    -- mod-button1, Set the window to floating mode and move by dragging
     [ ((modm, button1), runUnlessIgnored (\w -> focus w >> mouseMoveWindow w))
-    -- mod-button2, Raise the window to the top of the stack
     , ((modm, button2), runUnlessIgnored (\w -> focus w >> windows W.shiftMaster))
-    -- mod-button3, Set the window to floating mode and resize by dragging
     , ((modm, button3), runUnlessIgnored (\w -> focus w >> mouseResizeWindow w))
-    -- you may also bind events to the mouse scroll wheel (button4 and button5)
     , ((modm , button4) , \w -> changeOpacity w (5/100))
     , ((modm , button5) , \w -> changeOpacity w (-5/100))
     , ((0    , 10 :: Button), \_ -> spawn "polybar-playerctl toggle")
-    -- , ((0    , 11 :: Button), \_ -> spawn "polybar-playerctl next")
-    -- , ((0    , 12 :: Button), \_ -> spawn "polybar-playerctl switch")
     ]
 
-screenshotMap n xpc =
-    [ ("Current Screenshot: " ++ show n, (0, xK_q), mempty)
-    , ("t   take screenshot with mode",
-        (0, xK_t), submapWithHints xpc
-          [
-            ("f   Full", (0, xK_f), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", newScreenshotName])
-          , ("c   Choose Window/Area", (0, xK_c), spawn $ unwords ["sleep", "0.2", ";", "import", newScreenshotName])
-          , ("w   Focused Window", (0, xK_w), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "$(xdotool getwindowfocus -f)", newScreenshotName])
-          , ("1   Screen 1", (0, xK_1), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", "-crop", "2560x1440+0+0", "+repage", newScreenshotName])
-          , ("2   Screen 2", (0, xK_2), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", "-crop", "2560x1440+2560+0", "+repage", newScreenshotName])
-          , ("3   Screen 3", (0, xK_3), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", "-crop", "2560x1440+5120+0", "+repage", newScreenshotName])
-          ])
-    , ("f   Full", (0, xK_f), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", newScreenshotName])
-    , ("a   Choose Window/Area", (0, xK_a), spawn $ unwords ["sleep", "0.2", ";", "import", newScreenshotName])
-    , ("w   Focused Window", (0, xK_w), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "$(xdotool getwindowfocus -f)", newScreenshotName])
-    , ("Q   Screen 1", (shiftMask, xK_q), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", "-crop", "2560x1440+0+0", "+repage", newScreenshotName])
-    , ("W   Screen 2", (shiftMask, xK_w), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", "-crop", "2560x1440+2560+0", "+repage", newScreenshotName])
-    , ("E   Screen 3", (shiftMask, xK_e), spawn $ unwords ["sleep", "0.2", ";", "import", "-window", "root", "-crop", "2560x1440+5120+0", "+repage", newScreenshotName])
-    , ("v   view",
-        (0, xK_v), spawn $ unwords ["feh", filename])
-    , ("y   clipboard",
-        (0, xK_y), spawn $ unwords ["xclip", "-target", "image/png", "-selection", "clipboard", filename])
-    , ("c   draw a circle",
-        (0, xK_c), spawn $ unwords ["vcircle", filename, nextFilename])
-    , ("r   draw a rectangle",
-        (0, xK_r), spawn $ unwords ["vrect", filename, nextFilename])
-    , ("x   crop",
-        (0, xK_x), spawn $ unwords ["vcrop", filename, nextFilename])
-    , ("u   upload",
-        (0, xK_u), spawn $ unwords ["upload", "--notify", "-p", filename])
-    , ("U   upload with mode",
-        (shiftMask, xK_u), submapWithHints xpc
-          [
-            ("p - Private", (0, xK_p), spawn $ unwords ["upload", "--notify", "-p", filename])
-          , ("a - Public", (0, xK_a), spawn $ unwords ["upload", "--notify", filename])
-          , ("t - Temporary", (0, xK_t), spawn $ unwords ["upload --notify", "-t", filename])
-          ])
-    , ("D   delete",
-        (shiftMask, xK_d), spawn $ unwords ["rm", filename])
-    , ("1   operate on latest screenshot",
-        (0, xK_1), submapWithHints xpc $ screenshotMap 1 xpc)
-    , ("2   operate on second latest screenshot",
-        (0, xK_2), submapWithHints xpc $ screenshotMap 2 xpc)
-    , ("3   operate on third latest screenshot",
-        (0, xK_3), submapWithHints xpc $ screenshotMap 3 xpc)
-    , ("4   operate on fourth latest screenshot",
-        (0, xK_4), submapWithHints xpc $ screenshotMap 4 xpc)
-    , ("5   operate on fifth latest screenshot",
-        (0, xK_5), submapWithHints xpc $ screenshotMap 5 xpc)
-    ]
-        where filename = "\"$(nth-last-screenshot " ++ show n ++ ")\""
-              nextFilename = "\"$(nextname " ++ filename ++ ")\""
-              newScreenshotName = "\"$HOME/data/screenshots/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png\""
 
-
-myLayout fiTheme = noBorders $ 
+myLayout = noBorders $ 
     onWorkspace "1" (full ||| fullscreen ||| tiled ||| mtiled) $
     onWorkspace "5" fullscreen $
     onWorkspace "7" (focusIndicator $ avoidStruts $ Tall 1 (3/100) (1/4)) $
-    -- onWorkspace "7" steam $
     onWorkspace "sys" (focusIndicator $ spacingRaw True (Border 0 10 10 10) True (Border 10 10 10 10) True $ avoidStruts $ Mirror Grid)
     defaultConf
     where
@@ -334,9 +265,6 @@ myLayout fiTheme = noBorders $
         full       = avoidStruts $ spaced $ Full
         fullscreen = Full
         defaultConf = tiled ||| mtiled ||| full
-        -- steam = layoutP (And (ClassName "Steam") (Title "Friends List")) (relBox 0 0 (1/4) 1) Nothing tiled $
-        --         layoutP (And (ClassName "Steam") (Not (Title "Steam"))) (relBox (1/4) 0 1 (1/2)) Nothing tiled $
-        --         layoutAll (relBox (1/4) (1/2) 1 1) tiled
 
         -- The default number of windows in the master pane
         nmaster = 1
@@ -344,9 +272,8 @@ myLayout fiTheme = noBorders $
         ratio   = 0.6
         -- Percent of screen to increment by when resizing panes
         delta   = 3/100
-        -- spaced = spacingRaw True (Border 5 5 5 5) False (Border 5 5 5 5) True
         spaced = spacingRaw True (Border 1 1 1 1) False (Border 0 0 0 0) True
-        focusIndicator = noFrillsDeco shrinkText fiTheme
+        focusIndicator = noFrillsDeco shrinkText focusIndicatorTheme
 
 myManageHook = composeAll
     [ resource  =? "desktop_window"      --> doIgnore
@@ -372,7 +299,7 @@ floatPlacement = placeHook (withGaps (10, 10, 10, 10) $ smart (0.5, 0.2))
 myEventHook = mempty
 
 myStartupHook = do
-    safeSpawn "reload-alacritty-config" []
+    Wisp.activateWispConfig myWispConfig
     safeSpawn "restart-polybar" []
     safeSpawn "restart-dunst" []
 
@@ -387,45 +314,43 @@ myScratchpads = [ NS "terminal"   spawnTerminal  findTerminal  manageSP
                 , NS "discord"    spawnDiscord   findDiscord   manageDiscordSP
                 ]
     where
-        spawnTerminal  = "alacritty --class scratchpad"
+        spawnTerminal  = "wezterm start --class scratchpad"
         findTerminal   = resource =? "scratchpad"
-        spawnTerminal2 = "alacritty --class scratchpad-2"
+        spawnTerminal2 = "wezterm start --class scratchpad-2"
         findTerminal2  = resource =? "scratchpad-2"
-        spawnTerminal3 = "alacritty --class scratchpad-3"
+        spawnTerminal3 = "wezterm start --class scratchpad-3"
         findTerminal3  = resource =? "scratchpad-3"
-        spawnBotTerm   = "alacritty --class bot-term"
+        spawnBotTerm   = "wezterm start --class bot-term"
         findBotTerm    = resource =? "bot-term"
-        spawnMusic     = "alacritty --class music -e 'pulsemixer'"
+        spawnMusic     = "wezterm start --class music -- pulsemixer"
         findMusic      = resource =? "music"
-        -- spawnIrc       = "xterm -name irc -e 'tmux-attach-or-new irc weechat'"
-        spawnIrc       = "alacritty --class irc -e ssh -t mephory LANG=en_US.utf8 TERM=xterm-256color tmux attach -t irc"
-        -- spawnIrc       = "xterm -name irc -e 'ssh -t mephory tmux attach -t irc'"
+        spawnIrc       = "wezterm start --class irc -- ssh -t mephory LANG=en_US.utf8 TERM=xterm-256color tmux attach -t irc"
         findIrc        = resource =? "irc"
         spawnColor     = "gcolor3"
         findColor      = resource =? "gcolor3"
         spawnIcloud    = "icloud"
         findIcloud     = className =? "icloud"
         spawnDiscord   = "discord"
-        findDiscord   = className =? "discord"
+        findDiscord    = className =? "discord"
         manageSP = customFloating $ centeredRect 0.5 0.5
         manageBotTermSP = customFloating $ W.RationalRect 0 (1-0.4) 1 0.4
         manageIrcSP = (customFloating $ centeredRect 0.6 0.6)
         manageColorSP = placeHook (fixed (0.5, 0.5)) <+> doFloat
         manageIcloudSP = customFloating $ W.RationalRect 0 0 1 0.6
         manageDiscordSP = (customFloating $ centeredRect 0.7 0.7)
-        -- manageDiscordSP = (customFloating $ centeredRect 0.7 0.7) <+> (ask >>= \w -> liftX (setOpacity w (9/10)) >> mempty)
         centeredRect w h = W.RationalRect ((1 - w) / 2) ((1 - h) / 2) w h
 
 myLogHook homeDir = dynamicLogWithPP $ def {
       ppCurrent         = clickable currentFmt
     , ppVisible         = clickable visibleFmt
     , ppHidden          = onlyIf workspaceVisible (clickable addPadding)
-    -- , ppHiddenNoWindows = onlyIf (/= "NSP") $ clickable [dzenColor "#93a1a1" "#002b36" . addPadding . wsNum]
     , ppHiddenNoWindows = \_ -> ""
     , ppUrgent          = clickable urgentFmt
     , ppSep             = "  "
-    , ppWsSep           = "" , ppLayout          = ("%{u#458588}%{+u} " ++) . (++ " %{-u}") . layoutName , ppTitle           = \_ -> ""
-    , ppExtras          = [willFloatNextPP floatNextStr, P.pipPP pipStr]
+    , ppWsSep           = ""
+    , ppLayout          = ("%{u#458588}%{+u} " ++) . (++ " %{-u}") . layoutName
+    , ppTitle           = \_ -> ""
+    , ppExtras          = [willFloatNextPP floatNextStr]
     , ppOrder           = \(w:l:t:es) -> [w, l] ++ es ++ [t]
     , ppOutput          = appendFileUtf8 "/tmp/workspace-info" . (++"\n")
     }
@@ -444,45 +369,28 @@ myLogHook homeDir = dynamicLogWithPP $ def {
         floatNextStr s = case s of
             ""        -> " "
             otherwise -> "·"
-        pipStr s = case s of
-            "PiP" -> "\xf2d2"
-            ""    -> " "
-        contextNameStr s = case s of
-            "default" -> Nothing
-            x         -> Just x
         onlyIf p f x = if p x then f x else ""
 
-buildXPC = do
-    bgColor <- getEnv "XRDBBACKGROUND"
-    fgColor <- getEnv "XRDBFOREGROUND"
-    borderColor <- getEnv "XRDBFOREGROUND"
-    fgHLight <- getEnv "XRDBBACKGROUND"
-    bgHLight <- getEnv "XRDBFOREGROUND"
-    return $ def
-        { bgColor = bgColor
-        , fgColor = fgColor
-        , borderColor = borderColor
-        , fgHLight = fgHLight
-        , bgHLight = bgHLight
-        , font = "xft:hack:size=11"
-        , height = 22
-        }
+xpc = def { bgColor = backgroundColor myWispConfig
+          , fgColor = foregroundColor myWispConfig
+          , borderColor = foregroundColor myWispConfig
+          , fgHLight = backgroundColor myWispConfig
+          , bgHLight = foregroundColor myWispConfig
+          , font = normalFont myWispConfig
+          , height = 22
+          }
 
-buildFocusIndicatorTheme :: IO Theme
-buildFocusIndicatorTheme = do
-    inactive <- getEnv "XRDBCOLOR0"
-    -- active <- getEnv "XRDBCOLOR4"
-    active <- return "#3c5a70"
-    return $ def
-        { fontName              = "xft:inconsolata:size=10"
-        , inactiveBorderColor   = inactive
-        , inactiveColor         = inactive
-        , inactiveTextColor     = inactive
-        , activeBorderColor     = active
-        , activeColor           = active
-        , activeTextColor       = active
-        , urgentBorderColor     = "#ff0000"
-        , urgentTextColor       = "#ff0000"
-        , decoHeight            = 4
-        }
+focusIndicatorTheme :: Theme
+focusIndicatorTheme =
+  def { fontName              = "xft:inconsolata:size=10"
+      , inactiveBorderColor   = color0 myWispConfig
+      , inactiveColor         = color0 myWispConfig
+      , inactiveTextColor     = color0 myWispConfig
+      , activeBorderColor     = "#3c5a70"
+      , activeColor           = "#3c5a70"
+      , activeTextColor       = "#3c5a70"
+      , urgentBorderColor     = "#ff0000"
+      , urgentTextColor       = "#ff0000"
+      , decoHeight            = 4
+      }
 

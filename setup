@@ -1,0 +1,29 @@
+#!/bin/sh
+
+sudo pacman --noconfirm -S wget
+
+echo "Installing paru..."
+mkdir -p $HOME/src/paru
+wget 'https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=paru' -O $HOME/src/paru/PKGBUILD
+cd $HOME/src/paru
+makepkg --noconfirm -si
+cd -
+
+pacman -Sl multilib > /dev/null \
+  && echo "Multilib is enabled" \
+  || (echo "Multilib is disabled. Enabling multilib..." && echo "[multilib]
+Include = /etc/pacman.d/mirrorlist" | sudo tee -a /etc/pacman.conf && sudo pacman -Sy)
+
+echo "Installing packages..."
+paru --noconfirm --skipreview -S $(cat packages)
+
+echo "Installing dotfiles..."
+./install-dotfiles.sh
+
+echo "Installing bin..."
+./install-missing-bin.sh
+
+echo "Changing default shell..."
+chsh -s /bin/zsh $USER
+
+xmonad --recompile

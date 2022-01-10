@@ -1,11 +1,9 @@
 * {
-  /* background-color: rgba(40, 40, 40, 0.5); */
-  background-color: ${XRDBBACKGROUND};
-  border-color: rgba(50, 48, 47, 0.5);
-  text-color: ${XRDBFOREGROUND};
+  background-color: ${WISP_BACKGROUND_ALPHA};
+  text-color: ${WISP_FOREGROUND};
   spacing: 0;
-  width: 512px;
-  font: "MesloLGS Nerd Font Mono 10";
+  width: 33%;
+  font: "Inconsolata 12";
 }
 
 inputbar {
@@ -14,42 +12,43 @@ inputbar {
 }
 
 prompt {
-  padding: 8px;
+  padding: 12px;
   border: 0 1px 0 0;
 }
 
 textbox {
-  background-color: ${XRDBBACKGROUND};
   border: 0 0 1px 0;
-  border-color: #32302f;
-  padding: 8px 8px;
+  border-color: ${WISP_COLOR0};
+  padding: 12px 12px;
 }
 
 entry {
-  padding: 8px;
+  padding: 12px;
 }
 
 listview {
   cycle: false;
   margin: 0 0 -1px 0;
   scrollbar: false;
+  columns: 2;
 }
 
 element {
-  border: 0 0 0px 0;
-  padding: 8px;
+  border-radius: 0.25em;
+  padding: 12px;
 }
 
 element selected {
-  background-color: ${XRDBFOREGROUND};
-  text-color: ${XRDBBACKGROUND};
+  background-color: ${WISP_FOREGROUND};
+  text-color: ${WISP_BACKGROUND};
 }
 
 element-text, element-icon {
-  background-color: inherit;
+  background-color: transparent;
   text-color: inherit;
 }
 
 element-icon {
   padding: 0 8px 0 0;
+  size: 2.0ch;
 }

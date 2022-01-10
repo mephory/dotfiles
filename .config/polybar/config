@@ -1,21 +1,19 @@
 [colors]
-; background = ${xrdb:background:#282828}
-; background = #45282828
 background = #000000
 background-alt = #444
-foreground = ${xrdb:foreground:#ebdbb2}
-foreground-alt = ${xrdb:color8:#555}
-primary = ${xrdb:color9:#fb4934}
+foreground = ${env:WISP_FOREGROUND:#ebdbb2}
+foreground-alt = ${env:WISP_COLOR8:#555}
+primary = ${env:WISP_COLOR9:#fb4934}
 
 secondary = #e60053
 alert = #bd2c40
-black = ${xrdb:background:#282828}
-red = ${xrdb:color9:#fb4934}
-green = ${xrdb:color10:#b8bb26}
-yellow = ${xrdb:color11:#fabd2f}
-alt_blue = ${xrdb:color4:#4585dd}
-blue = ${xrdb:color12:#83a598}
-icon = ${xrdb:foreground:#555}
+black = ${env:WISP_BACKGROUND:#282828}
+red = ${env:WISP_COLOR9:#fb4934}
+green = ${env:WISP_COLOR10:#b8bb26}
+yellow = ${env:WISP_COLOR11:#fabd2f}
+alt_blue = ${env:WISP_COLOR4:#4585dd}
+blue = ${env:WISP_COLOR12:#83a598}
+icon = ${env:WISP_FOREGROUND:#555}
 
 [bar/default]
 enable-ipc = true
@@ -23,11 +21,9 @@ width = 100%
 height = 22
 radius = 0
 fixed-center = true
+bottom = false
 
 background = ${colors.background}
-; background-0 = #ff111111
-; background-1 = #00111111
-; background-1 = ${colors.background}
 foreground = ${colors.foreground}
 
 line-size = 3
@@ -43,7 +39,6 @@ module-margin-left = 2
 module-margin-right = 1
 
 font-0 = Inconsolata:weight=bold:size=11:antialias=true;1
-# font-0 = xos4 Terminus:size=10:antialias=true;1
 font-1 = Font Awesome 5 Brands:size=10:antialias=true;2
 font-2 = siji:size=12:antialias=true;1
 font-3 = Font Awesome 5 Free:style=Solid:size=10:antialias=true;2
@@ -52,7 +47,7 @@ font-5 = "waffle:size=12;2"
 
 modules-left = xmonad playerctl
 modules-center = xwindow
-modules-right = progress ping timer pulseaudio date
+modules-right = progress hue pulseaudio date
 
 tray-position = right
 tray-padding = 2
@@ -72,65 +67,12 @@ type = internal/fs
 interval = 25
 
 mount-0 = /
-mount-1 = /tmp
+mount-1 = /x
+mount-2 = /z
 
 label-mounted = %{F#0a81f5}%mountpoint%%{F-}: %percentage_used%%
 label-unmounted = %mountpoint% not mounted
 label-unmounted-foreground = ${colors.foreground-alt}
-
-[module/cpu]
-type = internal/cpu
-interval = 2
-format-prefix = " "
-format-prefix-foreground = ${colors.foreground-alt}
-format-underline = ${colors.alt_blue}
-label = %percentage:2%%
-
-[module/memory]
-type = internal/memory
-interval = 2
-format-prefix = " "
-format-prefix-foreground = ${colors.foreground-alt}
-format-underline = ${colors.alt_blue}
-label = %percentage_used%%
-
-[module/wlan]
-type = internal/network
-interface = net1
-interval = 3.0
-
-format-connected = <ramp-signal> <label-connected>
-format-connected-underline = #9f78e1
-label-connected = %essid%
-
-format-disconnected =
-;format-disconnected = <label-disconnected>
-;format-disconnected-underline = ${self.format-connected-underline}
-;label-disconnected = %ifname% disconnected
-;label-disconnected-foreground = ${colors.foreground-alt}
-
-ramp-signal-0 = 
-ramp-signal-1 = 
-ramp-signal-2 = 
-ramp-signal-3 = 
-ramp-signal-4 = 
-ramp-signal-foreground = ${colors.foreground-alt}
-
-[module/eth]
-type = internal/network
-interface = eno1
-interval = 3.0
-
-format-connected-underline = #55aa55
-format-connected-prefix = " "
-format-connected-prefix-foreground = ${colors.foreground-alt}
-label-connected = %local_ip%
-
-format-disconnected =
-;format-disconnected = <label-disconnected>
-;format-disconnected-underline = ${self.format-connected-underline}
-;label-disconnected = %ifname% disconnected
-;label-disconnected-foreground = ${colors.foreground-alt}
 
 [module/date]
 type = internal/date
@@ -206,17 +148,21 @@ scroll-down = polybar-timer decrease_time
 format-prefix = " "
 format-prefix-foreground = ${colors.icon}
 
+[module/hue]
+type = custom/script
+exec = polybar-hue
+exec-if = true
+tail = true
+click-left = polybar-hue toggle
+click-middle = polybar-hue next
+click-right = polybar-hue change_color
+scroll-up = polybar-hue increase
+scroll-down = polybar-hue decrease
+
 [module/ping]
 type = custom/script
 exec = polybar-ping
 interval = 10
-
-[module/kronos]
-type = custom/script
-exec = polybar-kronos
-exec-if = true
-tail = true
-click-left = kill -USR1 %pid%
 
 [module/progress]
 type = custom/script
@@ -226,11 +172,6 @@ tail = true
 
 [settings]
 screenchange-reload = true
-;compositing-background = xor
-;compositing-background = screen
-;compositing-foreground = source
-;compositing-border = over
-;pseudo-transparency = false
 compositing-foreground = add
 
 [global/wm]

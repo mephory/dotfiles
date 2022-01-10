@@ -181,18 +181,18 @@
 [urgency_low]
     # IMPORTANT: colors have to be defined in quotation marks.
     # Otherwise the "#" and following would be interpreted as a comment.
-    background = "#383838"
-    foreground = "#ebdbb2"
+    background = "$WISP_COLOR4"
+    foreground = "$WISP_FOREGROUND"
     timeout = 10
 
 [urgency_normal]
-    background = "#282828"
-    foreground = "#ebdbb2"
+    background = "$WISP_BACKGROUND"
+    foreground = "$WISP_FOREGROUND"
     timeout = 10
 
 [urgency_critical]
-    background = "#cc241d"
-    foreground = "#ebdbb2"
+    background = "$WISP_COLOR1"
+    foreground = "$WISP_BACKGROUND"
     timeout = 0
 
 

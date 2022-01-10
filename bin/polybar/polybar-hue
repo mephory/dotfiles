@@ -1,0 +1,169 @@
+#!/bin/env ruby
+
+require 'lights'
+USERNAME = 'U3RPvwCw3b2IHwE4woRnKefXWs6TneUJrNQ3lBFN'
+
+def enhance(c)
+  if c > 0.04045
+    return ((c + 0.055) / (1.055))**2.4
+  end
+  return c / 12.92
+end
+
+def rgb2xy(r, g, b)
+
+  rNorm = enhance(r / 255.0)
+  gNorm = enhance(g / 255.0)
+  bNorm = enhance(b / 255.0)
+
+  x = rNorm * 0.649926 + gNorm * 0.103455 + bNorm * 0.197109
+  y = rNorm * 0.234327 + gNorm * 0.743075 + bNorm * 0.022598
+  z = rNorm * 0 + gNorm * 0.053077 + bNorm * 1.035763
+
+  if (x + y + z == 0)
+    return [0, 0]
+  else
+    return [x / (x + y + z), y / (x + y + z)]
+  end
+end
+
+class Light
+  attr_reader :id, :name, :brightness, :hue, :saturation, :on, :xy
+
+  def initialize(id, name, on, brightness, xy)
+    @id = id
+    @name = name
+    @on = on
+    @brightness = brightness
+    @xy = xy
+
+    @dirty = false
+  end
+
+  def clean!
+    @dirty = false
+  end
+
+  def change_brightness(n)
+    @brightness = (@brightness + n).clamp(0, 100)
+
+    @dirty = true
+  end
+
+  def change_on(is_on)
+    @on = is_on
+
+    @dirty = true
+  end
+
+  def change_color(color)
+    return if @xy.nil?
+
+    @xy = rgb2xy(*color.scan(/\d+/).map(&:to_i))
+
+    @dirty = true
+  end
+
+  def color
+    return '#ffffff' unless @on
+    return '#f2eb23' unless @xy
+  end
+
+  def dirty?
+    @dirty
+  end
+
+  def bulbstate
+    b = BulbState.new
+    b.bri = (2.55 * @brightness).to_i
+    b.on = @on
+    if @xy
+      b.xy = @xy
+    end
+    b
+  end
+end
+
+class PolybarHue
+  def initialize
+    unless File.exist?('/tmp/polybar-hue')
+      File.mkfifo('/tmp/polybar-hue')
+    end
+
+    @hue = Lights.new('Philips-hue', USERNAME)
+    @selected_light = 0
+    @lights = @hue.request_bulb_list.map do |k, v|
+      Light.new(k, v['name'], v['state']['on'], (v['state']['bri']/2.55).to_i, v['state']['xy'])
+    end rescue puts("Can't connect to Philips Hue")
+
+    # @lights = [
+    #   Light.new('1', 'A'),
+    #   Light.new('2', 'B')
+    # ]
+  end
+
+  def light
+    @lights[@selected_light]
+  end
+
+  def run
+    queue = Queue.new
+
+    Thread.start do
+      f = File.open('/tmp/polybar-hue', 'r+')
+      loop do
+        queue << f.gets.strip.to_sym
+      end
+    end
+
+    queue << :noop
+
+    loop do
+      cmd = queue.pop
+
+      case cmd
+      when :increase
+        light.change_brightness(5)
+      when :decrease
+        light.change_brightness(-5)
+      when :off
+        light.change_on(false)
+      when :on
+        light.change_on(true)
+      when :toggle
+        light.change_on(!light.on)
+      when :change_color
+        return if light.xy.nil?
+
+        color = `zenity --color-selection`.strip
+        light.change_color(color) if color.to_s != ''
+      when :next
+        @selected_light += 1
+        @selected_light = 0 if @selected_light > (@lights.count - 1)
+      end
+
+      if cmd != :noop && light.dirty?
+        begin
+          @hue.set_bulb_state(light.id, light.bulbstate)
+        rescue
+        ensure
+          light.clean!
+        end
+      end
+
+      if light.on
+        puts "%{F#f2eb23}%{F-} #{light.brightness}% (#{light.name})"
+      else
+        puts " #{light.brightness}% (#{light.name})"
+      end
+      STDOUT.flush
+    end
+  end
+end
+
+if ARGV.first
+  puts ARGV.first
+  File.write('/tmp/polybar-hue', "#{ARGV.first}\n")
+else
+  PolybarHue.new.run
+end

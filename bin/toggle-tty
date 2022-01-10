@@ -1,6 +1,0 @@
-#!/bin/sh
-if [ "$DISPLAY" = ":0" ]; then
-    sudo chvt 2
-else
-    sudo chvt 1
-fi

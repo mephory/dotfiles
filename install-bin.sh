@@ -1,7 +1,7 @@
 #!/bin/zsh
-SCRIPTS=$(echo bin/**/*(.) | tr " " "\n")
+SCRIPTS=$(echo bin/**/*(.) sd/**/*(.) | tr " " "\n")
 
-echo 'This will install the following scripts to ~/bin:'
+echo 'This will install the following scripts to ~/bin and ~/sd:'
 echo "$SCRIPTS"
 echo ''
 echo 'Do you want to install them now? [y/N]'

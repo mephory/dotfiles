@@ -1,2 +1,0 @@
-#!/bin/sh
-set-xrdb-env | grep $1 | awk -F= '{print $2}'
