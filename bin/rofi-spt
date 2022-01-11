@@ -6,7 +6,6 @@ class RofiSpt
   CACHE_DIR = File.join(ENV['HOME'], '.cache', 'rofi-spt')
   PLAYLISTS_FILE = File.join(CACHE_DIR, 'playlists')
   HISTORY_FILE = File.join(CACHE_DIR, 'history')
-
   KEYS = [
     ['alt+n', Proc.new { `spt playback --next` }, 'Next Track'],
     ['alt+BackSpace', Proc.new { `spt playback --next` }, 'Next Track'],
