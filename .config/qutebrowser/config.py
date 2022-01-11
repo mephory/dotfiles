@@ -3,8 +3,8 @@ import os
 
 config.load_autoconfig(False)
 
-c.url.start_pages = 'file:///home/mephory/data/homepage/index.html'
-c.url.default_page = 'file:///home/mephory/data/homepage/index.html'
+c.url.start_pages = 'file://{0}/.config/qutebrowser/homepage.html'.format(os.environ.get('HOME'))
+c.url.default_page = 'file://{0}/.config/qutebrowser/homepage.html'.format(os.environ.get('HOME'))
 c.hints.mode = 'number'
 c.hints.auto_follow = 'always'
 c.tabs.background = True

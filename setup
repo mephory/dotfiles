@@ -24,7 +24,17 @@ echo "Installing dotfiles..."
 echo "Installing bin..."
 ./install-missing-bin.sh
 
+echo 'Installing neovim plugins'
+nvim +':PlugInstall | qa!'
+
 echo "Changing default shell..."
 chsh -s /bin/zsh $USER
 
+echo "Compiling xmonad"
 xmonad --recompile
+
+echo "Settings qutebrowser as default browser"
+xdg-mime default org.qutebrowser.qutebrowser.desktop x-scheme-handler/http
+xdg-mime default org.qutebrowser.qutebrowser.desktop x-scheme-handler/https
+
+ln -s /usr/bin/feh ~/bin/feh-float

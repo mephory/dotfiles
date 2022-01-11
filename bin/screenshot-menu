@@ -1,0 +1,198 @@
+#!/bin/zsh
+
+NUM=0
+SIZE="40%"
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+  -n) NUM="$2"; shift 2;;
+  -n*) NUM="${1:2}"; shift 1;;
+  --num=*) NUM="${1#*=}"; shift 1;;
+
+  -s) SIZE="$2"; shift 2;;
+  -s*) SIZE="${1:2}"; shift 1;;
+  --size=*) SIZE="${1#*=}"; shift 1;;
+  esac
+done
+
+ROFI_THEME=$(cat <<EOF
+configuration {
+  show-icons: true;
+  sidebar-mode: false;
+}
+
+window {
+  width: 66%;
+  height: 95%;
+}
+
+textbox {
+  background-color: #222222;
+}
+
+listview {
+  scrollbar: true;
+  layout: vertical;
+  dynamic: true;
+  columns: 2;
+  lines: 6;
+}
+
+scrollbar {
+  handle-color: #ffffff;
+}
+
+element {
+  /*background-color: #000000;*/
+  orientation: vertical;
+}
+
+element selected {
+  /*background-color: #ffffff;*/
+}
+
+prompt {
+  enabled: false;
+}
+
+entry {
+  enabled: false;
+}
+
+mainbox {
+  spacing: 0%;
+  padding: 0%;
+}
+
+element {
+  padding: 1% 0% 1% 0%;
+}
+
+element-icon {
+  size: $SIZE;
+  horizontal-align: 0.5;
+  vertical-align: 0.5;
+}
+
+element-text {
+  /*enabled: false;*/
+  horizontal-align: 0.5;
+  vertical-align: 0.5;
+}
+EOF
+)
+
+MESSAGE=$(cat <<EOF
+t — take	a — area	c — circle	s — scale down
+q — screen 1	v — view	y — yank	r — rectangle
+w — screen 2	u — upload	D — delete	C-d — delete and continue
+W — focused	x — crop	z — change size
+EOF
+)
+
+option=$(
+  (
+  for f in ~/data/screenshots/*(om); do
+    echo -en "$(basename "$f")\0icon\x1f$f\n"
+  done
+  ) | rofi -dmenu -show-icons -theme-str "$ROFI_THEME" -mesg $MESSAGE -selected-row $NUM -show-scrollbar \
+      -kb-custom-1 "t" \
+      -kb-custom-2 "q" \
+      -kb-custom-3 "w" \
+      -kb-custom-4 "W" \
+      -kb-custom-5 "a" \
+      -kb-custom-6 "v" \
+      -kb-custom-7 "u" \
+      -kb-custom-8 "x" \
+      -kb-custom-9 "c" \
+      -kb-custom-10 "y" \
+      -kb-custom-11 "D" \
+      -kb-custom-12 "z" \
+      -kb-custom-13 "s" \
+      -kb-custom-14 "r" \
+      -kb-custom-15 "Ctrl-d" \
+      -kb-remove-char-forward ""
+)
+
+r=$?
+
+screenshot="$HOME/data/screenshots/$option"
+nextname="$HOME/data/screenshots/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png"
+
+n=0
+for f in ~/data/screenshots/*(om); do
+  if [ "$screenshot" = "$f" ]; then
+    break
+  fi
+  ((n=n+1))
+done
+
+case $r in
+  1)
+  exit 0
+  ;;
+  0)
+  feh "$screenshot"
+  ;;
+  10) # t
+  sleep 0.2
+  import -window root "$nextname"
+  ;;
+  11) # q
+  sleep 0.2
+  import -window root -crop 2560x1440+0+0 +repage "$nextname"
+  ;;
+  12) # w
+  sleep 0.2
+  import -window root -crop 2560x1440+2560+0 +repage "$nextname"
+  ;;
+  13) # W
+  import -window $(xdotool getwindowfocus -f) "$nextname"
+  ;;
+  14) # a
+  import "$nextname"
+  ;;
+  15) # v
+  feh "$screenshot"
+  screenshot-menu -n $n --size=$SIZE
+  ;;
+  16) # u
+  upload --notify -p "$screenshot"
+  ;;
+  17) # x
+  vcrop "$screenshot" "$nextname"
+  screenshot-menu --size=$SIZE
+  ;;
+  18) # c
+  vcircle "$screenshot" "$nextname"
+  screenshot-menu --size=$SIZE
+  ;;
+  19) # y
+  xclip -target image/png -selection clipboard "$screenshot"
+  ;;
+  20) # d
+  rm "$screenshot"
+  ;;
+  21) # z
+  if [ "$SIZE" = "11%" ]; then
+    screenshot-menu -n $n --size=40%
+  else
+    screenshot-menu -n $n --size=11%
+  fi
+  ;;
+  22) # s
+  convert "$screenshot" -resize 75% "$nextname"
+  screenshot-menu --size=$SIZE
+  ;;
+  23) # r
+  vrect "$screenshot" "$nextname"
+  screenshot-menu --size=$SIZE
+  ;;
+  24) # C-d
+  rm "$screenshot"
+  screenshot-menu -n $n --size=$SIZE
+  ;;
+  *)
+  exit 0
+  ;;
+esac
