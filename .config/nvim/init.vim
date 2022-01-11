@@ -91,7 +91,11 @@ set t_ut =
 " endif
 
 let g:gruvbox_contrast_dark = 'hard'
-colorscheme gruvbox
+if !empty($WISP_THEME)
+  colorscheme $WISP_THEME
+else
+  colorscheme gruvbox
+endif
 " colorscheme default
 " hi CursorLine cterm=NONE ctermbg=0
 set laststatus=2    " always show status bar

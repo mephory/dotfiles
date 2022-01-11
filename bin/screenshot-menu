@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 NUM=0
-SIZE="40%"
+SIZE="35%"
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -27,7 +27,7 @@ window {
 }
 
 textbox {
-  background-color: #222222;
+  background-color: $WISP_BACKGROUND;
 }
 
 listview {
@@ -39,16 +39,14 @@ listview {
 }
 
 scrollbar {
-  handle-color: #ffffff;
+  handle-color: $WISP_FOREGROUND;
 }
 
 element {
-  /*background-color: #000000;*/
   orientation: vertical;
 }
 
 element selected {
-  /*background-color: #ffffff;*/
 }
 
 prompt {
@@ -175,7 +173,7 @@ case $r in
   ;;
   21) # z
   if [ "$SIZE" = "11%" ]; then
-    screenshot-menu -n $n --size=40%
+    screenshot-menu -n $n --size=35%
   else
     screenshot-menu -n $n --size=11%
   fi

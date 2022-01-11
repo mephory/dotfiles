@@ -11,9 +11,10 @@ import Control.Monad
 
 data WispConfig = WispConfig
   { configName :: String
-  , backgroundColor :: String
-  , backgroundColorAlpha :: String
-  , foregroundColor :: String
+  , bgColor :: String
+  , bgSecondary :: String
+  , bgColorAlpha :: String
+  , fgColor :: String
   , color0 :: String
   , color1 :: String
   , color2 :: String
@@ -37,9 +38,10 @@ data WispConfig = WispConfig
 gruvbox :: WispConfig
 gruvbox = WispConfig
           { configName           = "gruvbox"
-          , backgroundColor      = "#1d2021"
-          , backgroundColorAlpha = "#1d202188"
-          , foregroundColor      = "#ebdbb2"
+          , bgColor              = "#1d2021"
+          , bgSecondary          = "#32302f"
+          , bgColorAlpha         = "#1d2021aa"
+          , fgColor              = "#ebdbb2"
           , color0               = "#282828"
           , color1               = "#cc241d"
           , color2               = "#98971a"
@@ -62,9 +64,10 @@ gruvbox = WispConfig
 nord :: WispConfig
 nord = WispConfig
        { configName           = "nord"
-       , backgroundColor      = "#292e39"
-       , backgroundColorAlpha = "#292e3988"
-       , foregroundColor      = "#d8dee9"
+       , bgColor              = "#292e39"
+       , bgSecondary          = "#4c566a"
+       , bgColorAlpha         = "#292e39aa"
+       , fgColor              = "#d8dee9"
        , color0               = "#3b4252"
        , color1               = "#bf616a"
        , color2               = "#a3be8c"
@@ -86,9 +89,11 @@ nord = WispConfig
 
 activateWispConfig :: WispConfig -> X ()
 activateWispConfig cfg = do
-  io $ setEnv "WISP_BACKGROUND_ALPHA" (backgroundColorAlpha cfg)
-  io $ setEnv "WISP_BACKGROUND" (backgroundColor cfg)
-  io $ setEnv "WISP_FOREGROUND" (foregroundColor cfg)
+  io $ setEnv "WISP_THEME" (configName cfg)
+  io $ setEnv "WISP_BACKGROUND_ALPHA" (bgColorAlpha cfg)
+  io $ setEnv "WISP_BACKGROUND" (bgColor cfg)
+  io $ setEnv "WISP_BACKGROUND_SECONDARY" (bgSecondary cfg)
+  io $ setEnv "WISP_FOREGROUND" (fgColor cfg)
   io $ setEnv "WISP_FONT"       (normalFont cfg)
   io $ setEnv "WISP_COLOR0"     (color0 cfg)
   io $ setEnv "WISP_COLOR1"     (color1 cfg)

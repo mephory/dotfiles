@@ -1,0 +1,121 @@
+#!/bin/env ruby
+
+require 'open3'
+
+class RofiSpt
+  CACHE_DIR = File.join(ENV['HOME'], '.cache', 'rofi-spt')
+  PLAYLISTS_FILE = File.join(CACHE_DIR, 'playlists')
+  HISTORY_FILE = File.join(CACHE_DIR, 'history')
+
+  KEYS = [
+    ['alt+n', Proc.new { `spt playback --next` }, 'Next Track'],
+    ['alt+BackSpace', Proc.new { `spt playback --next` }, 'Next Track'],
+    ['alt+p', Proc.new { `spt playback --previous` }, 'Previous Track'],
+    ['alt+t', Proc.new { `spt playback --toggle` }, 'Toggle playback'],
+  ]
+
+  def run
+    Dir.mkdir(CACHE_DIR) unless Dir.exist?(CACHE_DIR)
+    @history = load_history
+    @playlists = load_playlists.reject { |x| @history.map(&:url).include?(x.url) }
+
+    choice = rofi(@history + @playlists) 
+    while choice.is_a? String
+      choice = rofi(search_tracks(choice))
+    end
+
+    return if choice.nil?
+    play(choice) if choice.is_a? SpotifyItem
+    append_history(choice)
+  end
+
+  def rofi_mesg
+    KEYS.each_slice(2).map do |keys|
+      keys.map { |k, _, description| "#{k} - #{description}" }.join("\t\t")
+    end.join("\n")
+  end
+
+  def append_history(spotify_item)
+    new_history = [spotify_item] + @history.reject { |x| x.url == spotify_item.url }
+    File.open(HISTORY_FILE, 'w') { |f| f.write new_history.map(&:to_s).join("\n") }
+  end
+
+  def play(spotify_item)
+    `spt play --track --uri "#{spotify_item.url}"`
+  end
+
+  def rofi(spotify_items)
+    n, input, return_code =
+      Open3.popen2("rofi -dmenu -p '' -i -format 'i s' -mesg '#{rofi_mesg}' #{key_args}") do |stdin, stdout, wait_thr|
+        stdin.write(spotify_items.map(&:rofi_title).join("\n"))
+        stdin.close
+        i, s = stdout.read.split(' ', 2)
+        [i, s, wait_thr.value.exitstatus]
+      end
+
+    run_action(return_code)
+    return nil unless return_code == 0
+    return spotify_items[n.to_i] if n.to_i > -1
+    return input
+  end
+
+  def key_args
+    n = 0
+    KEYS.map do |key, action|
+      n += 1
+      "-kb-custom-#{n} '#{key}'"
+    end.join(' ')
+  end
+
+  def run_action(return_code)
+    return nil if return_code < 10
+    return nil if return_code > 24
+    KEYS[return_code - 10]&.[](1).call
+  end
+
+  def load_playlists
+    fetch_playlists! unless File.exist?(PLAYLISTS_FILE)
+    File.readlines(PLAYLISTS_FILE).map { |x| SpotifyItem.read x }
+  end
+
+  def load_history
+    return [] unless File.exist?(HISTORY_FILE)
+    File.readlines(HISTORY_FILE).map { |x| SpotifyItem.read x}
+  end
+
+  def search_tracks(query)
+    `spt search --tracks "#{query}" --limit 50 --format '%u %t (%a)'`.lines.map { |x| SpotifyItem.read x }
+  end
+
+  def fetch_playlists!
+    File.open(PLAYLISTS_FILE, 'w') do |f|
+      f.write(`spt list --playlists --format '%u %p'`)
+    end
+  end
+end
+
+class SpotifyItem
+  attr_reader  :url, :title, :type
+
+  def initialize(url:, title:, type:)
+    @url = url
+    @title = title
+    @type = type
+  end
+
+  def self.read(str)
+    url, title = str.strip.split(' ', 2)
+    type = url.split(':')[1]
+    SpotifyItem.new(url: url, title: title, type: type)
+  end
+
+  def rofi_title
+    @title
+  end
+
+  def to_s
+    "#{url} #{title}"
+  end
+end
+
+RofiSpt.new.run

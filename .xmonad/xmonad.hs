@@ -28,7 +28,6 @@ import System.Exit
 import System.Environment (getEnv)
 import Graphics.X11.ExtraTypes.XF86
 
-import Wisp as Wisp
 import WorkspaceHelpers
 import SubmapWithHints (submapWithHints)
 import Passwords (passwordPrompt, genPasswordPrompt)
@@ -38,12 +37,13 @@ import DynamicScratchpads (spawnDynamicSP, makeDynamicSP)
 import FloatCenterWindow (centerFloatingWindow, makeFloatingCenterWindow)
 import Opacity (changeOpacity, setOpacity)
 import LowerDocks (addDock, delDock)
+import qualified Wisp as WS
 
 import qualified XMonad.StackSet as W
 import qualified XMonad.Util.Dmenu as D
 import qualified Data.Map as M
 
-myWispConfig = Wisp.gruvbox
+myWispConfig = WS.nord
 
 myWorkspaces :: [WS]
 myWorkspaces = [ WS "1"       (Just xK_1)           True
@@ -85,8 +85,8 @@ main = do
       , borderWidth        = 1
       , modMask            = mod1Mask
       , workspaces         = wsNames
-      , normalBorderColor  = "#333"
-      , focusedBorderColor = "#ccc"
+      , normalBorderColor  = WS.bgSecondary myWispConfig
+      , focusedBorderColor = WS.fgColor myWispConfig
 
       -- key bindings
       , keys               = myKeys
@@ -167,7 +167,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_semicolon), spawn "xterm")
     , ((modm              , xK_period), spawn "plover -s plover_send_command toggle")
     , ((modm              , xK_comma), spawn "plover -s plover_send_command lookup")
-    , ((modm              , xK_BackSpace), spawn "rofi-spotify-tui")
+    , ((modm              , xK_BackSpace), spawn "rofi-spt")
 
     -- Floating Positions
     , ((modm              , xK_f     ) , withFocused makeFloatingCenterWindow)
@@ -299,7 +299,7 @@ floatPlacement = placeHook (withGaps (10, 10, 10, 10) $ smart (0.5, 0.2))
 myEventHook = mempty
 
 myStartupHook = do
-    Wisp.activateWispConfig myWispConfig
+    WS.activateWispConfig myWispConfig
     safeSpawn "restart-polybar" []
     safeSpawn "restart-dunst" []
 
@@ -343,49 +343,58 @@ myScratchpads = [ NS "terminal"   spawnTerminal  findTerminal  manageSP
 myLogHook homeDir = dynamicLogWithPP $ def {
       ppCurrent         = clickable currentFmt
     , ppVisible         = clickable visibleFmt
-    , ppHidden          = onlyIf workspaceVisible (clickable addPadding)
+    , ppHidden          = onlyIf workspaceVisible (clickable hiddenFmt)
     , ppHiddenNoWindows = \_ -> ""
     , ppUrgent          = clickable urgentFmt
     , ppSep             = "  "
     , ppWsSep           = ""
-    , ppLayout          = ("%{u#458588}%{+u} " ++) . (++ " %{-u}") . layoutName
+    , ppLayout          = \_ -> ""
     , ppTitle           = \_ -> ""
     , ppExtras          = [willFloatNextPP floatNextStr]
     , ppOrder           = \(w:l:t:es) -> [w, l] ++ es ++ [t]
     , ppOutput          = appendFileUtf8 "/tmp/workspace-info" . (++"\n")
     }
     where
-        addPadding      = ("  " ++) . (++ "  ")
-        currentFmt      = (" %{u#cc241d}%{+u} " ++) . (++ " %{-u} ")
-        visibleFmt      = (" %{u#484848}%{+u} " ++) . (++ " %{-u} ")
-        urgentFmt       = ("%{B#cc241d}  " ++) . (++ "  %{B-}")
+        hiddenFmt  = bg (WS.bgColor myWispConfig) .
+                     fg (WS.color8 myWispConfig) .
+                     addPadding
+        currentFmt = bg (WS.bgSecondary myWispConfig) .
+                     fg (WS.fgColor myWispConfig) .
+                     addPadding
+        urgentFmt  = bg (WS.color1 myWispConfig) .
+                     fg (WS.fgColor myWispConfig) .
+                     addPadding
+        visibleFmt = addPadding
+        addPadding = ("  " ++) . (++ "  ")
+        bg c       = (("%{B" ++ c ++ "}") ++) . (++ "%{B-}")
+        fg c       = (("%{F" ++ c ++ "}") ++) . (++ "%{F-}")
         clickable f w   = fromMaybe (f w) (elemIndex w wsNames >>= \i -> Just $ "%{A1:wmctrl -s " ++ show i ++ ":}" ++ f w ++ "%{A}")
         layoutName s
-            | "Mirror Tall" `isInfixOf` s = "\xe003"
-            | "Tall" `isInfixOf` s        = "\xe002"
-            | "Full" `isInfixOf` s        = "\xe001"
-            | "OneBig" `isPrefixOf` s     = "O"
-            | otherwise                   = "\xe004"
+            | "Mirror Tall" `isInfixOf` s = "MT"
+            | "Tall" `isInfixOf` s        = " T"
+            | "Full" `isInfixOf` s        = " F"
+            | "OneBig" `isPrefixOf` s     = "OB"
+            | otherwise                   = "  "
         floatNextStr s = case s of
             ""        -> " "
             otherwise -> "·"
         onlyIf p f x = if p x then f x else ""
 
-xpc = def { bgColor = backgroundColor myWispConfig
-          , fgColor = foregroundColor myWispConfig
-          , borderColor = foregroundColor myWispConfig
-          , fgHLight = backgroundColor myWispConfig
-          , bgHLight = foregroundColor myWispConfig
-          , font = normalFont myWispConfig
+xpc = def { bgColor = WS.bgColor myWispConfig
+          , fgColor = WS.fgColor myWispConfig
+          , borderColor = WS.fgColor myWispConfig
+          , fgHLight = WS.bgColor myWispConfig
+          , bgHLight = WS.fgColor myWispConfig
+          , font = WS.normalFont myWispConfig
           , height = 22
           }
 
 focusIndicatorTheme :: Theme
 focusIndicatorTheme =
   def { fontName              = "xft:inconsolata:size=10"
-      , inactiveBorderColor   = color0 myWispConfig
-      , inactiveColor         = color0 myWispConfig
-      , inactiveTextColor     = color0 myWispConfig
+      , inactiveBorderColor   = WS.color0 myWispConfig
+      , inactiveColor         = WS.color0 myWispConfig
+      , inactiveTextColor     = WS.color0 myWispConfig
       , activeBorderColor     = "#3c5a70"
       , activeColor           = "#3c5a70"
       , activeTextColor       = "#3c5a70"

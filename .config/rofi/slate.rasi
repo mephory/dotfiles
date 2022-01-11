@@ -2,8 +2,16 @@
   background-color: ${WISP_BACKGROUND_ALPHA};
   text-color: ${WISP_FOREGROUND};
   spacing: 0;
-  width: 33%;
-  font: "Inconsolata 12";
+  width: 40%;
+  font: "Inconsolata Bold 12";
+}
+
+window {
+  padding: 12px;
+  background-color: ${WISP_BACKGROUND};
+  border: 1px;
+  border-radius: 0.25em;
+  border-color: ${WISP_BACKGROUND_SECONDARY};
 }
 
 inputbar {
@@ -12,7 +20,7 @@ inputbar {
 }
 
 prompt {
-  padding: 12px;
+  padding: 12px 12px 0 12px;
   border: 0 1px 0 0;
 }
 
@@ -28,7 +36,7 @@ entry {
 
 listview {
   cycle: false;
-  margin: 0 0 -1px 0;
+  margin: 20px 0 0 0;
   scrollbar: false;
   columns: 2;
 }

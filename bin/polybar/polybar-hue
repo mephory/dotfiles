@@ -96,10 +96,7 @@ class PolybarHue
       Light.new(k, v['name'], v['state']['on'], (v['state']['bri']/2.55).to_i, v['state']['xy'])
     end rescue puts("Can't connect to Philips Hue")
 
-    # @lights = [
-    #   Light.new('1', 'A'),
-    #   Light.new('2', 'B')
-    # ]
+    @lights = @lights.select { |x| x.name == 'Ceil RGB' }
   end
 
   def light
@@ -152,9 +149,11 @@ class PolybarHue
       end
 
       if light.on
-        puts "%{F#f2eb23}%{F-} #{light.brightness}% (#{light.name})"
+        # puts "%{F#f2eb23}%{F-} #{light.brightness}% (#{light.name})"
+        puts "%{F#f2eb23}%{F-} #{light.brightness}%"
       else
-        puts " #{light.brightness}% (#{light.name})"
+        # puts " #{light.brightness}% (#{light.name})"
+        puts " #{light.brightness}%"
       end
       STDOUT.flush
     end
