@@ -44,16 +44,12 @@ class RofiSpt
   end
 
   def rofi(spotify_items)
-    n, input, return_code =
-      Open3.popen2("rofi -dmenu -p '' -i -format 'i s' -mesg '#{rofi_mesg}' #{key_args}") do |stdin, stdout, wait_thr|
-        stdin.write(spotify_items.map(&:rofi_title).join("\n"))
-        stdin.close
-        i, s = stdout.read.split(' ', 2)
-        [i, s, wait_thr.value.exitstatus]
-      end
+    rofi_items = spotify_items.map(&:rofi_title).join("\n")
+    stdout, pstat = Open3.capture2("rofi -dmenu -p '' -i -format 'i s' -mesg '#{rofi_mesg}' #{key_args}", stdin_data: rofi_items)
+    n, input = stdout.split(' ', 2)
 
-    run_action(return_code)
-    return nil unless return_code == 0
+    run_action(pstat.exitstatus)
+    return nil unless pstat.exitstatus == 0
     return spotify_items[n.to_i] if n.to_i > -1
     return input
   end

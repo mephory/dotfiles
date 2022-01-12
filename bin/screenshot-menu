@@ -148,7 +148,8 @@ case $r in
   import -window $(xdotool getwindowfocus -f) "$nextname"
   ;;
   14) # a
-  import "$nextname"
+  sleep 0.2
+  import +repage "$nextname"
   ;;
   15) # v
   feh "$screenshot"
