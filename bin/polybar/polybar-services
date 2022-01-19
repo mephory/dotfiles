@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+
+SERVICES = ARGV.map do |service_descr|
+  args = service_descr.split(':')
+  user = args.first == 'user'
+  args.shift if user
+
+  service = args.shift
+  name = args.shift || service
+
+  { user: user, service: service, name: name }
+end
+
+def user_services
+  SERVICES.select { |x| x[:user] }
+end
+
+def system_services
+  SERVICES.reject { |x| x[:user] }
+end
+
+def service_status
+  user = user_services.zip(`systemctl --user is-active #{user_services.map { |x| x[:service] }.join(' ')}`.lines.map(&:strip)) if user_services.any?
+  system = system_services.zip(`systemctl is-active #{system_services.map { |x| x[:service] }.join(' ')}`.lines.map(&:strip)) if system_services.any?
+
+  (user || []) + (system || [])
+end
+
+loop do
+  polybar_string = service_status.map do |service, status|
+    if status == 'active'
+      "%{A1:systemctl #{'--user' if service[:user]} stop #{service[:service]}:}#{service[:name].upcase}%{A}"
+    else
+      "%{A1:systemctl #{'--user' if service[:user]} start #{service[:service]}:}%{F#{ENV['WISP_FOREGROUND_SECONDARY']}}#{service[:name].upcase}%{F-}%{A}"
+    end
+  end.join('  ')
+
+  STDOUT.puts polybar_string
+  STDOUT.flush
+  sleep 2
+end
