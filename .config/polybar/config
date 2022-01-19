@@ -43,10 +43,12 @@ font-2 = siji:size=12:antialias=true;1
 font-3 = Font Awesome 5 Free:style=Solid:size=10:antialias=true;2
 font-4 = Source Han Sans JP:size=11
 font-5 = "waffle:size=12;2"
+font-6 = "Noto Color Emoji:size=11:style=Regular:scale=11;2"
+font-7 = hack:weight=bold:size=8:antialias=true;2
 
 modules-left = xmonad playerctl
 modules-center = xwindow
-modules-right = progress hue pulseaudio date
+modules-right = wisp-indicator services hue pulseaudio date
 
 tray-position = right
 tray-padding = 2
@@ -127,12 +129,12 @@ type = custom/script
 exec = polybar-playerctl
 exec-if = true
 tail = true
-click-left = polybar-playerctl toggle
-click-middle = polybar-playerctl switch
-click-right = polybar-playerctl next
+; click-left = polybar-playerctl2 toggle
+; click-middle = polybar-playerctl2 switch
+; click-right = polybar-playerctl2 next
 ; format-underline = ${colors.alt_blue}
 format = <label>
-label = %output:0:40:…%
+; label = %output:0:40:…%
 
 [module/timer]
 type = custom/script
@@ -169,9 +171,22 @@ exec = polybar-progress
 exec-if = true
 tail = true
 
+[module/wisp-indicator]
+type = custom/script
+exec = wisp-indicator
+exec-if = true
+tail = true
+
+[module/services]
+type = custom/script
+exec = polybar-services sshd redis user:lstatus:ls
+exec-if = true
+tail = true
+label-font = 8
+
 [settings]
 screenchange-reload = true
-compositing-foreground = add
+; compositing-foreground = add
 
 [global/wm]
 margin-top = 0

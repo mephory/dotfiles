@@ -12,7 +12,7 @@ xrandr --output DP-0 --auto --primary --pos 2560x0
 xrandr --output DP-4 --auto --left-of DP-0 --pos 0x0
 # xrandr --output DP-5 --right-of DP-0 --auto
 
-feh --bg-scale ~/.background.png
+feh --bg-scale ~/.background.jpg
 receive-remote-notifications &
 
 systemctl --user import-environment DISPLAY XAUTHORITY
@@ -22,6 +22,7 @@ if command -v dbus-update-activation-environment >/dev/null 2>&1; then
 fi
 
 eval $(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
+/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 export SSH_AUTH_SOCK
 
 export GTK_IM_MODULE='ibus'

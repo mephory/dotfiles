@@ -2,7 +2,10 @@ module Wisp (
   WispConfig (..),
   activateWispConfig,
   gruvbox,
-  nord
+  nord,
+  solarized,
+  solarizedLight,
+  dracula
 ) where
 
 import XMonad.Core
@@ -15,6 +18,9 @@ data WispConfig = WispConfig
   , bgSecondary :: String
   , bgColorAlpha :: String
   , fgColor :: String
+  , fgSecondary :: String
+  , focusedColor :: String
+  , unfocusedColor :: String
   , color0 :: String
   , color1 :: String
   , color2 :: String
@@ -40,8 +46,11 @@ gruvbox = WispConfig
           { configName           = "gruvbox"
           , bgColor              = "#1d2021"
           , bgSecondary          = "#32302f"
-          , bgColorAlpha         = "#1d2021aa"
+          , bgColorAlpha         = "#1d2021fa"
           , fgColor              = "#ebdbb2"
+          , fgSecondary          = "#928374"
+          , unfocusedColor       = "#282828"
+          , focusedColor         = "#504945"
           , color0               = "#282828"
           , color1               = "#cc241d"
           , color2               = "#98971a"
@@ -66,8 +75,11 @@ nord = WispConfig
        { configName           = "nord"
        , bgColor              = "#292e39"
        , bgSecondary          = "#4c566a"
-       , bgColorAlpha         = "#292e39aa"
+       , bgColorAlpha         = "#292e39fa"
        , fgColor              = "#d8dee9"
+       , fgSecondary          = "#4c566a"
+       , unfocusedColor       = "#3b4252"
+       , focusedColor         = "#4c566a"
        , color0               = "#3b4252"
        , color1               = "#bf616a"
        , color2               = "#a3be8c"
@@ -87,6 +99,93 @@ nord = WispConfig
        , normalFont           = "xft:hack:size=11"
        }
 
+solarized :: WispConfig
+solarized = WispConfig
+       { configName           = "solarized"
+       , bgColor              = "#002b36"
+       , bgSecondary          = "#073642"
+       , bgColorAlpha         = "#002b36fa"
+       , fgColor              = "#657b83"
+       , fgSecondary          = "#073642"
+       , unfocusedColor       = "#073642"
+       , focusedColor         = "#586e75"
+       , color0               = "#073642"
+       , color1               = "#dc322f"
+       , color2               = "#859900"
+       , color3               = "#b58900"
+       , color4               = "#268bd2"
+       , color5               = "#d33682"
+       , color6               = "#2aa198"
+       , color7               = "#eee8d5"
+       , color8               = "#002b36"
+       , color9               = "#cb4b16"
+       , color10              = "#586e75"
+       , color11              = "#657b83"
+       , color12              = "#839496"
+       , color13              = "#6c71c4"
+       , color14              = "#93a1a1"
+       , color15              = "#fdf6e3"
+       , normalFont           = "xft:hack:size=11"
+       }
+
+solarizedLight :: WispConfig
+solarizedLight = WispConfig
+       { configName           = "solarized"
+       , bgColor              = "#fdf6e3"
+       , bgSecondary          = "#eee8d5"
+       , bgColorAlpha         = "#fdf6e3fa"
+       , fgColor              = "#839496"
+       , fgSecondary          = "#bbbbbb"
+       , focusedColor         = "#bbbbbb"
+       , unfocusedColor       = "#eee8d5"
+       , color0               = "#eee8d5"
+       , color1               = "#dc322f"
+       , color2               = "#859900"
+       , color3               = "#b58900"
+       , color4               = "#268bd2"
+       , color5               = "#d33682"
+       , color6               = "#2aa198"
+       , color7               = "#073642"
+       , color8               = "#fdf6e3"
+       , color9               = "#cb4b16"
+       , color10              = "#93a1a1"
+       , color11              = "#839496"
+       , color12              = "#657b83"
+       , color13              = "#6c71c4"
+       , color14              = "#586e75"
+       , color15              = "#002b36"
+       , normalFont           = "xft:hack:size=11"
+       }
+
+dracula :: WispConfig
+dracula = WispConfig
+       { configName           = "dracula"
+       , bgColor              = "#282a36"
+       , bgSecondary          = "#44475a"
+       , bgColorAlpha         = "#282a36fa"
+       , fgColor              = "#f8f8f2"
+       , fgSecondary          = "#44475a"
+       , focusedColor         = "#44475a"
+       , unfocusedColor       = "#4d4d4d"
+       , color0               = "#000000"
+       , color1               = "#ff5555"
+       , color2               = "#50fa7b"
+       , color3               = "#f1fa8c"
+       , color4               = "#bd93f9"
+       , color5               = "#ff79c6"
+       , color6               = "#8be9fd"
+       , color7               = "#bfbfbf"
+       , color8               = "#4d4d4d"
+       , color9               = "#ff6e67"
+       , color10              = "#5af78e"
+       , color11              = "#f4f99d"
+       , color12              = "#caa9fa"
+       , color13              = "#ff92d0"
+       , color14              = "#9aedfe"
+       , color15              = "#e6e6e6"
+       , normalFont           = "xft:hack:size=11"
+       }
+
 activateWispConfig :: WispConfig -> X ()
 activateWispConfig cfg = do
   io $ setEnv "WISP_THEME" (configName cfg)
@@ -94,6 +193,7 @@ activateWispConfig cfg = do
   io $ setEnv "WISP_BACKGROUND" (bgColor cfg)
   io $ setEnv "WISP_BACKGROUND_SECONDARY" (bgSecondary cfg)
   io $ setEnv "WISP_FOREGROUND" (fgColor cfg)
+  io $ setEnv "WISP_FOREGROUND_SECONDARY" (fgSecondary cfg)
   io $ setEnv "WISP_FONT"       (normalFont cfg)
   io $ setEnv "WISP_COLOR0"     (color0 cfg)
   io $ setEnv "WISP_COLOR1"     (color1 cfg)

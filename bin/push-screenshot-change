@@ -5,7 +5,10 @@ def select_geometry
 end
 
 def take_screenshot(geometry)
-  `import -window root -crop #{geometry} +repage png:-`
+  image = `import -window root -crop #{geometry} +repage png:-`
+  return nil if $?.exitstatus != 0
+
+  image
 end
 
 def images_differ?(a, b)
@@ -20,15 +23,32 @@ def push(image)
   `push -p1 'Difference' -a /tmp/watch.png`
 end
 
-geometry = select_geometry
-images = [take_screenshot(geometry)]
-loop do
-  sleep 2
+def main
+  begin
+    geometry = select_geometry
+    puts $?.exitstatus.inspect
+    return if $?.exitstatus != 0
 
-  images << take_screenshot(geometry)
-  if images_differ?(*images)
-    push(images.last)
-    exit
+    images = [take_screenshot(geometry)]
+    loop do
+      sleep 2
+
+      images << take_screenshot(geometry)
+      break if images.last.nil?
+
+      if images_differ?(*images)
+        push(images.last)
+        break
+      end
+      images.shift
+    end
+  rescue StandardError => e
+    puts e.message
+    puts caller
   end
-  images.shift
 end
+
+
+`wisp-indicator set watch-for-screenshot-change 📷`
+main
+`wisp-indicator del watch-for-screenshot-change`

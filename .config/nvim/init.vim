@@ -31,7 +31,8 @@ Plug 'metakirby5/codi.vim'
 
 Plug 'arcticicestudio/nord-vim'
 Plug 'morhetz/gruvbox'
-Plug 'dracula/vim', { 'as': 'dracula' }
+" Plug 'dracula/vim', { 'as': 'dracula' }
+Plug 'Mofiqul/dracula.nvim'
 call plug#end()
 
 "===============================================================================
@@ -84,6 +85,14 @@ set t_Co=256
 set list listchars=tab:»·,trail:·
 set t_ut =
 
+if (has("nvim"))
+  let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+endif
+
+if (has("termguicolors"))
+  set termguicolors
+endif
+
 " if exists('+termguicolors')
 "   let &t_8f="\<Esc>[38;2;%lu;%lu;%lum"
 "   let &t_8b="\<Esc>[48;2;%lu;%lu;%lum"
@@ -96,6 +105,7 @@ if !empty($WISP_THEME)
 else
   colorscheme gruvbox
 endif
+set background=dark
 " colorscheme default
 " hi CursorLine cterm=NONE ctermbg=0
 set laststatus=2    " always show status bar

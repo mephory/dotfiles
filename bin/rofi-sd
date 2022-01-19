@@ -1,0 +1,29 @@
+#!/bin/env ruby
+
+require 'open3'
+
+PREFIX = File.join(ENV['HOME'], 'sd')
+
+class Script
+  def initialize(path)
+    @path = path
+  end
+
+  def args
+    @path.gsub!("#{PREFIX}/", '').split('/')
+  end
+
+  def command
+    args.join(' ')
+  end
+end
+
+scripts = Dir[File.join(PREFIX, '**/*')]
+           .select { |f| File.file? f }
+           .map { |f| Script.new(f) }
+
+stdout, pstat = Open3.capture2('rofi -dmenu -p ";"', stdin_data: scripts.map(&:command).join("\n"))
+
+if pstat.exitstatus == 0
+  IO.popen("sd #{stdout.strip}")
+end

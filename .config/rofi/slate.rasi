@@ -1,5 +1,5 @@
 * {
-  background-color: ${WISP_BACKGROUND_ALPHA};
+  background-color: transparent;
   text-color: ${WISP_FOREGROUND};
   spacing: 0;
   width: 40%;
@@ -8,26 +8,33 @@
 
 window {
   padding: 12px;
-  background-color: ${WISP_BACKGROUND};
   border: 1px;
   border-radius: 0.25em;
   border-color: ${WISP_BACKGROUND_SECONDARY};
+  background-color: ${WISP_BACKGROUND_ALPHA};
 }
 
 inputbar {
+  background-color: transparent;
   border: 0 0 1px 0;
   children: [prompt,entry];
 }
 
 prompt {
+  background-color: transparent;
   padding: 12px 12px 0 12px;
   border: 0 1px 0 0;
 }
 
 textbox {
+  background-color: transparent;
   border: 0 0 1px 0;
   border-color: ${WISP_COLOR0};
   padding: 12px 12px;
+}
+
+mainbox {
+  background-color: transparent;
 }
 
 entry {

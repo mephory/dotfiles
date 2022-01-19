@@ -1,0 +1,41 @@
+window:
+  padding:
+    x: 10
+    y: 10
+
+font:
+  normal:
+    family: JetBrains Mono
+  size: 14
+
+colors:
+  primary:
+    background: '$WISP_BACKGROUND'
+    foreground: '$WISP_FOREGROUND'
+
+    dim_foreground: '$WISP_FOREGROUND_SECONDARY'
+    bright_foreground: '$WISP_BACKGROUND_SECONDARY'
+
+  cursor:
+   text: CellBackground
+   cursor: CellForeground
+
+  normal:
+    black:   '$WISP_COLOR0'
+    red:     '$WISP_COLOR1'
+    green:   '$WISP_COLOR2'
+    yellow:  '$WISP_COLOR3'
+    blue:    '$WISP_COLOR4'
+    magenta: '$WISP_COLOR5'
+    cyan:    '$WISP_COLOR6'
+    white:   '$WISP_COLOR7'
+
+  bright:
+    black:   '$WISP_COLOR8'
+    red:     '$WISP_COLOR9'
+    green:   '$WISP_COLOR10'
+    yellow:  '$WISP_COLOR11'
+    blue:    '$WISP_COLOR12'
+    magenta: '$WISP_COLOR13'
+    cyan:    '$WISP_COLOR14'
+    white:   '$WISP_COLOR15'

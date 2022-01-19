@@ -24,7 +24,7 @@ symbol = " "
 style = 'green'
 
 [git_branch]
-symbol = " "
+symbol = ""
 format = '[\[$symbol$branch\]]($style) '
 style = "purple"
 

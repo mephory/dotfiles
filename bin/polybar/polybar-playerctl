@@ -3,6 +3,8 @@
 
 require 'open3'
 
+FIFO = '/tmp/polybar-playerctl'
+
 PLAYERCTL_FORMAT = '{{playerInstance}}|||{{playerName}}|||{{uc(status)}}|||{{title}}'
 
 STATUS_ICONS = {
@@ -14,92 +16,158 @@ STATUS_ICONS = {
 PLAYER_ICONS = {
   'spotify' => '',
   'chrome' => '',
-  'chromium' => ''
+  'chromium' => '',
+  'qutebrowser' => ''
 }.freeze
 
-def parse_playerdata(str)
-  id, name, status, title = str.strip.split('|||')
-  {
-    id: id,
-    name: name,
-    status: status,
-    title: title
-  }
-end
+class String
+  def truncate(truncate_at, options = {})
+    return dup unless length > truncate_at
 
-def format(playerdata)
-  player_icon = PLAYER_ICONS[playerdata[:name]] || ''
-  status_icon = STATUS_ICONS[playerdata[:status]] || ''
-  "#{player_icon} #{status_icon} #{playerdata[:title]}".strip
-end
+    omission = options[:omission] || "..."
+    length_with_room_for_omission = truncate_at - omission.length
+    stop =        if options[:separator]
+        rindex(options[:separator], length_with_room_for_omission) || length_with_room_for_omission
+      else
+        length_with_room_for_omission
+      end
 
-def next_player(player)
-  p, = players_with_title.cycle(2)
-                         .drop_while { |id, _| id != player }
-                         .drop(1)
-                         .select { |_, title| !title.nil? && !title.empty? }
-                         .first
-  return if p.nil?
-
-  d = `playerctl -p #{p} metadata -f '#{PLAYERCTL_FORMAT}' 2>/dev/null`.strip
-  Q << [:playerdata, parse_playerdata(d)]
-end
-
-def current_title(player)
-  `playerctl -p #{player} metadata -f '{{title}}' 2>/dev/null`.strip
-end
-
-def players_with_title
-  `playerctl -l`.split("\n").map(&:strip).map do |id|
-    [id, current_title(id)]
+    +"#{self[0, stop]}#{omission}"
   end
+end
+
+class Player
+  attr_reader :id, :name, :status, :title
+
+  def initialize(str)
+    @id, @name, @status, @title = str.strip.split('|||')
+  end
+
+  def format(active: false)
+    status_icon = STATUS_ICONS[status]
+    player_icon = PLAYER_ICONS[name] || '?'
+
+    if active
+      actions = [
+        [1, "polybar-playerctl toggle"],
+        [2, "polybar-playerctl switch"],
+        [3, "polybar-playerctl next"]
+      ]
+      click_actions(actions, "#{player_icon} #{status_icon} #{title&.truncate(40, omission: '…') || 'No title'}".strip)
+    else
+      actions = [
+        [1, "polybar-playerctl activate #{id}"],
+        [2, "polybar-playerctl switch"],
+        [3, "polybar-playerctl next"]
+      ]
+      # click_actions(actions, "%{F#{ENV['WISP_FOREGROUND_SECONDARY']}} #{player_icon} #{status_icon} %{F-}".strip)
+      click_actions(actions, "%{F#{ENV['WISP_FOREGROUND_SECONDARY']}} #{player_icon} %{F-}".strip)
+    end
+  end
+
+  def click_actions(actions, s)
+    actions.inject(s) do |acc, action|
+      "%{A#{action[0]}:#{action[1]}:}#{acc}%{A}"
+    end
+  end
+
+  def next_id(players)
+    p, = players.cycle(2)
+                .drop_while { |plr| plr.id != id }
+                .drop(1)
+                .first
+
+    p&.id
+  end
+
+  def self.all
+    `playerctl -a metadata -f '#{PLAYERCTL_FORMAT}' 2>/dev/null`.lines.map do |line|
+      Player.new(line.strip)
+    end.compact
+  end
+
+  # def self.find(id)
+  #   p = Player.new(`playerctl -p #{id} metadata -f '#{PLAYERCTL_FORMAT}' 2>/dev/null`.strip)
+  #   return nil if $? != 0
+
+  #   p
+  # end
+end
+
+def format(players, current_player_id)
+  players.map do |player|
+    player.format(active: player.id == current_player_id)
+  end.join(' ')#.join("%{F#{ENV['WISP_FOREGROUND_SECONDARY']}}  %{F-}")
 end
 
 Q = Queue.new
 
 def main
-  File.mkfifo('/tmp/polybar-playerctl') unless File.exist?('/tmp/polybar-playerctl')
+  File.mkfifo(FIFO) unless File.exist?(FIFO)
 
   Thread.start do
     Open3.popen2("playerctl -F metadata -f '#{PLAYERCTL_FORMAT}' 2>/dev/null") do |_, stdout, _|
       stdout.each_line do |line|
-        playerdata = parse_playerdata(line)
-        Q << [:playerdata, playerdata]
+        Q << [:update, Player.new(line)&.id]
       end
     end
   end
 
   Thread.start do
-    f = File.open('/tmp/polybar-playerctl', 'r+')
+    f = File.open(FIFO, 'r+')
     loop do
-      Q << [f.gets.strip.to_sym, nil]
+      cmd, payload =  f.gets.strip.split(' ', 2)
+      Q << [cmd.to_sym, payload]
     end
   end
 
-  current_player = nil
+  Thread.start do
+    loop do
+      Q << [:update, nil]
+      sleep 2
+    end
+  end
+
+  players = []
+  current_player_id = nil
 
   loop do
     cmd, payload = Q.pop
 
     case cmd
-    when :playerdata
-      current_player = payload[:id]
-      puts format(payload)
+    when :update
+      old_players = players
+      players = Player.all
+      current_player_id = payload if payload
+      new_player = players.find { |x| !old_players.map(&:id).include?(x.id) }
+      if new_player && !payload
+        current_player_id = new_player.id
+      end
+      current_player_id = players.first&.id unless players.map(&:id).include?(current_player_id)
+
+      puts format(players, current_player_id)
       STDOUT.flush
     when :switch
-      next_player(current_player)
+      current_player_id = players.find { |x| x.id == current_player_id }&.next_id(players)
+      puts format(players, current_player_id)
+      STDOUT.flush
+    when :activate
+      current_player_id = payload
+      puts format(players, current_player_id)
+      STDOUT.flush
     when :toggle
-      system "playerctl -p #{current_player} play-pause", out: File::NULL, err: File::NULL
+      system "playerctl -p #{current_player_id} play-pause", out: File::NULL, err: File::NULL
     when :next
-      system "playerctl -p #{current_player} next", out: File::NULL, err: File::NULL
+      system "playerctl -p #{current_player_id} next", out: File::NULL, err: File::NULL
     when :previous
-      system "playerctl -p #{current_player} previous", out: File::NULL, err: File::NULL
+      system "playerctl -p #{current_player_id} previous", out: File::NULL, err: File::NULL
     end
   end
 end
 
+
 if ARGV.empty?
   main
 else
-  File.write('/tmp/polybar-playerctl', "#{ARGV.first}\n")
+  File.write(FIFO, "#{ARGV.join(' ')}\n")
 end

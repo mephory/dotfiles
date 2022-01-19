@@ -26,6 +26,7 @@ import Data.Maybe (fromJust, fromMaybe)
 import Data.Monoid
 import System.Exit
 import System.Environment (getEnv)
+import System.FilePath (joinPath)
 import Graphics.X11.ExtraTypes.XF86
 
 import WorkspaceHelpers
@@ -43,7 +44,7 @@ import qualified XMonad.StackSet as W
 import qualified XMonad.Util.Dmenu as D
 import qualified Data.Map as M
 
-myWispConfig = WS.nord
+myWispConfig = WS.gruvbox
 
 myWorkspaces :: [WS]
 myWorkspaces = [ WS "1"       (Just xK_1)           True
@@ -80,13 +81,13 @@ main = do
     safeSpawn "mkfifo" ["/tmp/workspace-info"]
     xmonad $ docks $ ewmh $ dynamicProjects projects $ withUrgencyHook NoUrgencyHook def {
       -- simple stuff
-        terminal           = "wezterm"
+        terminal           = "alacritty"
       , focusFollowsMouse  = True
       , borderWidth        = 1
       , modMask            = mod1Mask
       , workspaces         = wsNames
-      , normalBorderColor  = WS.bgSecondary myWispConfig
-      , focusedBorderColor = WS.fgColor myWispConfig
+      , normalBorderColor  = WS.unfocusedColor myWispConfig
+      , focusedBorderColor = WS.focusedColor myWispConfig
 
       -- key bindings
       , keys               = myKeys
@@ -101,7 +102,7 @@ main = do
                              <+> floatNextHook
       , handleEventHook    = delDock <+> myEventHook
       , logHook            = myLogHook homeDir
-      , startupHook        = myStartupHook
+      , startupHook        = myStartupHook homeDir
     }
 
 projects =
@@ -160,11 +161,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
         [ ("q   recompile xmonad"       , (0, xK_q), spawn "xmonad --recompile && xmonad --restart")
         , ("f   view-fbg"               , (0, xK_f), spawn "view-fbg filtered")
         , ("k   default keyboard layout", (0, xK_k), spawn "setxkbmap us -option compose:ralt")
-        , ("w   watch for changes"      , (0, xK_w), spawn "push-screenshot-change")
         , ("m-Q   exit xmonad"          , (modm .|. shiftMask, xK_q     ), io exitSuccess)
         ])
     , ((modm              , xK_u     ), spawn "qutebrowser :yank")
-    , ((modm              , xK_semicolon), spawn "xterm")
+    , ((modm              , xK_semicolon), spawn "rofi-sd")
     , ((modm              , xK_period), spawn "plover -s plover_send_command toggle")
     , ((modm              , xK_comma), spawn "plover -s plover_send_command lookup")
     , ((modm              , xK_BackSpace), spawn "rofi-spt")
@@ -249,6 +249,7 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList
     , ((modm , button4) , \w -> changeOpacity w (5/100))
     , ((modm , button5) , \w -> changeOpacity w (-5/100))
     , ((0    , 10 :: Button), \_ -> spawn "polybar-playerctl toggle")
+    , ((0    , 13 :: Button), \_ -> spawn "polybar-playerctl switch")
     ]
 
 
@@ -298,8 +299,10 @@ floatPlacement = placeHook (withGaps (10, 10, 10, 10) $ smart (0.5, 0.2))
 
 myEventHook = mempty
 
-myStartupHook = do
+myStartupHook homeDir = do
     WS.activateWispConfig myWispConfig
+    safeSpawn (joinPath [homeDir, ".config", "alacritty", "build_config.sh"]) []
+    safeSpawn "reload-alacritty" []
     safeSpawn "restart-polybar" []
     safeSpawn "restart-dunst" []
 
@@ -314,17 +317,17 @@ myScratchpads = [ NS "terminal"   spawnTerminal  findTerminal  manageSP
                 , NS "discord"    spawnDiscord   findDiscord   manageDiscordSP
                 ]
     where
-        spawnTerminal  = "wezterm start --class scratchpad"
+        spawnTerminal  = "alacritty --class scratchpad"
         findTerminal   = resource =? "scratchpad"
-        spawnTerminal2 = "wezterm start --class scratchpad-2"
+        spawnTerminal2 = "alacritty --class scratchpad-2"
         findTerminal2  = resource =? "scratchpad-2"
-        spawnTerminal3 = "wezterm start --class scratchpad-3"
+        spawnTerminal3 = "alacritty --class scratchpad-3"
         findTerminal3  = resource =? "scratchpad-3"
-        spawnBotTerm   = "wezterm start --class bot-term"
+        spawnBotTerm   = "alacritty --class bot-term"
         findBotTerm    = resource =? "bot-term"
-        spawnMusic     = "wezterm start --class music -- pulsemixer"
+        spawnMusic     = "alacritty --class music -e pulsemixer"
         findMusic      = resource =? "music"
-        spawnIrc       = "wezterm start --class irc -- ssh -t mephory LANG=en_US.utf8 TERM=xterm-256color tmux attach -t irc"
+        spawnIrc       = "alacritty --class irc -e ssh -t mephory LANG=en_US.utf8 TERM=xterm-256color tmux attach -t irc"
         findIrc        = resource =? "irc"
         spawnColor     = "gcolor3"
         findColor      = resource =? "gcolor3"
@@ -356,7 +359,7 @@ myLogHook homeDir = dynamicLogWithPP $ def {
     }
     where
         hiddenFmt  = bg (WS.bgColor myWispConfig) .
-                     fg (WS.color8 myWispConfig) .
+                     fg (WS.fgSecondary myWispConfig) .
                      addPadding
         currentFmt = bg (WS.bgSecondary myWispConfig) .
                      fg (WS.fgColor myWispConfig) .
@@ -392,12 +395,12 @@ xpc = def { bgColor = WS.bgColor myWispConfig
 focusIndicatorTheme :: Theme
 focusIndicatorTheme =
   def { fontName              = "xft:inconsolata:size=10"
-      , inactiveBorderColor   = WS.color0 myWispConfig
-      , inactiveColor         = WS.color0 myWispConfig
-      , inactiveTextColor     = WS.color0 myWispConfig
-      , activeBorderColor     = "#3c5a70"
-      , activeColor           = "#3c5a70"
-      , activeTextColor       = "#3c5a70"
+      , inactiveBorderColor   = WS.unfocusedColor myWispConfig
+      , inactiveColor         = WS.unfocusedColor myWispConfig
+      , inactiveTextColor     = WS.unfocusedColor myWispConfig
+      , activeBorderColor     = WS.focusedColor myWispConfig
+      , activeColor           = WS.focusedColor myWispConfig
+      , activeTextColor       = WS.focusedColor myWispConfig
       , urgentBorderColor     = "#ff0000"
       , urgentTextColor       = "#ff0000"
       , decoHeight            = 4

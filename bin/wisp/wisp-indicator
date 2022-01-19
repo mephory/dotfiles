@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+
+require 'json'
+
+FIFO = '/tmp/wisp-indicator'
+Q = Queue.new
+
+def run_command(command, indicators)
+  case command['command']
+  when 'set'
+    indicators.merge({ command['id'] => command['value'] })
+  when 'del'
+    indicators.except(command['id'])
+  when 'clear'
+    {}
+  else
+    indicators
+  end
+end
+
+def print(indicators)
+  STDOUT.puts(indicators.values.join(' '))
+  STDOUT.flush
+end
+
+def main
+  if ARGV.any?
+    command, id, value, _ = ARGV
+    File.write(FIFO, "#{{ command: command&.strip, id: id&.strip, value: value&.strip }.to_json}\n")
+  else
+    File.mkfifo(FIFO) unless File.exist?(FIFO)
+    indicators = {}
+
+    File.open(FIFO, 'r+') do |f|
+      loop do
+        command = JSON.parse(f.gets) rescue nil
+        indicators = run_command(command, indicators) unless command.nil?
+        print(indicators)
+      end
+    end
+  end
+end
+
+main
