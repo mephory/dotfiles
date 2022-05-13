@@ -165,12 +165,6 @@ type = custom/script
 exec = polybar-ping
 interval = 10
 
-[module/progress]
-type = custom/script
-exec = polybar-progress
-exec-if = true
-tail = true
-
 [module/wisp-indicator]
 type = custom/script
 exec = wisp-indicator

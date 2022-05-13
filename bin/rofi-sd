@@ -3,6 +3,19 @@
 require 'open3'
 
 PREFIX = File.join(ENV['HOME'], 'sd')
+ROFISD_FILE = File.join(PREFIX, '.rofisd')
+
+def load_history
+  if File.exist?(ROFISD_FILE)
+    File.readlines(ROFISD_FILE).map(&:strip)
+  else
+    []
+  end
+end
+
+def update_history(command)
+  File.write(ROFISD_FILE, ([command] + load_history).uniq.join("\n"))
+end
 
 class Script
   def initialize(path)
@@ -10,7 +23,7 @@ class Script
   end
 
   def args
-    @path.gsub!("#{PREFIX}/", '').split('/')
+    @path.gsub("#{PREFIX}/", '').split('/')
   end
 
   def command
@@ -18,12 +31,15 @@ class Script
   end
 end
 
+history = load_history
 scripts = Dir[File.join(PREFIX, '**/*')]
            .select { |f| File.file? f }
            .map { |f| Script.new(f) }
+           .sort_by { |x| history.index(x.command) || 99 }
 
 stdout, pstat = Open3.capture2('rofi -dmenu -p ";"', stdin_data: scripts.map(&:command).join("\n"))
 
 if pstat.exitstatus == 0
+  update_history(stdout.strip)
   IO.popen("sd #{stdout.strip}")
 end

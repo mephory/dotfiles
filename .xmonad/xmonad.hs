@@ -2,7 +2,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 
 import XMonad
-import XMonad.Actions.CycleWS
 import XMonad.Actions.NoBorders
 import XMonad.Actions.FloatSnap
 import XMonad.Actions.DynamicProjects
@@ -10,11 +9,9 @@ import XMonad.Actions.Search
 import XMonad.Actions.OnScreen
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.BinaryColumn
-import XMonad.Layout.ThreeColumns
 import XMonad.Layout.NoBorders
 import XMonad.Layout.NoFrillsDecoration
 import XMonad.Layout.Spacing
-import XMonad.Layout.Grid
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
@@ -22,11 +19,10 @@ import XMonad.Hooks.FloatNext
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.Place
 import XMonad.Util.NamedScratchpad
-import XMonad.Util.Run (safeSpawn, runInTerm)
+import XMonad.Util.Run (safeSpawn)
 import XMonad.Prompt
-import Data.List (elemIndex, isPrefixOf, isInfixOf, find)
-import Data.Maybe (fromJust, fromMaybe)
-import Data.Monoid
+import Data.List (elemIndex, isInfixOf, find)
+import Data.Maybe (fromMaybe)
 import System.Exit
 import System.Environment (getEnv)
 import System.FilePath (joinPath)
@@ -39,16 +35,15 @@ import UnicodeUtils (appendFileUtf8)
 import ZoomWindow (toggleZoom)
 import DynamicScratchpads (spawnDynamicSP, makeDynamicSP)
 import FloatCenterWindow (centerFloatingWindow, makeFloatingCenterWindow)
-import Opacity (changeOpacity, setOpacity)
+import Opacity (changeOpacity)
 import LowerDocks (addDock, delDock)
 import PictureInPicture (togglePip, pipEventHook, pipPP)
-import qualified Wisp as WS
+import qualified Wisp as WSP
 
 import qualified XMonad.StackSet as W
-import qualified XMonad.Util.Dmenu as D
 import qualified Data.Map as M
 
-myWispConfig = WS.nord
+myWispConfig = WSP.nord
 
 myWorkspaces :: [WS]
 myWorkspaces = [ WS "1"       0          (Just xK_1)           True
@@ -65,12 +60,12 @@ myWorkspaces = [ WS "1"       0          (Just xK_1)           True
                , WS "sys"     0          (Just xK_F1)          False
                , WS "F2"      0          (Just xK_F2)          True
                , WS "F3"      0          (Just xK_F3)          True
-               , WS "NSP"     0          Nothing               False
                , WS "'1"      mod4Mask   (Just xK_1)           False
                , WS "'2"      mod4Mask   (Just xK_2)           False
                , WS "'3"      mod4Mask   (Just xK_3)           False
                , WS "'4"      mod4Mask   (Just xK_4)           False
                , WS "'5"      mod4Mask   (Just xK_5)           False
+               , WS "NSP"     0          Nothing               False
                ]
 
 wsNames :: [String]
@@ -92,8 +87,8 @@ main = do
       , borderWidth        = 1
       , modMask            = mod1Mask
       , workspaces         = wsNames
-      , normalBorderColor  = WS.unfocusedColor myWispConfig
-      , focusedBorderColor = WS.focusedColor myWispConfig
+      , normalBorderColor  = WSP.unfocusedColor myWispConfig
+      , focusedBorderColor = WSP.focusedColor myWispConfig
 
       -- key bindings
       , keys               = myKeys
@@ -136,7 +131,6 @@ jisho = searchEngine "jisho" "https://jisho.org/search/"
 -- Key bindings. Add, modify or remove key bindings here.
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
-    , ((modm,               xK_p     ), spawn "rofi -modi drun,run -show drun -show-icons -display-drun '\xf0e7'")
     , ((modm .|. shiftMask, xK_x     ), spawn "xkill")
     , ((modm .|. shiftMask, xK_c     ), kill)
     , ((modm,               xK_space ), sendMessage NextLayout)
@@ -154,12 +148,19 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_minus ), sendMessage (IncMasterN (1)))
     , ((modm .|. shiftMask, xK_f     ), toggleFloatNext >> runLogHook)
     , ((modm              , xK_Escape), spawn "slock")
-    , ((modm              , xK_grave ), toggleWS' ["NSP"])
     , ((modm              , xK_o     ), withFocused toggleZoom)
+    , ((modm              , xK_slash),  submapWithHints xpc $
+        [ ("q   recompile xmonad"       , (0, xK_q), spawn "xmonad --recompile && xmonad --restart")
+        , ("k   default keyboard layout", (0, xK_k), spawn "setxkbmap us -option compose:ralt")
+        , ("m-Q   exit xmonad"          , (modm .|. shiftMask, xK_q     ), io exitSuccess)
+        ])
 
     -- Prompts
+    , ((modm,               xK_p     ), spawn "rofi -modi drun,run -show drun -show-icons -display-drun '\xf0e7'")
     , ((modm              , xK_n     ), passwordPrompt xpc)
     , ((modm .|. shiftMask, xK_n     ), genPasswordPrompt xpc)
+    , ((modm              , xK_semicolon), spawn "rofi-sd")
+    , ((modm              , xK_period), switchProjectPrompt xpc)
 
     -- Dunst
     , ((modm              , xK_bracketleft), spawn "dunstctl history-pop")
@@ -169,27 +170,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- Various
     , ((modm              , xK_y     ), selectSearch jisho)
-    , ((modm              , xK_slash),  submapWithHints xpc $
-        [ ("q   recompile xmonad"       , (0, xK_q), spawn "xmonad --recompile && xmonad --restart")
-        , ("f   view-fbg"               , (0, xK_f), spawn "view-fbg filtered")
-        , ("k   default keyboard layout", (0, xK_k), spawn "setxkbmap us -option compose:ralt")
-        , ("m-Q   exit xmonad"          , (modm .|. shiftMask, xK_q     ), io exitSuccess)
-        ])
-    , ((modm              , xK_u     ), spawn "qutebrowser :yank")
-    , ((modm              , xK_semicolon), spawn "rofi-sd")
-    , ((modm              , xK_period), switchProjectPrompt xpc)
-    , ((modm              , xK_comma), spawn "imgs")
-    , ((modm .|. shiftMask, xK_comma), spawn "imgs -s")
-    , ((modm              , xK_BackSpace), spawn "rofi-spt")
-    -- , ((modm              , xK_r     ), windows $ onScreen (W.greedyView "1'") (FocusTagVisible "'1") 1)
+    , ((modm .|. shiftMask, xK_slash ), spawn "python /home/mephory/code/fbg/fbg.py toggle")
+    , ((modm .|. shiftMask, xK_semicolon), togglePip)
+
+    -- Change workspaces on vertical monitor
     , ((modm              , xK_r     ), windows $ onScreen (W.greedyView "'1") FocusCurrent 1)
     , ((modm .|. shiftMask, xK_r     ), windows $ W.shift "'1")
     , ((modm              , xK_d     ), windows $ onScreen (W.greedyView "'2") FocusCurrent 1)
     , ((modm .|. shiftMask, xK_d     ), windows $ W.shift "'2")
-    -- , ((modm .|. controlMask, xK_d     ), onScreen' (spawn "xdotool --clearmodifiers key F5") FocusCurrent 1)
-    , ((modm .|. controlMask, xK_d     ), onScreen' (spawn "xdotool key --clearmodifiers F5") FocusCurrent 1)
-    , ((modm .|. shiftMask, xK_slash ), spawn "python /home/mephory/code/fbg/fbg.py toggle")
-    , ((modm .|. shiftMask, xK_semicolon), togglePip)
 
     -- Floating Positions
     , ((modm              , xK_f     ) , withFocused makeFloatingCenterWindow)
@@ -204,16 +192,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_g     ) , withFocused centerFloatingWindow)
 
     -- Screenshots
-    -- , ((0                 , xK_Print ), spawn "import -window root $HOME/data/screenshots/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png")
-    -- , ((shiftMask         , xK_Print ), spawn "import +repage $HOME/data/screenshots/screenshot-$(date +'%Y-%m-%d--%H-%M-%S').png")
+    , ((modm              , xK_comma), spawn "imgs")
+    , ((modm .|. shiftMask, xK_comma), spawn "imgs -s")
     , ((0                 , xK_Print ), spawn "imgs -d screenshots -n -t activewindow")
     , ((shiftMask         , xK_Print ), spawn "imgs -d screenshots -n -t select")
+    , ((modm              , xK_Print ), spawn "imgs -d screenshots -n -t all")
     , ((modm              , xK_0     ), spawn "upload-screenshot -window root")
     , ((modm .|. shiftMask, xK_0     ), spawn "upload-screenshot")
     , ((modm .|. shiftMask, xK_v     ), spawn "screenshot-google-image-search")
-    -- , ((modm              , xK_Print ), spawn "screenshot-menu")
-    , ((modm              , xK_Print ), spawn "imgs -d screenshots")
-    -- , ((modm              , xK_d     ), spawn "imgs -s")
 
     -- Scratchpads
     , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
@@ -223,14 +209,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_b     ), namedScratchpadAction myScratchpads "irc")
     , ((modm .|. shiftMask, xK_p     ), namedScratchpadAction myScratchpads "color")
     , ((modm              , xK_backslash), namedScratchpadAction myScratchpads "bot-term")
-    , ((modm .|. shiftMask, xK_o     ), namedScratchpadAction myScratchpads "icloud")
-    -- , ((modm              , xK_r     ), namedScratchpadAction myScratchpads "discord")
     , ((modm              , xK_a     ), spawnDynamicSP "dyn1")
     , ((modm .|. shiftMask, xK_a     ), withFocused $ makeDynamicSP "dyn1")
     , ((modm              , xK_s     ), spawnDynamicSP "dyn2")
     , ((modm .|. shiftMask, xK_s     ), withFocused $ makeDynamicSP "dyn2")
-    -- , ((modm              , xK_d     ), spawnDynamicSP "dyn3")
-    -- , ((modm .|. shiftMask, xK_d     ), withFocused $ makeDynamicSP "dyn3")
 
     -- Media Keys
     , ((0, xF86XK_AudioMute), spawn "amixer sset Master toggle")
@@ -289,7 +271,6 @@ myLayout = noBorders $
     onWorkspace "'3" (focusIndicator $ avoidStruts $ verticalLayout) $
     onWorkspace "'4" (focusIndicator $ avoidStruts $ verticalLayout) $
     onWorkspace "'5" (focusIndicator $ avoidStruts $ verticalLayout) $
-    onWorkspace "sys" (focusIndicator $ spacingRaw True (Border 0 10 10 10) True (Border 10 10 10 10) True $ avoidStruts $ Mirror Grid)
     defaultConf
     where
         -- default tiling algorithm partitions the screen into two panes
@@ -299,7 +280,6 @@ myLayout = noBorders $
         fullscreen = Full
         defaultConf = tiled ||| mtiled ||| full
         verticalLayout = BinaryColumn 0.0 32 ||| BinaryColumn 1.0 32 ||| BinaryColumn 2.0 32
-        horizontalLayout = focusIndicator $ spaced $ avoidStruts $ ThreeColMid 1 (3/100) (1/2)
 
         -- The default number of windows in the master pane
         nmaster = 1
@@ -313,7 +293,6 @@ myLayout = noBorders $
 myManageHook = composeAll
     [ resource  =? "desktop_window"      --> doIgnore
     , resource  =? "kdesktop"            --> doIgnore
-    , className =? "Firefox"             --> doShift "1"
     -- , className =? "qutebrowser"         --> doShift "1"
     , className =? "explorer.exe"        --> doShift "9"
     , title     =? "Wine System Tray"    --> doShift "9"
@@ -328,7 +307,6 @@ myManageHook = composeAll
     , title     =? "Picture-in-Picture"  --> (customFloating $ W.RationalRect 0.65 0.65 0.3 0.3)
     , className =? "Steam"               --> doShift "7"
     , className =? "discord"             --> doShift "'1"
-    , className =? "willow"              --> doFloat
     ]
 
 floatPlacement = placeHook (withGaps (10, 10, 10, 10) $ smart (0.5, 0.2))
@@ -336,49 +314,46 @@ floatPlacement = placeHook (withGaps (10, 10, 10, 10) $ smart (0.5, 0.2))
 myEventHook = mempty
 
 myStartupHook homeDir = do
-    WS.activateWispConfig myWispConfig
+    WSP.activateWispConfig myWispConfig
     safeSpawn (joinPath [homeDir, ".config", "alacritty", "build_config.sh"]) []
     safeSpawn "restart-polybar" []
     safeSpawn "restart-dunst" []
+    safeSpawn "restart-picom" []
 
-myScratchpads = [ NS "terminal"   spawnTerminal  findTerminal  manageSP
-                , NS "terminal-2" spawnTerminal2 findTerminal2 manageSP
-                , NS "terminal-3" spawnTerminal3 findTerminal3 manageSP
-                , NS "bot-term"   spawnBotTerm   findBotTerm   manageBotTermSP
-                , NS "music"      spawnMusic     findMusic     manageSP
-                , NS "irc"        spawnIrc       findIrc       manageIrcSP
-                , NS "server"     spawnServer    findServer    manageIrcSP
-                , NS "color"      spawnColor     findColor     manageColorSP
-                , NS "icloud"     spawnIcloud    findIcloud    manageIcloudSP
-                -- , NS "discord"    spawnDiscord   findDiscord   manageDiscordSP
+myScratchpads = [ NS "terminal"
+                     "alacritty --class scratchpad --title 'Alacritty (v)'"
+                     (resource =? "scratchpad")  
+                     centered
+                , NS "terminal-2"
+                     "alacritty --class scratchpad-2 --title 'Alacritty (c)'"
+                     (resource =? "scratchpad-2") 
+                     centered
+                , NS "terminal-3"
+                     "alacritty --class scratchpad-3 --title 'Alacritty (x)'"
+                     (resource =? "scratchpad-3")
+                     centered
+                , NS "bot-term"
+                     "alacritty --class bot-term"
+                     (resource =? "bot-term")
+                     bottom
+                , NS "music"
+                     "alacritty --class music -e pulsemixer"
+                     (resource =? "music")
+                     centered
+                , NS "irc"
+                     "alacritty --class irc -e ssh -t mephory LANG=en_US.utf8 TERM=xterm-256color tmux attach -t irc"
+                     (resource =? "irc")
+                     centeredBig
+                , NS "color"
+                     "gcolor3"
+                     (resource =? "gcolor3")
+                     centeredOriginalSize
                 ]
     where
-        spawnTerminal  = "alacritty --class scratchpad --title 'Alacritty (v)'"
-        findTerminal   = resource =? "scratchpad"
-        spawnTerminal2 = "alacritty --class scratchpad-2 --title 'Alacritty (c)'"
-        findTerminal2  = resource =? "scratchpad-2"
-        spawnTerminal3 = "alacritty --class scratchpad-3 --title 'Alacritty (x)'"
-        findTerminal3  = resource =? "scratchpad-3"
-        spawnBotTerm   = "alacritty --class bot-term"
-        findBotTerm    = resource =? "bot-term"
-        spawnMusic     = "alacritty --class music -e pulsemixer"
-        findMusic      = resource =? "music"
-        spawnIrc       = "alacritty --class irc -e ssh -t mephory LANG=en_US.utf8 TERM=xterm-256color tmux attach -t irc"
-        findIrc        = resource =? "irc"
-        spawnServer    = "alacritty --class server-scratch -e ssh -t mephory LANG=en_US.utf8 TERM=xterm-256color tmux attach -t apps"
-        findServer      = resource =? "server-scratch"
-        spawnColor     = "gcolor3"
-        findColor      = resource =? "gcolor3"
-        spawnIcloud    = "icloud"
-        findIcloud     = className =? "icloud"
-        spawnDiscord   = "discord"
-        findDiscord    = className =? "discord"
-        manageSP = customFloating $ centeredRect 0.5 0.5
-        manageBotTermSP = customFloating $ W.RationalRect 0 (1-0.4) 1 0.4
-        manageIrcSP = (customFloating $ centeredRect 0.6 0.6)
-        manageColorSP = placeHook (fixed (0.5, 0.5)) <+> doFloat
-        manageIcloudSP = customFloating $ W.RationalRect 0 0 1 0.6
-        manageDiscordSP = (customFloating $ centeredRect 0.7 0.7)
+        centered = customFloating $ centeredRect 0.5 0.5
+        bottom = customFloating $ W.RationalRect 0 (1-0.4) 1 0.4
+        centeredBig = (customFloating $ centeredRect 0.6 0.6)
+        centeredOriginalSize = placeHook (fixed (0.5, 0.5)) <+> doFloat
         centeredRect w h = W.RationalRect ((1 - w) / 2) ((1 - h) / 2) w h
 
 myLogHook homeDir = dynamicLogWithPP $ def {
@@ -396,14 +371,14 @@ myLogHook homeDir = dynamicLogWithPP $ def {
     , ppOutput          = appendFileUtf8 "/tmp/workspace-info" . (++"\n")
     }
     where
-        hiddenFmt  = bg (WS.bgColor myWispConfig) .
-                     fg (WS.fgSecondary myWispConfig) .
+        hiddenFmt  = bg (WSP.bgColor myWispConfig) .
+                     fg (WSP.fgSecondary myWispConfig) .
                      addPadding
-        currentFmt = bg (WS.bgSecondary myWispConfig) .
-                     fg (WS.fgColor myWispConfig) .
+        currentFmt = bg (WSP.bgSecondary myWispConfig) .
+                     fg (WSP.fgColor myWispConfig) .
                      addPadding
-        urgentFmt  = bg (WS.color1 myWispConfig) .
-                     fg (WS.fgColor myWispConfig) .
+        urgentFmt  = bg (WSP.color1 myWispConfig) .
+                     fg (WSP.fgColor myWispConfig) .
                      addPadding
         visibleFmt = addPadding
         addPadding = ("  " ++) . (++ "  ")
@@ -421,24 +396,24 @@ myLogHook homeDir = dynamicLogWithPP $ def {
             otherwise -> "·"
         onlyIf p f x = if p x then f x else ""
 
-xpc = def { bgColor = WS.bgColor myWispConfig
-          , fgColor = WS.fgColor myWispConfig
-          , borderColor = WS.fgColor myWispConfig
-          , fgHLight = WS.bgColor myWispConfig
-          , bgHLight = WS.fgColor myWispConfig
-          , font = WS.normalFont myWispConfig
+xpc = def { bgColor = WSP.bgColor myWispConfig
+          , fgColor = WSP.fgColor myWispConfig
+          , borderColor = WSP.fgColor myWispConfig
+          , fgHLight = WSP.bgColor myWispConfig
+          , bgHLight = WSP.fgColor myWispConfig
+          , font = WSP.normalFont myWispConfig
           , height = 22
           }
 
 focusIndicatorTheme :: Theme
 focusIndicatorTheme =
   def { fontName              = "xft:inconsolata:size=10"
-      , inactiveBorderColor   = WS.unfocusedColor myWispConfig
-      , inactiveColor         = WS.unfocusedColor myWispConfig
-      , inactiveTextColor     = WS.unfocusedColor myWispConfig
-      , activeBorderColor     = WS.focusedColor myWispConfig
-      , activeColor           = WS.focusedColor myWispConfig
-      , activeTextColor       = WS.focusedColor myWispConfig
+      , inactiveBorderColor   = WSP.unfocusedColor myWispConfig
+      , inactiveColor         = WSP.unfocusedColor myWispConfig
+      , inactiveTextColor     = WSP.unfocusedColor myWispConfig
+      , activeBorderColor     = WSP.focusedColor myWispConfig
+      , activeColor           = WSP.focusedColor myWispConfig
+      , activeTextColor       = WSP.focusedColor myWispConfig
       , urgentBorderColor     = "#ff0000"
       , urgentTextColor       = "#ff0000"
       , decoHeight            = 4
