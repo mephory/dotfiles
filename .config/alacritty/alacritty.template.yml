@@ -39,3 +39,36 @@ colors:
     magenta: '$WISP_COLOR13'
     cyan:    '$WISP_COLOR14'
     white:   '$WISP_COLOR15'
+
+hints:
+  alphabet: "jfkdls;ahgurieowpq"
+  enabled:
+  - regex: "(\
+      ((?:[.\\w\\-@~]+)?(?:/[.\\w\\-@]+)+)\
+      |((https?://|git@|git://|ssh://|ftp://|file:///)\\S+)\
+      |(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})\
+      |([A-f0-9:]+:+[A-f0-9:]+[%\\w\\d])+\
+      )"
+    command: xdg-open
+    post_processing: true
+    mouse:
+      enabled: false
+      mods: None
+    binding:
+      key: X
+      mods: Control|Shift
+  - regex: "(\
+      ((?:[.\\w\\-@~]+)?(?:/[.\\w\\-@]+)+)\
+      |((https?://|git@|git://|ssh://|ftp://|file:///)\\S+)\
+      |(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})\
+      |([A-f0-9:]+:+[A-f0-9:]+[%\\w\\d])+\
+      )"
+    action: Copy
+    post_processing: true
+    mouse:
+      enabled: true
+      mods: None
+    binding:
+      key: C
+      mods: Control|Shift
+

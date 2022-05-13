@@ -37,7 +37,7 @@ alias d="drop"
 alias g="grep"
 alias j="jobs"
 alias mshare="sshfs mephory:shared ~/shared"
-alias psg="ps -e | grep -i"
+alias psg="ps aux | grep -i"
 alias ]="git diff --color"
 alias ]]="git diff --staged --color"
 alias s="git st"
@@ -49,6 +49,7 @@ alias cd-="cd -"
 alias e="exa"
 alias el="exa -l"
 alias D="devour"
+alias czf='cd "$(find ~ -type d 2>/dev/null | fzf)"'
 
 #                                                                            }}}
 # dice                                                                       {{{

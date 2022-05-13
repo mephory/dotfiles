@@ -10,32 +10,65 @@ font:
 
 colors:
   primary:
-    background: '#1d2021'
-    foreground: '#ebdbb2'
+    background: '#292e39'
+    foreground: '#d8dee9'
 
-    dim_foreground: '#928374'
-    bright_foreground: '#32302f'
+    dim_foreground: '#4c566a'
+    bright_foreground: '#4c566a'
 
   cursor:
    text: CellBackground
    cursor: CellForeground
 
   normal:
-    black:   '#282828'
-    red:     '#cc241d'
-    green:   '#98971a'
-    yellow:  '#d79921'
-    blue:    '#458588'
-    magenta: '#b16286'
-    cyan:    '#689d6a'
-    white:   '#a89984'
+    black:   '#3b4252'
+    red:     '#bf616a'
+    green:   '#a3be8c'
+    yellow:  '#ebcb8b'
+    blue:    '#81a1c1'
+    magenta: '#b48ead'
+    cyan:    '#88c0d0'
+    white:   '#e5e9f0'
 
   bright:
-    black:   '#928374'
-    red:     '#fb4934'
-    green:   '#b8bb26'
-    yellow:  '#fabd2f'
-    blue:    '#83a598'
-    magenta: '#d3869b'
-    cyan:    '#8ec07c'
-    white:   '#ebdbb2'
+    black:   '#4c566a'
+    red:     '#bf616a'
+    green:   '#a3be8c'
+    yellow:  '#ebcb8b'
+    blue:    '#81a1c1'
+    magenta: '#b48ead'
+    cyan:    '#8fbcbb'
+    white:   '#eceff4'
+
+hints:
+  alphabet: "jfkdls;ahgurieowpq"
+  enabled:
+  - regex: "(\
+      ((?:[.\\w\\-@~]+)?(?:/[.\\w\\-@]+)+)\
+      |((https?://|git@|git://|ssh://|ftp://|file:///)\\S+)\
+      |(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})\
+      |([A-f0-9:]+:+[A-f0-9:]+[%\\w\\d])+\
+      )"
+    command: xdg-open
+    post_processing: true
+    mouse:
+      enabled: false
+      mods: None
+    binding:
+      key: X
+      mods: Control|Shift
+  - regex: "(\
+      ((?:[.\\w\\-@~]+)?(?:/[.\\w\\-@]+)+)\
+      |((https?://|git@|git://|ssh://|ftp://|file:///)\\S+)\
+      |(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})\
+      |([A-f0-9:]+:+[A-f0-9:]+[%\\w\\d])+\
+      )"
+    action: Copy
+    post_processing: true
+    mouse:
+      enabled: true
+      mods: None
+    binding:
+      key: C
+      mods: Control|Shift
+

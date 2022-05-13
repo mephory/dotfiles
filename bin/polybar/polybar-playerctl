@@ -49,18 +49,18 @@ class Player
 
     if active
       actions = [
-        [1, "polybar-playerctl toggle"],
-        [2, "polybar-playerctl switch"],
-        [3, "polybar-playerctl next"]
+        [1, 'polybar-playerctl toggle'],
+        [2, 'polybar-playerctl switch'],
+        [3, 'polybar-playerctl next']
       ]
       click_actions(actions, "#{player_icon} #{status_icon} #{title&.truncate(40, omission: '…') || 'No title'}".strip)
     else
       actions = [
         [1, "polybar-playerctl activate #{id}"],
-        [2, "polybar-playerctl switch"],
-        [3, "polybar-playerctl next"]
+        [2, 'polybar-playerctl switch'],
+        [3, 'polybar-playerctl next']
       ]
-      # click_actions(actions, "%{F#{ENV['WISP_FOREGROUND_SECONDARY']}} #{player_icon} #{status_icon} %{F-}".strip)
+
       click_actions(actions, "%{F#{ENV['WISP_FOREGROUND_SECONDARY']}} #{player_icon} %{F-}".strip)
     end
   end
@@ -85,19 +85,12 @@ class Player
       Player.new(line.strip)
     end.compact
   end
-
-  # def self.find(id)
-  #   p = Player.new(`playerctl -p #{id} metadata -f '#{PLAYERCTL_FORMAT}' 2>/dev/null`.strip)
-  #   return nil if $? != 0
-
-  #   p
-  # end
 end
 
 def format(players, current_player_id)
   players.map do |player|
     player.format(active: player.id == current_player_id)
-  end.join(' ')#.join("%{F#{ENV['WISP_FOREGROUND_SECONDARY']}}  %{F-}")
+  end.join(' ')
 end
 
 Q = Queue.new
@@ -116,7 +109,7 @@ def main
   Thread.start do
     f = File.open(FIFO, 'r+')
     loop do
-      cmd, payload =  f.gets.strip.split(' ', 2)
+      cmd, payload = f.gets.strip.split(' ', 2)
       Q << [cmd.to_sym, payload]
     end
   end
@@ -140,21 +133,19 @@ def main
       players = Player.all
       current_player_id = payload if payload
       new_player = players.find { |x| !old_players.map(&:id).include?(x.id) }
-      if new_player && !payload
-        current_player_id = new_player.id
-      end
+      current_player_id = new_player.id if new_player && !payload
       current_player_id = players.first&.id unless players.map(&:id).include?(current_player_id)
 
       puts format(players, current_player_id)
-      STDOUT.flush
+      $stdout.flush
     when :switch
       current_player_id = players.find { |x| x.id == current_player_id }&.next_id(players)
       puts format(players, current_player_id)
-      STDOUT.flush
+      $stdout.flush
     when :activate
       current_player_id = payload
       puts format(players, current_player_id)
-      STDOUT.flush
+      $stdout.flush
     when :toggle
       system "playerctl -p #{current_player_id} play-pause", out: File::NULL, err: File::NULL
     when :next
@@ -164,7 +155,6 @@ def main
     end
   end
 end
-
 
 if ARGV.empty?
   main

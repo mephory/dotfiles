@@ -1,0 +1,24 @@
+#!/bin/sh
+
+DIR="$(find ~ -type d 2>/dev/null | fzf)"
+
+if [ $? -ne 0 ]; then
+  exit
+fi
+
+SESSION="$(basename "$DIR")"
+
+if [ -z $TMUX ]; then
+  tmux attach -t "$SESSION" 2>/dev/null
+
+  if [ $? -ne 0 ]; then
+    tmux new-session -s "$SESSION" -c "$DIR"
+  fi
+else
+  tmux switch-client -t "$SESSION" 2>/dev/null
+
+  if [ $? -ne 0 ]; then
+    tmux new-session -s "$SESSION" -d -c "$DIR"
+    tmux switch-client -t "$SESSION"
+  fi
+fi

@@ -17,7 +17,6 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
 Plug 'vim-pandoc/vim-pandoc'
 Plug 'vim-pandoc/vim-pandoc-syntax'
-Plug 'w0rp/ale'
 Plug 'wellle/targets.vim'
 Plug 'xolox/vim-misc'
 Plug 'leafgarland/typescript-vim'
@@ -31,8 +30,12 @@ Plug 'metakirby5/codi.vim'
 
 Plug 'arcticicestudio/nord-vim'
 Plug 'morhetz/gruvbox'
-" Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'Mofiqul/dracula.nvim'
+
+Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }
+Plug 'nvim-treesitter/nvim-treesitter-textobjects'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'
 call plug#end()
 
 "===============================================================================
@@ -69,10 +72,12 @@ filetype indent off
 "===============================================================================
 
 inoremap <silent><expr> <c-space> coc#refresh()
+inoremap <expr> <C-l> coc#refresh()
 nnoremap <silent> K :call CocAction('doHover')<cr>
-inoremap <silent> <C-l> <cmd>call CocAction('showSignatureHelp')<cr>
+" inoremap <silent> <C-l> <cmd>call CocAction('showSignatureHelp')<cr>
 noremap <silent> <C-k> <cmd>call CocAction('showSignatureHelp')<cr>
-nnoremap <silent> gD <Plug>(coc-definition)
+nnoremap <silent> gD <cmd>call CocAction('jumpDefinition')<cr>
+set tagfunc=CocTagFunc
 
 "============================================================================}}}
 " Look                                                                       {{{
@@ -89,9 +94,9 @@ if (has("nvim"))
   let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 endif
 
-if (has("termguicolors"))
-  set termguicolors
-endif
+" if (has("termguicolors"))
+"   set termguicolors
+" endif
 
 " if exists('+termguicolors')
 "   let &t_8f="\<Esc>[38;2;%lu;%lu;%lum"
@@ -99,13 +104,13 @@ endif
 "   set termguicolors
 " endif
 
+set background=dark
 let g:gruvbox_contrast_dark = 'hard'
 if !empty($WISP_THEME)
   colorscheme $WISP_THEME
 else
   colorscheme gruvbox
 endif
-set background=dark
 " colorscheme default
 " hi CursorLine cterm=NONE ctermbg=0
 set laststatus=2    " always show status bar
@@ -141,7 +146,6 @@ augroup filetypes
     autocmd FileType pandoc nmap <buffer> ,p <Plug>(pandoc-keyboard-prev-li)
 augroup END
 
-
 " augroup templates
 "     autocmd!
 "     autocmd BufNewFile *.* silent! execute '0r ~/.vim/templates/'.expand("<afile>:e").'.template' | normal Gddgg
@@ -151,6 +155,7 @@ augroup END
 " Plugin-specific Configuration                                              {{{
 "===============================================================================
 let g:netrw_banner = 0
+let g:netrw_browsex_viewer='xdg-open'
 
 let g:fzf_buffers_jump = 1
 
@@ -158,11 +163,11 @@ let g:table_mode_corner_corner='+'
 let g:table_mode_header_fillchar='='
 let g:table_mode_toggle_map = "q"
 
-let g:pandoc#formatting#mode = 'hA'
+" let g:pandoc#formatting#mode = 'hA'
 let g:pandoc#hypertext#open_editable_alternates = 1
+let g:pandoc#toc#close_after_navigating = 0
 
 let g:typescript_indent_disable = 1
-
 
 "============================================================================}}}
 " Key Configuration                                                          {{{
@@ -682,8 +687,8 @@ function! AutoScp(...)
 endfunction
 
 function! PandocMode()
-    let b:pandoc_command = a:0 ? a:1 : 'pandoc % --self-contained -c ~/.config/pandoc.css --quiet -o /tmp/pandoc-mode/%:t.html'
-    let b:refresh_command = 'xdotool search --name qutebrowser windowactivate --sync key r windowactivate $(xdotool getactivewindow)'
+    let b:pandoc_command = a:0 ? a:1 : 'pandoc % --lua-filter diagram-generator.lua --self-contained -c ~/.config/pandoc.css --quiet -o /tmp/pandoc-mode/%:t.html'
+    let b:refresh_command = 'DISPLAY=:0 xdotool search --class qutebrowser windowactivate --sync key r windowactivate $(xdotool getactivewindow)'
 
     silent! exe '!mkdir -p /tmp/pandoc-mode'
     silent! exe '!touch /tmp/pandoc-mode/%:t.html'
@@ -695,6 +700,22 @@ function! PandocMode()
         autocmd BufWritePost <buffer> exe "silent !(" . b:pandoc_command . ' && ' . b:refresh_command . ') &'
     augroup END
 endfunction
+
+function! PandocModePdf()
+    let b:pandoc_command = a:0 ? a:1 : 'pandoc % --lua-filter diagram-generator.lua --self-contained --quiet -o /tmp/pandoc-mode/%:t.pdf'
+
+    silent! exe '!mkdir -p /tmp/pandoc-mode'
+    silent! exe '!touch /tmp/pandoc-mode/%:t.pdf'
+    silent! exe '!' . b:pandoc_command
+    silent! exe '!evince /tmp/pandoc-mode/%:t.pdf &'
+    redraw!
+
+    augroup pandocmode
+        autocmd!
+        autocmd BufWritePost <buffer> exe "silent !(" . b:pandoc_command . ' ) &'
+    augroup END
+endfunction
+
 
 function! NoPandocMode()
   augroup pandocmode
@@ -800,3 +821,75 @@ xmap <expr> <space>r <SID>testf()
 
 
 "============================================================================}}}
+
+
+lua << EOF
+require'nvim-treesitter.configs'.setup {
+  -- One of "all", "maintained" (parsers with maintainers), or a list of languages
+  ensure_installed = "maintained",
+
+  -- Install languages synchronously (only applied to `ensure_installed`)
+  sync_install = false,
+
+  -- List of parsers to ignore installing
+  ignore_install = { "javascript" },
+
+  highlight = {
+    -- `false` will disable the whole extension
+    enable = true,
+
+    -- NOTE: these are the names of the parsers and not the filetype. (for example if you want to
+    -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
+    -- the name of the parser)
+    -- list of language that will be disabled
+    disable = { "c", "rust" },
+
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
+    additional_vim_regex_highlighting = false,
+  },
+
+  textobjects = {
+    select = {
+      enable = true,
+      lookahead = true,
+      keymaps = {
+        ["af"] = "@function.outer",
+        ["if"] = "@function.inner",
+        ["am"] = "@function.outer",
+        ["im"] = "@function.inner",
+        ["ac"] = "@class.outer",
+        ["ic"] = "@class.inner",
+        ["aa"] = "@parameter.outer",
+        ["ia"] = "@parameter.inner",
+      },
+    },
+
+    move = {
+      enable = true,
+      set_jumps = true,
+      goto_next_start = {
+        ["]m"] = "@function.outer",
+        ["]]"] = "@class.outer",
+      },
+      goto_next_end = {
+        ["]M"] = "@function.outer",
+        ["]["] = "@class.outer",
+      },
+      goto_previous_start = {
+        ["[m"] = "@function.outer",
+        ["[["] = "@class.outer",
+      },
+      goto_previous_end = {
+        ["[M"] = "@function.outer",
+        ["[]"] = "@class.outer",
+      },
+    },
+  },
+}
+EOF
+
+source ~/.config/nvim/pandoc.vim
+

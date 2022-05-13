@@ -1,5 +1,5 @@
 #!/bin/zsh
-SCRIPTS=$(echo bin/**/*(.) sd/**/*(.) | tr " " "\n")
+SCRIPTS=$(echo bin/**/*(.) bin/**/*(@) sd/**/*(.) | tr " " "\n")
 
 echo 'This will install the following scripts to ~/bin and ~/sd:'
 echo "$SCRIPTS"

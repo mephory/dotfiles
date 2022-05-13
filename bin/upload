@@ -33,6 +33,9 @@ while [ "$#" -gt 0 ]; do
         -t) ARG_TEMPORARY=true; shift 1;;
         --temporary) ARG_TEMPORARY=true; shift 1;;
 
+        -o) ARG_ONESHOT=true; shift 1;;
+        --oneshot) ARG_ONESHOT=true; shift 1;;
+
         -s) ARG_SILENT=true; shift 1 ;;
         --silent) ARG_SILENT=true; shift 1;;
 
@@ -55,6 +58,7 @@ Options:
   -n, --name=NAME     use NAME as filename
   -p, --private       upload a private file
   -t, --temporary     upload a temporary file
+  -o, --oneshot       upload a one-shot file
   -h, --help          display this help
 
 You need to set the UPLOAD_KEY environment variable."
@@ -90,12 +94,17 @@ if [ -n "$ARG_TEMPORARY" ]; then
     TEMPORARY_FLAG='-F is_temporary=ok';
 fi;
 
+if [ -n "$ARG_ONESHOT" ]; then
+    ONESHOT_FLAG='-F is_oneshot=ok';
+fi;
+
 echo "uploading to upload.mephory.com..."
 if [ -n "$ARG_NAME" ]; then
     URL="$(curl \
         --fail -# \
         $PRIVATE_FLAG \
         $TEMPORARY_FLAG \
+        $ONESHOT_FLAG \
         -F "key=$UPLOAD_KEY" \
         -F "file=@\"$ARG_FILE\";filename=\"$ARG_NAME\"" \
         "http://upload.mephory.com/")" || exit
@@ -104,6 +113,7 @@ else
         --fail -# \
         $PRIVATE_FLAG \
         $TEMPORARY_FLAG \
+        $ONESHOT_FLAG \
         -F "key=$UPLOAD_KEY" \
         -F "file=@\"$ARG_FILE\"" \
         "http://upload.mephory.com/")" || exit

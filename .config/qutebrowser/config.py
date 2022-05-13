@@ -15,7 +15,7 @@ c.url.searchengines = { "DEFAULT": "https://google.com/search?q={}" }
 c.backend = "webengine"
 c.fonts.default_family = "meslo"
 c.content.pdfjs = True
-c.editor.command = ["wezterm", "start", "nvim", "--", "-f", "{file}"]
+c.editor.command = ["alacritty", "-e", "nvim", "--", "{file}"]
 
 c.colors.tabs.odd.bg = os.environ.get('WISP_BACKGROUND', '#282828')
 c.colors.tabs.even.bg = os.environ.get('WISP_BACKGROUND', '#282828')
@@ -38,12 +38,14 @@ c.colors.completion.category.bg = 'qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:
 config.bind('t', 'set-cmd-text -s :open -t')
 config.bind('T', 'set-cmd-text :open -t {url}')
 config.bind('O', 'set-cmd-text :open {url}')
+config.bind('h', 'tab-focus')
 config.bind('gh', 'tab-prev')
 config.bind('gl', 'tab-next')
 config.bind('gr', 'tab-prev')
 config.bind('gt', 'tab-next')
 config.bind('gH', 'tab-move -')
 config.bind('gL', 'tab-move +')
+config.bind('b', 'set-cmd-text -s :tab-select')
 config.bind('<Ctrl-Tab>', 'tab-next')
 config.bind('<Ctrl-Shift-Tab>', 'tab-prev')
 config.bind('gi', 'hint inputs --first')

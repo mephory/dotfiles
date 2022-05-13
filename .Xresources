@@ -1,3 +1,5 @@
+Xcursor.theme: breeze
+
 *faceName: inconsolata:size=14
 *font: xft:inconsolata:size=14,\
        xft:Source Code Pro:pixelsize=18:style=medium:antialias=true,\

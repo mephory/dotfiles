@@ -5,7 +5,8 @@ module Wisp (
   nord,
   solarized,
   solarizedLight,
-  dracula
+  dracula,
+  grayscale
 ) where
 
 import XMonad.Core
@@ -186,6 +187,35 @@ dracula = WispConfig
        , normalFont           = "xft:hack:size=11"
        }
 
+grayscale :: WispConfig
+grayscale = WispConfig
+       { configName           = "zellner"
+       , bgColor              = "#f7f7f7"
+       , bgSecondary          = "#d1d1d1"
+       , bgColorAlpha         = "#f7f7f7fa"
+       , fgColor              = "#464646"
+       , fgSecondary          = "#d1d1d1"
+       , focusedColor         = "#888888"
+       , unfocusedColor       = "#d1d1d1"
+       , color0 = "#f7f7f7"
+       , color1 = "#7c7c7c"
+       , color2 = "#8e8e8e"
+       , color3 = "#a0a0a0"
+       , color4 = "#686868"
+       , color5 = "#747474"
+       , color6 = "#868686"
+       , color7 = "#464646"
+       , color8 = "#ababab"
+       , color9 = "#999999"
+       , color10 = "#e3e3e3"
+       , color11 = "#b9b9b9"
+       , color12 = "#525252"
+       , color13 = "#252525"
+       , color14 = "#5e5e5e"
+       , color15 = "#101010"
+       , normalFont           = "xft:hack:size=11"
+       }
+
 activateWispConfig :: WispConfig -> X ()
 activateWispConfig cfg = do
   io $ setEnv "WISP_THEME" (configName cfg)
@@ -194,6 +224,8 @@ activateWispConfig cfg = do
   io $ setEnv "WISP_BACKGROUND_SECONDARY" (bgSecondary cfg)
   io $ setEnv "WISP_FOREGROUND" (fgColor cfg)
   io $ setEnv "WISP_FOREGROUND_SECONDARY" (fgSecondary cfg)
+  io $ setEnv "WISP_FOCUSED" (focusedColor cfg)
+  io $ setEnv "WISP_UNFOCUSED" (unfocusedColor cfg)
   io $ setEnv "WISP_FONT"       (normalFont cfg)
   io $ setEnv "WISP_COLOR0"     (color0 cfg)
   io $ setEnv "WISP_COLOR1"     (color1 cfg)

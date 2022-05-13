@@ -15,6 +15,7 @@ import qualified XMonad.StackSet as W
 import qualified XMonad.Util.ExtensibleState as XS
 
 data WS = WS { wsName :: String
+             , wsMod :: KeyMask
              , wsKey :: Maybe KeySym
              , wsVisible :: Bool
              }

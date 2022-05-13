@@ -1,0 +1,59 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+require 'httparty'
+require 'mimemagic'
+
+command, *args = ARGV
+
+def localize_resource(resource, target_dir)
+  if resource.start_with?('http')
+    r = HTTParty.get(resource)
+    fn = get_filename_from_url_and_content(resource, r.body)
+    File.open(fn, 'w') { |f| f.write(r.body) }
+  else
+    fn = get_filename(File.join(target_dir, File.basename(resource)))
+    FileUtils.cp(resource, fn)
+  end
+
+  File.basename(fn)
+end
+
+def get_filename_from_url_and_content(url, content)
+  mime = MimeMagic.by_magic(content)
+  if mime.nil? || File.extname(url) == ".#{mime.subtype}"
+    get_filename(File.basename(url))
+  else
+    get_filename("#{File.basename(url, File.extname(url))}.#{mime.subtype}")
+  end
+end
+
+def get_filename(filename)
+  if File.exist?(filename)
+    path, basename = [File.dirname(filename), File.basename(filename)]
+    get_filename(File.join(path, "#{File.basename(basename, File.extname(basename))}_#{File.extname(basename)}"))
+  else
+    filename
+  end
+end
+
+def move_resource(resource, basedir, new_name)
+  target = File.join(basedir, new_name)
+
+  if resource.start_with?('/')
+    File.rename(resource, target)
+  else
+    File.rename(File.join(basedir, resource), target)
+  end
+
+  new_name
+end
+
+case command
+when 'localize_resource'
+  resource, target = args
+  print localize_resource(resource, File.dirname(target))
+when 'move_resource'
+  resource, f, new_name = args
+  print move_resource(resource, File.dirname(f), new_name)
+end
