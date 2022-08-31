@@ -36,8 +36,6 @@ instance ExtensionClass PipStorage where
 -- pos1 = W.RationalRect 0.60 0.55 0.35 0.35
 -- pos2 = W.RationalRect 0.60 0.05 0.35 0.35
 
-pos1 = W.RationalRect 0.05 0.55 0.35 0.35
-pos2 = W.RationalRect 0.05 0.05 0.35 0.35
 getPosition False = W.RationalRect 0.05 0.55 0.35 0.35
 getPosition True = W.RationalRect 0.05 0.05 0.35 0.35
 
@@ -51,7 +49,7 @@ togglePip = do
 enable :: Window -> X ()
 enable w = do
     XS.modify $ \_ -> PipStorage (Just (w, False))
-    windows $ W.float w pos1
+    windows $ W.float w (getPosition False)
     unmanage w
     reveal w
 

@@ -7,6 +7,7 @@ import XMonad.Actions.FloatSnap
 import XMonad.Actions.DynamicProjects
 import XMonad.Actions.Search
 import XMonad.Actions.OnScreen
+import XMonad.Actions.WindowBringer
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.BinaryColumn
 import XMonad.Layout.NoBorders
@@ -30,15 +31,14 @@ import Graphics.X11.ExtraTypes.XF86
 
 import WorkspaceHelpers
 import SubmapWithHints (submapWithHints)
-import Passwords (passwordPrompt, genPasswordPrompt)
 import UnicodeUtils (appendFileUtf8)
 import ZoomWindow (toggleZoom)
 import DynamicScratchpads (spawnDynamicSP, makeDynamicSP)
 import FloatCenterWindow (centerFloatingWindow, makeFloatingCenterWindow)
 import Opacity (changeOpacity)
 import LowerDocks (addDock, delDock)
-import PictureInPicture (togglePip, pipEventHook, pipPP)
 import qualified Wisp as WSP
+import Wal
 
 import qualified XMonad.StackSet as W
 import qualified Data.Map as M
@@ -55,7 +55,7 @@ myWorkspaces = [ WS "1"       0          (Just xK_1)           True
                , WS "7"       0          (Just xK_7)           True
                , WS "8"       0          (Just xK_8)           True
                , WS "9"       0          (Just xK_9)           True
-               , WS "\xf362"  0          (Just xK_Tab)         True
+               , WS "TAB"     0          (Just xK_Tab)         True
                , WS "'"       0          (Just xK_apostrophe)  True
                , WS "sys"     0          (Just xK_F1)          False
                , WS "F2"      0          (Just xK_F2)          True
@@ -101,19 +101,14 @@ main = do
                              <+> namedScratchpadManageHook myScratchpads
                              <+> floatPlacement
                              <+> floatNextHook
-      , handleEventHook    = delDock <+> myEventHook <+> pipEventHook
+      , handleEventHook    = delDock <+> myEventHook
       , logHook            = myLogHook homeDir
       , startupHook        = myStartupHook homeDir
       , clientMask         = focusChangeMask .|. visibilityChangeMask .|. clientMask def
     }
 
 projects =
-    [ Project { projectName      = "sys"
-              , projectDirectory = "~/"
-              , projectStartHook = Just $ do
-                    spawn "easyeffects"
-              }
-    , Project { projectName      = "\xf362"
+    [ Project { projectName      = "TAB"
               , projectDirectory = "~/"
               , projectStartHook = Just $ do
                     spawn "spotify"
@@ -123,6 +118,11 @@ projects =
               , projectStartHook = Just $ do
                     spawn "discord"
                     spawn "alacritty -e ssh -t mephory LANG=en_US.utf8 TERM=xterm-256color tmux attach -t irc"
+              }
+    , Project { projectName      = "7"
+              , projectDirectory = "~/"
+              , projectStartHook = Just $ do
+                    spawn "steam"
               }
     ]
 
@@ -157,10 +157,13 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- Prompts
     , ((modm,               xK_p     ), spawn "rofi -modi drun,run -show drun -show-icons -display-drun '\xf0e7'")
-    , ((modm              , xK_n     ), passwordPrompt xpc)
-    , ((modm .|. shiftMask, xK_n     ), genPasswordPrompt xpc)
+    , ((modm              , xK_n     ), spawn "rofi-pass")
+    , ((modm .|. shiftMask, xK_n     ), spawn "rofi-pass --insert")
+    , ((modm              , xK_BackSpace     ), spawn "rofi-pass")
+    , ((modm .|. shiftMask, xK_BackSpace     ), spawn "rofi-pass --insert")
     , ((modm              , xK_semicolon), spawn "rofi-sd")
     , ((modm              , xK_period), switchProjectPrompt xpc)
+    , ((modm .|. shiftMask, xK_period), shiftToProjectPrompt xpc)
 
     -- Dunst
     , ((modm              , xK_bracketleft), spawn "dunstctl history-pop")
@@ -171,7 +174,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Various
     , ((modm              , xK_y     ), selectSearch jisho)
     , ((modm .|. shiftMask, xK_slash ), spawn "python /home/mephory/code/fbg/fbg.py toggle")
-    , ((modm .|. shiftMask, xK_semicolon), togglePip)
+    , ((modm .|. shiftMask, xK_semicolon), gotoMenuConfig $ def { menuCommand = "rofi", menuArgs = ["-dmenu", "-i"] })
+    -- , ((modm .|. shiftMask, xK_semicolon), gotoMenu)
 
     -- Change workspaces on vertical monitor
     , ((modm              , xK_r     ), windows $ onScreen (W.greedyView "'1") FocusCurrent 1)
@@ -206,7 +210,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_c     ), namedScratchpadAction myScratchpads "terminal-2")
     , ((modm              , xK_x     ), namedScratchpadAction myScratchpads "terminal-3")
     , ((modm              , xK_z     ), namedScratchpadAction myScratchpads "music")
-    , ((modm              , xK_b     ), namedScratchpadAction myScratchpads "irc")
+    , ((modm              , xK_b     ), namedScratchpadAction myScratchpads "terminal-large")
     , ((modm .|. shiftMask, xK_p     ), namedScratchpadAction myScratchpads "color")
     , ((modm              , xK_backslash), namedScratchpadAction myScratchpads "bot-term")
     , ((modm              , xK_a     ), spawnDynamicSP "dyn1")
@@ -262,7 +266,7 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList
     ]
 
 
-myLayout = noBorders $ 
+myLayout = noBorders $
     onWorkspace "1" (full ||| fullscreen ||| tiled ||| mtiled) $
     onWorkspace "5" fullscreen $
     onWorkspace "7" (focusIndicator $ avoidStruts $ Tall 1 (3/100) (1/4)) $
@@ -293,7 +297,7 @@ myLayout = noBorders $
 myManageHook = composeAll
     [ resource  =? "desktop_window"      --> doIgnore
     , resource  =? "kdesktop"            --> doIgnore
-    -- , className =? "qutebrowser"         --> doShift "1"
+    , className =? "qutebrowser"         --> doShift "1"
     , className =? "explorer.exe"        --> doShift "9"
     , title     =? "Wine System Tray"    --> doShift "9"
     , className =? "dota2"               --> doShift "5" <+> (doF . W.sink =<< ask)
@@ -302,6 +306,8 @@ myManageHook = composeAll
     , title     =? "vselect-record-area" --> placeHook (fixed (0, 0)) <+> doFloat
     , title     =? "pinentry"            --> placeHook (fixed (0.5, 0.5)) <+> doFloat
     , className =? "Pinentry-gtk-2"      --> placeHook (fixed (0.5, 0.5)) <+> doFloat
+    , title     =? "popup-editor"        --> placeHook (fixed (0.5, 0.5)) <+> doFloat
+    , className =? "popup-editor"        --> placeHook (fixed (0.5, 0.5)) <+> doFloat
     , className =? "feh-float"           --> doF W.shiftMaster <+> placeHook (fixed (0.5, 0.5)) <+> doFloat
     , title     =? "Microsoft Teams Notification" --> placeHook (fixed (1, 1)) <+> doFloat
     , title     =? "Picture-in-Picture"  --> (customFloating $ W.RationalRect 0.65 0.65 0.3 0.3)
@@ -322,11 +328,11 @@ myStartupHook homeDir = do
 
 myScratchpads = [ NS "terminal"
                      "alacritty --class scratchpad --title 'Alacritty (v)'"
-                     (resource =? "scratchpad")  
+                     (resource =? "scratchpad")
                      centered
                 , NS "terminal-2"
                      "alacritty --class scratchpad-2 --title 'Alacritty (c)'"
-                     (resource =? "scratchpad-2") 
+                     (resource =? "scratchpad-2")
                      centered
                 , NS "terminal-3"
                      "alacritty --class scratchpad-3 --title 'Alacritty (x)'"
@@ -336,6 +342,10 @@ myScratchpads = [ NS "terminal"
                      "alacritty --class bot-term"
                      (resource =? "bot-term")
                      bottom
+                , NS "terminal-large"
+                     "alacritty --class scratchpad-large --title 'Alacritty (b)'"
+                     (resource =? "scratchpad-large")
+                     centeredBig
                 , NS "music"
                      "alacritty --class music -e pulsemixer"
                      (resource =? "music")
@@ -366,7 +376,7 @@ myLogHook homeDir = dynamicLogWithPP $ def {
     , ppWsSep           = ""
     , ppLayout          = \_ -> ""
     , ppTitle           = \_ -> ""
-    , ppExtras          = [willFloatNextPP floatNextStr, pipPP id]
+    , ppExtras          = [willFloatNextPP floatNextStr]
     , ppOrder           = \(w:l:t:es) -> [w, l] ++ es ++ [t]
     , ppOutput          = appendFileUtf8 "/tmp/workspace-info" . (++"\n")
     }

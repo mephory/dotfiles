@@ -120,16 +120,16 @@ function save_loop(loop)
     post_seek = time_a - pre_seek
     post_seek_end = time_b - pre_seek
 
-    if (is_url(original_filename)) then
-        original_filename = download_video(original_filename);
-    end
+    -- if (is_url(original_filename)) then
+    --     original_filename = download_video(original_filename);
+    -- end
     os.execute("ffmpeg -ss " .. pre_seek .. " -i \"" .. original_filename .. "\" -ss " .. post_seek .. " -to " .. post_seek_end .. " -qscale 0 \"" .. filename .. "\"")
     mp.osd_message("File saved!")
 end
 
-function is_url(s)
-    return string.sub(s, 0, 4) == "http"
-end
+-- function is_url(s)
+--     return string.sub(s, 0, 4) == "http"
+-- end
 
 function download_video(url)
     os.execute("mkdir -p /tmp/mpv-youtubedl")

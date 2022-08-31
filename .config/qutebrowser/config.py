@@ -15,7 +15,7 @@ c.url.searchengines = { "DEFAULT": "https://google.com/search?q={}" }
 c.backend = "webengine"
 c.fonts.default_family = "meslo"
 c.content.pdfjs = True
-c.editor.command = ["alacritty", "-e", "nvim", "--", "{file}"]
+c.editor.command = ["alacritty", "-t", "popup-editor", "-e", "nvim", "--", "{file}"]
 
 c.colors.tabs.odd.bg = os.environ.get('WISP_BACKGROUND', '#282828')
 c.colors.tabs.even.bg = os.environ.get('WISP_BACKGROUND', '#282828')

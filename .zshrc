@@ -58,6 +58,8 @@ hash -d ext="/mnt/external"
 hash -d eimg="/mnt/external/image"
 hash -d evid="/mnt/external/video"
 hash -d poe="/home/mephory/.local/share/Steam/steamapps/compatdata/238960/pfx/drive_c/users/steamuser/My Documents/My Games/Path of Exile"
+hash -d wow="/home/mephory/.local/share/bottles/bottles/bnet/drive_c/Program Files (x86)/World of Warcraft/_classic_/Interface/AddOns"
+
 
 # kill word but have / as word separator
 function backward-kill-dirword {

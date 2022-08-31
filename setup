@@ -25,7 +25,7 @@ echo "Installing bin..."
 ./install-missing-bin.sh
 
 echo 'Installing neovim plugins'
-nvim +':PlugInstall | qa!'
+nvim +':PaqInstall | qa!'
 
 echo "Changing default shell..."
 chsh -s /bin/zsh $USER
@@ -38,3 +38,5 @@ xdg-mime default org.qutebrowser.qutebrowser.desktop x-scheme-handler/http
 xdg-mime default org.qutebrowser.qutebrowser.desktop x-scheme-handler/https
 
 ln -s /usr/bin/feh ~/bin/feh-float
+
+pip install pywal

@@ -115,3 +115,6 @@ xclip
 polkit-gnome
 ttf-jetbrains-mono
 nvidia-settings
+qrencode
+rofi-pass
+python-pip

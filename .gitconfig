@@ -1,7 +1,7 @@
 [user]
 name = mephory
 email = mephory@mephory.com
-signingkey = AA2E10BB
+signingkey = BE8FC1ACDFA55026
 
 [alias]
 st = status -sb

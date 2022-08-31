@@ -1,4 +1,5 @@
 #!/bin/sh
 
 killall picom
-picom &
+picom --experimental-backends --backend glx --xrender-sync-fence
+# picom &

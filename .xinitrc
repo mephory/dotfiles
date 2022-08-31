@@ -38,4 +38,6 @@ export QT_IM_MODULE='ibus'
 export XMODIFIERS='@im=ibus'
 ibus-daemon -drx
 
+pywal -R -s -t
+
 exec xmonad

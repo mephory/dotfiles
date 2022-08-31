@@ -1,6 +1,6 @@
 * {
   background-color: transparent;
-  text-color: ${WISP_FOREGROUND};
+  text-color: env(WISP_FOREGROUND, "#ffffff");
   spacing: 0;
   width: 40%;
   font: "Inconsolata Bold 12";
@@ -10,8 +10,8 @@ window {
   padding: 12px;
   border: 1px;
   border-radius: 0.25em;
-  border-color: ${WISP_BACKGROUND_SECONDARY};
-  background-color: ${WISP_BACKGROUND_ALPHA};
+  border-color: env(WISP_BACKGROUND_SECONDARY, "#444444");
+  background-color: env(WISP_BACKGROUND_ALPHA, "#222222");
 }
 
 inputbar {
@@ -29,7 +29,7 @@ prompt {
 textbox {
   background-color: transparent;
   border: 0 0 1px 0;
-  border-color: ${WISP_COLOR0};
+  border-color: env(WISP_COLOR0, "#ffffff");
   padding: 12px 12px;
 }
 
@@ -54,8 +54,8 @@ element {
 }
 
 element selected {
-  background-color: ${WISP_FOREGROUND};
-  text-color: ${WISP_BACKGROUND};
+  background-color: env(WISP_FOREGROUND, "#ffffff");
+  text-color: env(WISP_BACKGROUND, "#000000");
 }
 
 element-text, element-icon {
