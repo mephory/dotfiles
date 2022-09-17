@@ -39,6 +39,7 @@ export PATH="$PATH:$HOME/bin/tmux-plugins"
 export PATH="$PATH:$HOME/bin/polybar"
 export PATH="$PATH:$HOME/bin/wisp"
 export PATH="$PATH:$HOME/bin/rofi"
+export PATH="$PATH:$HOME/.dotnet/tools"
 
 export GOPATH="$HOME/.go"
 export PATH="$PATH:$GOPATH/bin"

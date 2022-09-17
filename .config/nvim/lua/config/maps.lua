@@ -101,8 +101,11 @@ vim.keymap.set('v', '++', 'VMATH_YankAndAnalyse()', { expr = true })
 vim.keymap.set('n', '++', 'vip++', { noremap = false })
 
 -- Telescope
-vim.keymap.set('n', '<space>n', ':Telescope find_files cwd=~/notes<cr>')
-vim.keymap.set('n', '<space>N', ':Telescope live_grep cwd=~/notes<cr>')
+vim.keymap.set('n', '<space>n', ':Telescope find_files cwd=~/data/obsidian/default<cr>')
+vim.keymap.set('n', '<space>N', ':Telescope live_grep cwd=~/data/obsidian/default<cr>')
 vim.keymap.set('n', '<C-p>', ':Telescope find_files<cr>')
 vim.keymap.set('n', '<space>p', ':Telescope live_grep<cr>')
 vim.keymap.set('n', 'tp', ':Telescope buffers<cr>')
+
+
+vim.keymap.set('n', '<space>g', ':lua vim.o.lines = 15<cr>:lua vim.o.columns = 80<cr>')

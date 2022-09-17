@@ -1,0 +1,11 @@
+{
+  "apps": [
+    {
+      "name": "neovim",
+      "code": "obsidian-nvim",
+      "arguments": "",
+      "showInMenu": false
+    }
+  ],
+  "sysexpInFileMenu": false
+}

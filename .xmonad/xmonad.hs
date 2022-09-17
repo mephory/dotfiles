@@ -5,14 +5,18 @@ import XMonad
 import XMonad.Actions.NoBorders
 import XMonad.Actions.FloatSnap
 import XMonad.Actions.DynamicProjects
-import XMonad.Actions.Search
 import XMonad.Actions.OnScreen
 import XMonad.Actions.WindowBringer
 import XMonad.Layout.PerWorkspace
+import XMonad.Layout.BoringWindows
+import XMonad.Layout.Simplest
+import XMonad.Layout.WindowNavigation
 import XMonad.Layout.BinaryColumn
 import XMonad.Layout.NoBorders
 import XMonad.Layout.NoFrillsDecoration
 import XMonad.Layout.Spacing
+import XMonad.Layout.Tabbed
+import XMonad.Layout.SubLayouts
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
@@ -22,7 +26,7 @@ import XMonad.Hooks.Place
 import XMonad.Util.NamedScratchpad
 import XMonad.Util.Run (safeSpawn)
 import XMonad.Prompt
-import Data.List (elemIndex, isInfixOf, find)
+import Data.List (elemIndex, isPrefixOf, isInfixOf, find)
 import Data.Maybe (fromMaybe)
 import System.Exit
 import System.Environment (getEnv)
@@ -38,34 +42,36 @@ import FloatCenterWindow (centerFloatingWindow, makeFloatingCenterWindow)
 import Opacity (changeOpacity)
 import LowerDocks (addDock, delDock)
 import qualified Wisp as WSP
-import Wal
+-- import Wal
 
 import qualified XMonad.StackSet as W
 import qualified Data.Map as M
 
 myWispConfig = WSP.nord
 
+modKey = mod1Mask
+altModm = mod1Mask .|. mod4Mask
+
 myWorkspaces :: [WS]
-myWorkspaces = [ WS "1"       0          (Just xK_1)           True
-               , WS "2"       0          (Just xK_2)           True
-               , WS "3"       0          (Just xK_3)           True
-               , WS "4"       0          (Just xK_4)           True
-               , WS "5"       0          (Just xK_5)           True
-               , WS "6"       0          (Just xK_6)           True
-               , WS "7"       0          (Just xK_7)           True
-               , WS "8"       0          (Just xK_8)           True
-               , WS "9"       0          (Just xK_9)           True
-               , WS "TAB"     0          (Just xK_Tab)         True
-               , WS "'"       0          (Just xK_apostrophe)  True
-               , WS "sys"     0          (Just xK_F1)          False
-               , WS "F2"      0          (Just xK_F2)          True
-               , WS "F3"      0          (Just xK_F3)          True
-               , WS "'1"      mod4Mask   (Just xK_1)           False
-               , WS "'2"      mod4Mask   (Just xK_2)           False
-               , WS "'3"      mod4Mask   (Just xK_3)           False
-               , WS "'4"      mod4Mask   (Just xK_4)           False
-               , WS "'5"      mod4Mask   (Just xK_5)           False
-               , WS "NSP"     0          Nothing               False
+myWorkspaces = [ WS "1"       modKey    (Just xK_1)           True
+               , WS "2"       modKey    (Just xK_2)           True
+               , WS "3"       modKey    (Just xK_3)           True
+               , WS "4"       modKey    (Just xK_4)           True
+               , WS "5"       modKey    (Just xK_5)           True
+               , WS "6"       modKey    (Just xK_6)           True
+               , WS "7"       modKey    (Just xK_7)           True
+               , WS "8"       modKey    (Just xK_8)           True
+               , WS "9"       modKey    (Just xK_9)           True
+               , WS "TAB"     modKey    (Just xK_Tab)         True
+               , WS "sys"     modKey    (Just xK_F1)          False
+               , WS "F2"      modKey    (Just xK_F2)          True
+               , WS "F3"      modKey    (Just xK_F3)          True
+               , WS "'1"      altModm   (Just xK_1)           False
+               , WS "'2"      altModm   (Just xK_2)           False
+               , WS "'3"      altModm   (Just xK_3)           False
+               , WS "'4"      altModm   (Just xK_4)           False
+               , WS "'5"      altModm   (Just xK_5)           False
+               , WS "NSP"     modKey    Nothing               False
                ]
 
 wsNames :: [String]
@@ -85,7 +91,7 @@ main = do
         terminal           = "alacritty"
       , focusFollowsMouse  = True
       , borderWidth        = 1
-      , modMask            = mod1Mask
+      , modMask            = modKey
       , workspaces         = wsNames
       , normalBorderColor  = WSP.unfocusedColor myWispConfig
       , focusedBorderColor = WSP.focusedColor myWispConfig
@@ -126,8 +132,6 @@ projects =
               }
     ]
 
-jisho = searchEngine "jisho" "https://jisho.org/search/"
-
 -- Key bindings. Add, modify or remove key bindings here.
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
@@ -135,12 +139,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_c     ), kill)
     , ((modm,               xK_space ), sendMessage NextLayout)
     , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
-    , ((modm,               xK_j     ), windows W.focusDown)
-    , ((modm,               xK_k     ), windows W.focusUp)
+    , ((modm,               xK_j     ), focusDown)
+    , ((modm,               xK_k     ), focusUp)
     , ((modm,               xK_m     ), windows W.focusMaster)
+    , ((modm .|. shiftMask, xK_j     ), swapDown)
+    , ((modm .|. shiftMask, xK_k     ), swapUp)
     , ((modm,               xK_Return), windows W.swapMaster)
-    , ((modm .|. shiftMask, xK_j     ), windows W.swapDown)
-    , ((modm .|. shiftMask, xK_k     ), windows W.swapUp)
     , ((modm,               xK_h     ), sendMessage Shrink)
     , ((modm,               xK_l     ), sendMessage Expand)
     , ((modm,               xK_t     ), withFocused $ windows . W.sink)
@@ -149,39 +153,43 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_f     ), toggleFloatNext >> runLogHook)
     , ((modm              , xK_Escape), spawn "slock")
     , ((modm              , xK_o     ), withFocused toggleZoom)
-    , ((modm              , xK_slash),  submapWithHints xpc $
+    , ((modm              , xK_slash ),  submapWithHints xpc $
         [ ("q   recompile xmonad"       , (0, xK_q), spawn "xmonad --recompile && xmonad --restart")
         , ("k   default keyboard layout", (0, xK_k), spawn "setxkbmap us -option compose:ralt")
         , ("m-Q   exit xmonad"          , (modm .|. shiftMask, xK_q     ), io exitSuccess)
         ])
 
     -- Prompts
-    , ((modm,               xK_p     ), spawn "rofi -modi drun,run -show drun -show-icons -display-drun '\xf0e7'")
-    , ((modm              , xK_n     ), spawn "rofi-pass")
-    , ((modm .|. shiftMask, xK_n     ), spawn "rofi-pass --insert")
+    , ((modm,               xK_p             ), spawn "rofi -modi drun,run -show drun -show-icons -display-drun '\xf0e7'")
+    , ((modm              , xK_n             ), spawn "rofi-pass")
+    , ((modm .|. shiftMask, xK_n             ), spawn "rofi-pass --insert")
     , ((modm              , xK_BackSpace     ), spawn "rofi-pass")
     , ((modm .|. shiftMask, xK_BackSpace     ), spawn "rofi-pass --insert")
-    , ((modm              , xK_semicolon), spawn "rofi-sd")
-    , ((modm              , xK_period), switchProjectPrompt xpc)
-    , ((modm .|. shiftMask, xK_period), shiftToProjectPrompt xpc)
+    , ((modm .|. shiftMask, xK_l             ), spawn "rofi-sd")
+    , ((modm              , xK_period        ), switchProjectPrompt xpc)
+    , ((modm .|. shiftMask, xK_period        ), shiftToProjectPrompt xpc)
 
     -- Dunst
-    , ((modm              , xK_bracketleft), spawn "dunstctl history-pop")
-    , ((modm .|. shiftMask, xK_bracketleft), spawn "dunstctl context")
+    , ((modm              , xK_bracketleft ), spawn "dunstctl history-pop")
+    , ((modm .|. shiftMask, xK_bracketleft ), spawn "dunstctl context")
     , ((modm              , xK_bracketright), spawn "dunstctl close")
     , ((modm .|. shiftMask, xK_bracketright), spawn "dunstctl close-all")
 
     -- Various
-    , ((modm              , xK_y     ), selectSearch jisho)
-    , ((modm .|. shiftMask, xK_slash ), spawn "python /home/mephory/code/fbg/fbg.py toggle")
-    , ((modm .|. shiftMask, xK_semicolon), gotoMenuConfig $ def { menuCommand = "rofi", menuArgs = ["-dmenu", "-i"] })
+    , ((modm .|. shiftMask, xK_slash       ), spawn "python /home/mephory/code/fbg/fbg.py toggle")
+    -- , ((modm .|. shiftMask, xK_semicolon), gotoMenuConfig $ def { menuCommand = "rofi", menuArgs = ["-dmenu", "-i"] })
     -- , ((modm .|. shiftMask, xK_semicolon), gotoMenu)
+    -- , ((modm .|. shiftMask, xK_semicolon), sendMessage $ pullGroup U)
+    , ((modm              , xK_BackSpace   ), withFocused $ \w -> sendMessage $ mergeDir W.focusUp' w)
+    , ((modm .|. shiftMask, xK_BackSpace   ), withFocused $ sendMessage . UnMerge)
+    , ((modm              , xK_semicolon   ), onGroup W.focusDown')
+    , ((modm .|. shiftMask, xK_semicolon   ), onGroup W.focusUp')
 
     -- Change workspaces on vertical monitor
-    , ((modm              , xK_r     ), windows $ onScreen (W.greedyView "'1") FocusCurrent 1)
-    , ((modm .|. shiftMask, xK_r     ), windows $ W.shift "'1")
-    , ((modm              , xK_d     ), windows $ onScreen (W.greedyView "'2") FocusCurrent 1)
-    , ((modm .|. shiftMask, xK_d     ), windows $ W.shift "'2")
+    , ((altModm              , xK_r ), windows $ onScreen (W.greedyView "'1") FocusCurrent 1)
+    , ((altModm .|. shiftMask, xK_r ), windows $ W.shift "'1")
+    , ((altModm              , xK_d ), windows $ onScreen (W.greedyView "'2") FocusCurrent 1)
+    , ((altModm .|. shiftMask, xK_d ), windows $ W.shift "'2")
 
     -- Floating Positions
     , ((modm              , xK_f     ) , withFocused makeFloatingCenterWindow)
@@ -196,8 +204,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_g     ) , withFocused centerFloatingWindow)
 
     -- Screenshots
-    , ((modm              , xK_comma), spawn "imgs")
-    , ((modm .|. shiftMask, xK_comma), spawn "imgs -s")
+    , ((modm              , xK_comma ), spawn "imgs")
+    , ((modm .|. shiftMask, xK_comma ), spawn "imgs -s")
     , ((0                 , xK_Print ), spawn "imgs -d screenshots -n -t activewindow")
     , ((shiftMask         , xK_Print ), spawn "imgs -d screenshots -n -t select")
     , ((modm              , xK_Print ), spawn "imgs -d screenshots -n -t all")
@@ -206,17 +214,20 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_v     ), spawn "screenshot-google-image-search")
 
     -- Scratchpads
-    , ((modm              , xK_v     ), namedScratchpadAction myScratchpads "terminal")
-    , ((modm              , xK_c     ), namedScratchpadAction myScratchpads "terminal-2")
-    , ((modm              , xK_x     ), namedScratchpadAction myScratchpads "terminal-3")
-    , ((modm              , xK_z     ), namedScratchpadAction myScratchpads "music")
-    , ((modm              , xK_b     ), namedScratchpadAction myScratchpads "terminal-large")
-    , ((modm .|. shiftMask, xK_p     ), namedScratchpadAction myScratchpads "color")
-    , ((modm              , xK_backslash), namedScratchpadAction myScratchpads "bot-term")
-    , ((modm              , xK_a     ), spawnDynamicSP "dyn1")
-    , ((modm .|. shiftMask, xK_a     ), withFocused $ makeDynamicSP "dyn1")
-    , ((modm              , xK_s     ), spawnDynamicSP "dyn2")
-    , ((modm .|. shiftMask, xK_s     ), withFocused $ makeDynamicSP "dyn2")
+    , ((modm              , xK_v        ), namedScratchpadAction myScratchpads "terminal"      )
+    , ((modm              , xK_c        ), namedScratchpadAction myScratchpads "terminal-2"    )
+    , ((modm              , xK_x        ), namedScratchpadAction myScratchpads "terminal-3"    )
+    , ((modm              , xK_z        ), namedScratchpadAction myScratchpads "music"         )
+    , ((modm              , xK_b        ), namedScratchpadAction myScratchpads "terminal-large")
+    , ((modm .|. shiftMask, xK_p        ), namedScratchpadAction myScratchpads "color"         )
+    , ((modm              , xK_backslash), namedScratchpadAction myScratchpads "bot-term"      )
+    , ((modm              , xK_a        ), spawnDynamicSP "dyn1"                               )
+    , ((modm .|. shiftMask, xK_a        ), withFocused $ makeDynamicSP "dyn1"                  )
+    , ((modm              , xK_s        ), spawnDynamicSP "dyn2"                               )
+    , ((modm .|. shiftMask, xK_s        ), withFocused $ makeDynamicSP "dyn2"                  )
+    , ((modm              , xK_d        ), spawnDynamicSP "dyn3"                               )
+    , ((modm .|. shiftMask, xK_d        ), withFocused $ makeDynamicSP "dyn3"                  )
+    , ((altModm           , xK_f        ), namedScratchpadAction myScratchpads "obsidian"      )
 
     -- Media Keys
     , ((0, xF86XK_AudioMute), spawn "amixer sset Master toggle")
@@ -236,7 +247,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- mod-[1..9], Switch to workspace N
     -- mod-shift-[1..9], Move client to workspace N
     -- [((m .|. modm, k), f i)
-    [((m .|. modm .|. wsm, k), f i)
+    [((m .|. wsm, k), f i)
         | (i, (Just k), wsm) <- map (\ws -> (wsName ws, wsKey ws, wsMod ws)) myWorkspaces
         , (f, m) <- [(windows . W.greedyView, 0), (windows . W.shift, shiftMask)]]
 
@@ -266,10 +277,10 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList
     ]
 
 
-myLayout = noBorders $
+myLayout = noBorders $ boringWindows $
     onWorkspace "1" (full ||| fullscreen ||| tiled ||| mtiled) $
     onWorkspace "5" fullscreen $
-    onWorkspace "7" (focusIndicator $ avoidStruts $ Tall 1 (3/100) (1/4)) $
+    onWorkspace "7" (focusIndicator $ withTabs $  avoidStruts $ Tall 1 (3/100) (1/4)) $
     onWorkspace "'1" (focusIndicator $ avoidStruts $ verticalLayout) $
     onWorkspace "'2" (focusIndicator $ avoidStruts $ verticalLayout) $
     onWorkspace "'3" (focusIndicator $ avoidStruts $ verticalLayout) $
@@ -278,12 +289,13 @@ myLayout = noBorders $
     defaultConf
     where
         -- default tiling algorithm partitions the screen into two panes
-        tiled      = focusIndicator $ spaced $ avoidStruts $ Tall nmaster delta ratio
-        mtiled     = focusIndicator $ spaced $ avoidStruts $ Mirror (Tall 1 (3/100) (1/2))
-        full       = avoidStruts $ spaced $ Full
+        tiled      = focusIndicator $ withTabs $ spaced $ avoidStruts $ Tall nmaster delta ratio
+        mtiled     = focusIndicator $ withTabs $ spaced $ avoidStruts $ Mirror (Tall 1 (3/100) (1/2))
+        full       = withTabs $ avoidStruts $ spaced $ Full
         fullscreen = Full
         defaultConf = tiled ||| mtiled ||| full
-        verticalLayout = BinaryColumn 0.0 32 ||| BinaryColumn 1.0 32 ||| BinaryColumn 2.0 32
+        -- defaultConf = focusIndicator $ windowNavigation $ addTabs shrinkText tabTheme $ subLayout [] (Simplest) (tiled ||| mtiled ||| full)
+        verticalLayout = spaced $ withTabs (BinaryColumn 0.0 32 ||| BinaryColumn 1.0 32 ||| BinaryColumn 2.0 32)
 
         -- The default number of windows in the master pane
         nmaster = 1
@@ -293,6 +305,7 @@ myLayout = noBorders $
         delta   = 3/100
         spaced = spacingRaw True (Border 1 1 1 1) False (Border 0 0 0 0) True
         focusIndicator = noFrillsDeco shrinkText focusIndicatorTheme
+        withTabs l = windowNavigation $ addTabs shrinkText tabTheme $ subLayout [] Simplest l
 
 myManageHook = composeAll
     [ resource  =? "desktop_window"      --> doIgnore
@@ -306,14 +319,18 @@ myManageHook = composeAll
     , title     =? "vselect-record-area" --> placeHook (fixed (0, 0)) <+> doFloat
     , title     =? "pinentry"            --> placeHook (fixed (0.5, 0.5)) <+> doFloat
     , className =? "Pinentry-gtk-2"      --> placeHook (fixed (0.5, 0.5)) <+> doFloat
-    , title     =? "popup-editor"        --> placeHook (fixed (0.5, 0.5)) <+> doFloat
-    , className =? "popup-editor"        --> placeHook (fixed (0.5, 0.5)) <+> doFloat
+    -- , title     =? "popup-editor"        --> placeHook (fixed (0.5, 0.5)) <+> doFloat
+    -- , className =? "popup-editor"        --> placeHook (fixed (0.5, 0.5)) <+> doFloat
+    , title     =? "popup-editor"        --> (customFloating $ centeredRect 0.5 0.5)
+    , className =? "popup-editor"        --> (customFloating $ centeredRect 0.5 0.5)
     , className =? "feh-float"           --> doF W.shiftMaster <+> placeHook (fixed (0.5, 0.5)) <+> doFloat
     , title     =? "Microsoft Teams Notification" --> placeHook (fixed (1, 1)) <+> doFloat
     , title     =? "Picture-in-Picture"  --> (customFloating $ W.RationalRect 0.65 0.65 0.3 0.3)
     , className =? "Steam"               --> doShift "7"
     , className =? "discord"             --> doShift "'1"
     ]
+    where
+      centeredRect w h = W.RationalRect ((1 - w) / 2) ((1 - h) / 2) w h
 
 floatPlacement = placeHook (withGaps (10, 10, 10, 10) $ smart (0.5, 0.2))
 
@@ -324,7 +341,7 @@ myStartupHook homeDir = do
     safeSpawn (joinPath [homeDir, ".config", "alacritty", "build_config.sh"]) []
     safeSpawn "restart-polybar" []
     safeSpawn "restart-dunst" []
-    safeSpawn "restart-picom" []
+    -- safeSpawn "restart-picom" []
 
 myScratchpads = [ NS "terminal"
                      "alacritty --class scratchpad --title 'Alacritty (v)'"
@@ -358,6 +375,10 @@ myScratchpads = [ NS "terminal"
                      "gcolor3"
                      (resource =? "gcolor3")
                      centeredOriginalSize
+                , NS "obsidian"
+                     "obsidian"
+                     (resource =? "obsidian")
+                     centeredBig
                 ]
     where
         centered = customFloating $ centeredRect 0.5 0.5
@@ -428,4 +449,19 @@ focusIndicatorTheme =
       , urgentTextColor       = "#ff0000"
       , decoHeight            = 4
       }
+
+tabTheme :: Theme
+tabTheme =
+  def { fontName              = "xft:hack:size=11"
+      , inactiveBorderColor   = WSP.unfocusedColor myWispConfig
+      , inactiveColor         = WSP.unfocusedColor myWispConfig
+      , inactiveTextColor     = WSP.fgColor myWispConfig
+      , activeBorderColor     = WSP.focusedColor myWispConfig
+      , activeColor           = WSP.focusedColor myWispConfig
+      , activeTextColor       = WSP.fgColor myWispConfig
+      , urgentBorderColor     = "#ff0000"
+      , urgentTextColor       = "#ff0000"
+      , decoHeight            = 18
+      }
+
 

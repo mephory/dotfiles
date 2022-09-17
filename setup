@@ -24,9 +24,6 @@ echo "Installing dotfiles..."
 echo "Installing bin..."
 ./install-missing-bin.sh
 
-echo 'Installing neovim plugins'
-nvim +':PaqInstall | qa!'
-
 echo "Changing default shell..."
 chsh -s /bin/zsh $USER
 

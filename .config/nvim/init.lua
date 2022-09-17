@@ -23,9 +23,11 @@ require 'paq' {
   {'nvim-treesitter/nvim-treesitter', run=TSUpdate},
   'neovim/nvim-lspconfig',
 
+  'glacambre/firenvim',
+
   'dylanaraps/wal.vim',
   'arcticicestudio/nord-vim',
-  'morhetz/gruvbox.vim',
+  'morhetz/gruvbox',
   'Mofiqul/dracula.vim',
 
   'leafgarland/typescript-vim',
@@ -38,6 +40,26 @@ require('config.treesitter')
 require('config.maps')
 require('config.notes')
 require('config.lsp')
+require('config.highlights')
+
+vim.api.nvim_exec(
+[[
+let g:firenvim_config = { 
+    \ 'globalSettings': {
+        \ 'alt': 'all',
+    \  },
+    \ 'localSettings': {
+        \ '.*': {
+            \ 'cmdline': 'neovim',
+            \ 'content': 'text',
+            \ 'priority': 0,
+            \ 'selector': 'textarea',
+            \ 'takeover': 'never',
+        \ },
+    \ }
+\ }
+]],
+true)
 
 -- local paste_snippet = function()
 --   local start = vim.fn.getpos("'<")

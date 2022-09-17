@@ -1,0 +1,10 @@
+{
+  "vimMode": true,
+  "trashOption": "local",
+  "promptDelete": false,
+  "attachmentFolderPath": "./Assets",
+  "useTab": false,
+  "autoPairBrackets": false,
+  "autoPairMarkdown": false,
+  "newFileLocation": "current"
+}

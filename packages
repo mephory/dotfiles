@@ -74,7 +74,7 @@ lxappearance
 xmonad
 xmonad-contrib
 gcolor3
-picom
+picom-animations-git
 rofi
 pavucontrol
 aur/polybar-git
@@ -99,7 +99,7 @@ nodejs
 pipewire
 pipewire-alsa
 pipewire-jack
-pipewire-media-session
+wireplumber
 pipewire-pulse
 lib32-pipewire
 easyeffects
@@ -118,3 +118,5 @@ nvidia-settings
 qrencode
 rofi-pass
 python-pip
+scrot
+obsidian
