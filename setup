@@ -3,10 +3,10 @@
 sudo pacman --noconfirm -Syu
 sudo pacman --noconfirm -S wget
 
-echo "Installing paru..."
-mkdir -p $HOME/src/paru
-wget 'https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=paru' -O $HOME/src/paru/PKGBUILD
-cd $HOME/src/paru
+echo "Installing paru-bin..."
+mkdir -p $HOME/src/paru-bin
+wget 'https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=paru-bin' -O $HOME/src/paru-bin/PKGBUILD
+cd $HOME/src/paru-bin
 makepkg --noconfirm -si
 cd -
 
