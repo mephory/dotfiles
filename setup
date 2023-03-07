@@ -27,13 +27,15 @@ echo "Installing bin..."
 echo "Changing default shell..."
 chsh -s /bin/zsh $USER
 
-echo "Compiling xmonad"
+echo "Compiling xmonad..."
 xmonad --recompile
 
-echo "Settings qutebrowser as default browser"
+echo "Setting qutebrowser as default browser..."
 xdg-mime default org.qutebrowser.qutebrowser.desktop x-scheme-handler/http
 xdg-mime default org.qutebrowser.qutebrowser.desktop x-scheme-handler/https
 
-ln -s /usr/bin/feh ~/bin/feh-float
+echo "Installing wisp session..."
+sudo cp ./wisp.desktop /usr/share/xsessions/wisp.desktop
+sudo cp ./bin/wisp-xinit /usr/bin/wisp-xinit
 
-pip install pywal
+ln -s /usr/bin/feh ~/bin/feh-float
