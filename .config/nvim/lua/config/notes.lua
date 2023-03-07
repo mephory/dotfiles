@@ -1,6 +1,0 @@
-vim.keymap.set('i', '<F2>', '<c-r>=strftime("%Y-%m-%d %H:%M")<cr>')
-vim.keymap.set('i', '<F3>', '<c-r>=strftime("%Y-%m-%d")<cr>')
-vim.keymap.set('i', '<F4>', '<c-r>=strftime("%H:%M")<cr>')
-vim.keymap.set('i', '<F5>', '<c-r>=strftime("%Y-%m-%d %H:%M:%S")<cr>')
-vim.keymap.set('i', '<F6>', '<c-r>=strftime("%Y-%m-%d")<cr>')
-vim.keymap.set('i', '<F7>', '<c-r>=strftime("%H:%M:%S")<cr>')
