@@ -2,7 +2,7 @@
 
 configuration {
   location: 0;
-  monitor: "-4";
+  monitor: "-1";
 }
 
 element {

@@ -47,7 +47,7 @@ import qualified Wisp as WSP
 import qualified XMonad.StackSet as W
 import qualified Data.Map as M
 
-myWispConfig = WSP.nord
+myWispConfig = WSP.mocha
 
 modKey = mod1Mask
 altModm = mod1Mask .|. mod4Mask
@@ -159,8 +159,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
         , ("m-Q   exit xmonad"          , (modm .|. shiftMask, xK_q     ), io exitSuccess)
         ])
 
-    -- Prompts
-    , ((modm,               xK_p             ), spawn "rofi -modi drun,run -show drun -show-icons -display-drun '\xf0e7'")
+    , ((modm,               xK_p             ), spawn "rofi -modi drun,run -show drun -show-icons -display-drun '\xf0e7' -theme ~/.config/rofi/launcher.rasi")
     , ((modm              , xK_n             ), spawn "rofi-pass")
     , ((modm .|. shiftMask, xK_n             ), spawn "rofi-pass --insert")
     , ((modm              , xK_BackSpace     ), spawn "rofi-pass")
@@ -176,14 +175,11 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_bracketright), spawn "dunstctl close-all")
 
     -- Various
-    , ((modm .|. shiftMask, xK_slash       ), spawn "python /home/mephory/code/fbg/fbg.py toggle")
-    -- , ((modm .|. shiftMask, xK_semicolon), gotoMenuConfig $ def { menuCommand = "rofi", menuArgs = ["-dmenu", "-i"] })
-    -- , ((modm .|. shiftMask, xK_semicolon), gotoMenu)
-    -- , ((modm .|. shiftMask, xK_semicolon), sendMessage $ pullGroup U)
-    , ((modm              , xK_BackSpace   ), withFocused $ \w -> sendMessage $ mergeDir W.focusUp' w)
-    , ((modm .|. shiftMask, xK_BackSpace   ), withFocused $ sendMessage . UnMerge)
-    , ((modm              , xK_semicolon   ), onGroup W.focusDown')
-    , ((modm .|. shiftMask, xK_semicolon   ), onGroup W.focusUp')
+    , ((modm .|. shiftMask, xK_slash    ), spawn "python /home/mephory/code/fbg/fbg.py toggle")
+    , ((modm              , xK_BackSpace), mempty)
+    , ((modm              , xK_semicolon), gotoMenuConfig $ def { menuCommand = "rofi", menuArgs = ["-dmenu", "-i"] })
+    , ((modm .|. shiftMask, xK_semicolon), spawn "xdotool getactivewindow set_window --classname class-removed")
+    , ((modm              , xK_i        ), spawn "polybar-msg cmd toggle")
 
     -- Change workspaces on vertical monitor
     , ((altModm              , xK_r ), windows $ onScreen (W.greedyView "'1") FocusCurrent 1)
@@ -209,8 +205,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((0                 , xK_Print ), spawn "imgs -d screenshots -n -t activewindow")
     , ((shiftMask         , xK_Print ), spawn "imgs -d screenshots -n -t select")
     , ((modm              , xK_Print ), spawn "imgs -d screenshots -n -t all")
-    , ((modm              , xK_0     ), spawn "upload-screenshot -window root")
-    , ((modm .|. shiftMask, xK_0     ), spawn "upload-screenshot")
+    , ((modm              , xK_0     ), spawn "upload-screenshot -u")
+    , ((modm .|. shiftMask, xK_0     ), spawn "upload-screenshot -s")
     , ((modm .|. shiftMask, xK_v     ), spawn "screenshot-google-image-search")
 
     -- Scratchpads
@@ -218,7 +214,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_c        ), namedScratchpadAction myScratchpads "terminal-2"    )
     , ((modm              , xK_x        ), namedScratchpadAction myScratchpads "terminal-3"    )
     , ((modm              , xK_z        ), namedScratchpadAction myScratchpads "music"         )
-    , ((modm              , xK_b        ), namedScratchpadAction myScratchpads "terminal-large")
+    -- , ((modm              , xK_b        ), namedScratchpadAction myScratchpads "terminal-large")
     , ((modm .|. shiftMask, xK_p        ), namedScratchpadAction myScratchpads "color"         )
     , ((modm              , xK_backslash), namedScratchpadAction myScratchpads "bot-term"      )
     , ((modm              , xK_a        ), spawnDynamicSP "dyn1"                               )
@@ -228,6 +224,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_d        ), spawnDynamicSP "dyn3"                               )
     , ((modm .|. shiftMask, xK_d        ), withFocused $ makeDynamicSP "dyn3"                  )
     , ((altModm           , xK_f        ), namedScratchpadAction myScratchpads "obsidian"      )
+    , ((modm              , xK_b        ), namedScratchpadAction myScratchpads "obsidian"      )
 
     -- Media Keys
     , ((0, xF86XK_AudioMute), spawn "amixer sset Master toggle")
@@ -277,25 +274,24 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList
     ]
 
 
-myLayout = noBorders $ boringWindows $
-    onWorkspace "1" (full ||| fullscreen ||| tiled ||| mtiled) $
-    onWorkspace "5" fullscreen $
-    onWorkspace "7" (focusIndicator $ withTabs $  avoidStruts $ Tall 1 (3/100) (1/4)) $
-    onWorkspace "'1" (focusIndicator $ avoidStruts $ verticalLayout) $
-    onWorkspace "'2" (focusIndicator $ avoidStruts $ verticalLayout) $
-    onWorkspace "'3" (focusIndicator $ avoidStruts $ verticalLayout) $
-    onWorkspace "'4" (focusIndicator $ avoidStruts $ verticalLayout) $
-    onWorkspace "'5" (focusIndicator $ avoidStruts $ verticalLayout) $
+myLayout = smartBorders $ boringWindows $
+    onWorkspace "1"  (full ||| fullscreen ||| tiled ||| mtiled) $
+    onWorkspace "5"  (noBorders $ fullscreen) $
+    onWorkspace "7"  (avoidStruts $ spaced $ Tall 1 (3/100) (1/4)) $
+    onWorkspace "'1" (avoidStruts $ verticalLayout) $
+    onWorkspace "'2" (avoidStruts $ verticalLayout) $
+    onWorkspace "'3" (avoidStruts $ verticalLayout) $
+    onWorkspace "'4" (avoidStruts $ verticalLayout) $
+    onWorkspace "'5" (avoidStruts $ verticalLayout) $
     defaultConf
     where
         -- default tiling algorithm partitions the screen into two panes
-        tiled      = focusIndicator $ withTabs $ spaced $ avoidStruts $ Tall nmaster delta ratio
-        mtiled     = focusIndicator $ withTabs $ spaced $ avoidStruts $ Mirror (Tall 1 (3/100) (1/2))
-        full       = withTabs $ avoidStruts $ spaced $ Full
+        tiled      = spaced $ avoidStruts $ Tall nmaster delta ratio
+        mtiled     = spaced $ avoidStruts $ Mirror (Tall 1 (3/100) (1/2))
+        full       = avoidStruts $ spaced $ Full
         fullscreen = Full
         defaultConf = tiled ||| mtiled ||| full
-        -- defaultConf = focusIndicator $ windowNavigation $ addTabs shrinkText tabTheme $ subLayout [] (Simplest) (tiled ||| mtiled ||| full)
-        verticalLayout = spaced $ withTabs (BinaryColumn 0.0 32 ||| BinaryColumn 1.0 32 ||| BinaryColumn 2.0 32)
+        verticalLayout = spaced (BinaryColumn 0.0 32 ||| BinaryColumn 1.0 32 ||| BinaryColumn 2.0 32)
 
         -- The default number of windows in the master pane
         nmaster = 1
@@ -303,9 +299,8 @@ myLayout = noBorders $ boringWindows $
         ratio   = 0.6
         -- Percent of screen to increment by when resizing panes
         delta   = 3/100
-        spaced = spacingRaw True (Border 1 1 1 1) False (Border 0 0 0 0) True
-        focusIndicator = noFrillsDeco shrinkText focusIndicatorTheme
-        withTabs l = windowNavigation $ addTabs shrinkText tabTheme $ subLayout [] Simplest l
+        -- spaced = spacingRaw True (Border 1 1 1 1) False (Border 0 0 0 0) True
+        spaced = spacingRaw False (Border 10 10 10 10) False (Border 10 10 10 10) True
 
 myManageHook = composeAll
     [ resource  =? "desktop_window"      --> doIgnore
@@ -341,7 +336,7 @@ myStartupHook homeDir = do
     safeSpawn (joinPath [homeDir, ".config", "alacritty", "build_config.sh"]) []
     safeSpawn "restart-polybar" []
     safeSpawn "restart-dunst" []
-    -- safeSpawn "restart-picom" []
+    safeSpawn "restart-picom" []
 
 myScratchpads = [ NS "terminal"
                      "alacritty --class scratchpad --title 'Alacritty (v)'"
@@ -360,7 +355,7 @@ myScratchpads = [ NS "terminal"
                      (resource =? "bot-term")
                      bottom
                 , NS "terminal-large"
-                     "alacritty --class scratchpad-large --title 'Alacritty (b)'"
+                     "alacritty --class scratchpad-large --title 'mutt' -e neomutt"
                      (resource =? "scratchpad-large")
                      centeredBig
                 , NS "music"
@@ -378,7 +373,7 @@ myScratchpads = [ NS "terminal"
                 , NS "obsidian"
                      "obsidian"
                      (resource =? "obsidian")
-                     centeredBig
+                     obsidianGeometry
                 ]
     where
         centered = customFloating $ centeredRect 0.5 0.5
@@ -386,6 +381,7 @@ myScratchpads = [ NS "terminal"
         centeredBig = (customFloating $ centeredRect 0.6 0.6)
         centeredOriginalSize = placeHook (fixed (0.5, 0.5)) <+> doFloat
         centeredRect w h = W.RationalRect ((1 - w) / 2) ((1 - h) / 2) w h
+        obsidianGeometry = (customFloating $ centeredRect 0.6 0.85)
 
 myLogHook homeDir = dynamicLogWithPP $ def {
       ppCurrent         = clickable currentFmt
@@ -402,13 +398,13 @@ myLogHook homeDir = dynamicLogWithPP $ def {
     , ppOutput          = appendFileUtf8 "/tmp/workspace-info" . (++"\n")
     }
     where
-        hiddenFmt  = bg (WSP.bgColor myWispConfig) .
+        hiddenFmt  = bg (WSP.argbColor WSP.bgColor myWispConfig) .
                      fg (WSP.fgSecondary myWispConfig) .
                      addPadding
-        currentFmt = bg (WSP.bgSecondary myWispConfig) .
+        currentFmt = bg (WSP.argbColor WSP.bgSecondary myWispConfig) .
                      fg (WSP.fgColor myWispConfig) .
                      addPadding
-        urgentFmt  = bg (WSP.color1 myWispConfig) .
+        urgentFmt  = bg (WSP.argbColor WSP.color1 myWispConfig) .
                      fg (WSP.fgColor myWispConfig) .
                      addPadding
         visibleFmt = addPadding
@@ -424,7 +420,7 @@ myLogHook homeDir = dynamicLogWithPP $ def {
             | otherwise                   = "  "
         floatNextStr s = case s of
             ""        -> " "
-            otherwise -> "·"
+            otherwise -> "\xef\x8b\x92"
         onlyIf p f x = if p x then f x else ""
 
 xpc = def { bgColor = WSP.bgColor myWispConfig
@@ -435,33 +431,3 @@ xpc = def { bgColor = WSP.bgColor myWispConfig
           , font = WSP.normalFont myWispConfig
           , height = 22
           }
-
-focusIndicatorTheme :: Theme
-focusIndicatorTheme =
-  def { fontName              = "xft:inconsolata:size=10"
-      , inactiveBorderColor   = WSP.unfocusedColor myWispConfig
-      , inactiveColor         = WSP.unfocusedColor myWispConfig
-      , inactiveTextColor     = WSP.unfocusedColor myWispConfig
-      , activeBorderColor     = WSP.focusedColor myWispConfig
-      , activeColor           = WSP.focusedColor myWispConfig
-      , activeTextColor       = WSP.focusedColor myWispConfig
-      , urgentBorderColor     = "#ff0000"
-      , urgentTextColor       = "#ff0000"
-      , decoHeight            = 4
-      }
-
-tabTheme :: Theme
-tabTheme =
-  def { fontName              = "xft:hack:size=11"
-      , inactiveBorderColor   = WSP.unfocusedColor myWispConfig
-      , inactiveColor         = WSP.unfocusedColor myWispConfig
-      , inactiveTextColor     = WSP.fgColor myWispConfig
-      , activeBorderColor     = WSP.focusedColor myWispConfig
-      , activeColor           = WSP.focusedColor myWispConfig
-      , activeTextColor       = WSP.fgColor myWispConfig
-      , urgentBorderColor     = "#ff0000"
-      , urgentTextColor       = "#ff0000"
-      , decoHeight            = 18
-      }
-
-

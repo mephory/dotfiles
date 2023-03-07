@@ -14,6 +14,7 @@ require 'paq' {
   'tpope/vim-rbenv',
   'tpope/vim-rails',
   'tpope/vim-bundler',
+  'tpope/vim-repeat',
   'vim-pandoc/vim-pandoc',
   'vim-pandoc/vim-pandoc-syntax',
   'wellle/targets.vim',
@@ -28,14 +29,16 @@ require 'paq' {
   'dylanaraps/wal.vim',
   'arcticicestudio/nord-vim',
   'morhetz/gruvbox',
-  'Mofiqul/dracula.vim',
+  'morhetz/gruvbox',
+  'catppuccin/nvim',
+  'shaunsingh/solarized.nvim',
 
   'leafgarland/typescript-vim',
   'peitalin/vim-jsx-typescript',
 }
 
-require('config.base')
 require('config.plugins')
+require('config.base')
 require('config.treesitter')
 require('config.maps')
 require('config.notes')
@@ -69,3 +72,9 @@ true)
 -- end
 
 -- vim.keymap.set('n', '<leader>p', paste_snippet)
+
+require('catppuccin').setup({
+  transparent_background = true
+})
+
+vim.api.nvim_set_hl(0, 'Normal', {ctermbg=none})

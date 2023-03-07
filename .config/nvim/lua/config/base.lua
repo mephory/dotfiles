@@ -24,6 +24,7 @@ vim.o.number = true
 vim.o.hlsearch = false
 vim.o.cursorline = false
 vim.o.laststatus = 2
+vim.o.mouse = ''
 vim.opt.path:append('**')
 vim.opt.matchpairs:append('<:>')
 vim.cmd('filetype indent off')

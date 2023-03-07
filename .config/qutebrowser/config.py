@@ -13,7 +13,8 @@ c.tabs.favicons.scale = 1.5
 c.tabs.show = 'multiple'
 c.url.searchengines = { "DEFAULT": "https://google.com/search?q={}" }
 c.backend = "webengine"
-c.fonts.default_family = "meslo"
+c.fonts.default_family = "default"
+c.fonts.default_size = "9pt"
 c.content.pdfjs = True
 c.editor.command = ["alacritty", "-t", "popup-editor", "-e", "nvim", "--", "{file}"]
 

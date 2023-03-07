@@ -6,18 +6,32 @@ module Wisp (
   solarized,
   solarizedLight,
   dracula,
-  grayscale
+  grayscale,
+  mocha,
+  rgbaColor,
+  argbColor
 ) where
 
 import XMonad.Core
 import System.Environment (setEnv)
 import Control.Monad
+import Text.Printf
+
+rgbaColor :: (WispConfig -> String) -> WispConfig -> String
+rgbaColor f cfg = f cfg ++ toHex (alpha cfg)
+  where toHex x = (printf "%02X" (round (x*255) :: Integer)) :: String
+        removePound = drop 1
+
+argbColor :: (WispConfig -> String) -> WispConfig -> String
+argbColor f cfg = "#" ++ toHex (alpha cfg) ++ removePound (f cfg)
+  where toHex x = (printf "%02X" (round (x*255) :: Integer)) :: String
+        removePound = drop 1
 
 data WispConfig = WispConfig
   { configName :: String
+  , alpha :: Rational
   , bgColor :: String
   , bgSecondary :: String
-  , bgColorAlpha :: String
   , fgColor :: String
   , fgSecondary :: String
   , focusedColor :: String
@@ -45,13 +59,14 @@ data WispConfig = WispConfig
 gruvbox :: WispConfig
 gruvbox = WispConfig
           { configName           = "gruvbox"
+          , alpha                = 0.95
           , bgColor              = "#1d2021"
           , bgSecondary          = "#32302f"
-          , bgColorAlpha         = "#1d2021fa"
           , fgColor              = "#ebdbb2"
           , fgSecondary          = "#928374"
           , unfocusedColor       = "#282828"
-          , focusedColor         = "#504945"
+          -- , focusedColor         = "#504945"
+          , focusedColor         = "#a6adc8"
           , color0               = "#282828"
           , color1               = "#cc241d"
           , color2               = "#98971a"
@@ -71,12 +86,43 @@ gruvbox = WispConfig
           , normalFont           = "xft:hack:size=11"
           }
 
+mocha :: WispConfig
+mocha = WispConfig
+          { configName           = "catppuccin-mocha"
+          , alpha                = 0.95
+          , bgColor              = "#1e1e2e"
+          , bgSecondary          = "#24273a"
+          , fgColor              = "#cdd6f4"
+          , fgSecondary          = "#303446"
+          , unfocusedColor       = "#24273a"
+          -- , focusedColor         = "#51576d"
+          , focusedColor         = "#a6adc8"
+          -- , focusedColor         = "#cba6f7"
+          , color0               = "#45475a"
+          , color1               = "#f38ba8"
+          , color2               = "#a6e3a1"
+          , color3               = "#f9e2af"
+          , color4               = "#89b4fa"
+          , color5               = "#f5c2e7"
+          , color6               = "#94e2d5"
+          , color7               = "#a6adc8"
+          , color8               = "#585b70"
+          , color9               = "#f38ba8"
+          , color10              = "#a6e3a1"
+          , color11              = "#f9e2af"
+          , color12              = "#89b4fa"
+          , color13              = "#f5c2e7"
+          , color14              = "#94e2d5"
+          , color15              = "#a6adc8"
+          , normalFont           = "xft:hack:size=11"
+          }
+
 nord :: WispConfig
 nord = WispConfig
        { configName           = "nord"
+       , alpha                = 0.97
        , bgColor              = "#292e39"
        , bgSecondary          = "#4c566a"
-       , bgColorAlpha         = "#292e39fa"
        , fgColor              = "#d8dee9"
        , fgSecondary          = "#4c566a"
        , unfocusedColor       = "#3b4252"
@@ -103,9 +149,9 @@ nord = WispConfig
 solarized :: WispConfig
 solarized = WispConfig
        { configName           = "solarized"
+       , alpha                = 0.97
        , bgColor              = "#002b36"
        , bgSecondary          = "#073642"
-       , bgColorAlpha         = "#002b36fa"
        , fgColor              = "#657b83"
        , fgSecondary          = "#073642"
        , unfocusedColor       = "#073642"
@@ -132,12 +178,12 @@ solarized = WispConfig
 solarizedLight :: WispConfig
 solarizedLight = WispConfig
        { configName           = "solarized"
+       , alpha                = 0.97
        , bgColor              = "#fdf6e3"
        , bgSecondary          = "#eee8d5"
-       , bgColorAlpha         = "#fdf6e3fa"
        , fgColor              = "#839496"
        , fgSecondary          = "#bbbbbb"
-       , focusedColor         = "#bbbbbb"
+       , focusedColor         = "#839496"
        , unfocusedColor       = "#eee8d5"
        , color0               = "#eee8d5"
        , color1               = "#dc322f"
@@ -161,9 +207,9 @@ solarizedLight = WispConfig
 dracula :: WispConfig
 dracula = WispConfig
        { configName           = "dracula"
+       , alpha                = 0.97
        , bgColor              = "#282a36"
        , bgSecondary          = "#44475a"
-       , bgColorAlpha         = "#282a36fa"
        , fgColor              = "#f8f8f2"
        , fgSecondary          = "#44475a"
        , focusedColor         = "#44475a"
@@ -190,9 +236,9 @@ dracula = WispConfig
 grayscale :: WispConfig
 grayscale = WispConfig
        { configName           = "zellner"
+       , alpha                = 0.97
        , bgColor              = "#f7f7f7"
        , bgSecondary          = "#d1d1d1"
-       , bgColorAlpha         = "#f7f7f7fa"
        , fgColor              = "#464646"
        , fgSecondary          = "#d1d1d1"
        , focusedColor         = "#888888"
@@ -219,7 +265,8 @@ grayscale = WispConfig
 activateWispConfig :: WispConfig -> X ()
 activateWispConfig cfg = do
   io $ setEnv "WISP_THEME" (configName cfg)
-  io $ setEnv "WISP_BACKGROUND_ALPHA" (bgColorAlpha cfg)
+  io $ setEnv "WISP_BACKGROUND_RGBA" (rgbaColor bgColor cfg)
+  io $ setEnv "WISP_BACKGROUND_ARGB" (argbColor bgColor cfg)
   io $ setEnv "WISP_BACKGROUND" (bgColor cfg)
   io $ setEnv "WISP_BACKGROUND_SECONDARY" (bgSecondary cfg)
   io $ setEnv "WISP_FOREGROUND" (fgColor cfg)

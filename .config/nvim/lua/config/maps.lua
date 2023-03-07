@@ -54,9 +54,9 @@ vim.keymap.set('n', "''v", ':e `=resolve(expand("~/.config/nvim/init.lua"))`<cr>
 vim.keymap.set('n', "''b", ':e `=resolve(expand("~/.config/nvim/lua/config/base.lua"))`<cr>')
 vim.keymap.set('n', "''m", ':e `=resolve(expand("~/.config/nvim/lua/config/maps.lua"))`<cr>')
 vim.keymap.set('n', "''n", ':e `=resolve(expand("~/.config/nvim/lua/config/notes.lua"))`<cr>')
-vim.keymap.set('n', "''l", ':e `=resolve(expand("~/.config/nvim/lua/config/lsp.lua"))`<cr>')
 vim.keymap.set('n', "''x", ':e `=resolve(expand("~/.xmonad/xmonad.hs"))`<cr>')
 vim.keymap.set('n', "''z", ':e `=resolve(expand("~/.zshrc"))`<cr>')
+vim.keymap.set('n', "''l", ':e `=resolve(expand("~/.ledger"))`<cr>G')
 
 vim.keymap.set('n', "'''", ':cd %:p:h<cr>')
 vim.keymap.set('n', '\\e', ':e <C-r>=expand("%:h")<cr>/')

@@ -2,43 +2,44 @@ window:
   padding:
     x: 10
     y: 10
+  opacity: 0.96
 
 font:
   normal:
-    family: JetBrains Mono
-  size: 14
+    family: MonoLisa
+  size: 13
 
 colors:
   primary:
-    background: '#292e39'
-    foreground: '#d8dee9'
+    background: '#1e1e2e'
+    foreground: '#cdd6f4'
 
-    dim_foreground: '#4c566a'
-    bright_foreground: '#4c566a'
+    dim_foreground: '#303446'
+    bright_foreground: '#24273a'
 
   cursor:
    text: CellBackground
    cursor: CellForeground
 
   normal:
-    black:   '#3b4252'
-    red:     '#bf616a'
-    green:   '#a3be8c'
-    yellow:  '#ebcb8b'
-    blue:    '#81a1c1'
-    magenta: '#b48ead'
-    cyan:    '#88c0d0'
-    white:   '#e5e9f0'
+    black:   '#45475a'
+    red:     '#f38ba8'
+    green:   '#a6e3a1'
+    yellow:  '#f9e2af'
+    blue:    '#89b4fa'
+    magenta: '#f5c2e7'
+    cyan:    '#94e2d5'
+    white:   '#a6adc8'
 
   bright:
-    black:   '#4c566a'
-    red:     '#bf616a'
-    green:   '#a3be8c'
-    yellow:  '#ebcb8b'
-    blue:    '#81a1c1'
-    magenta: '#b48ead'
-    cyan:    '#8fbcbb'
-    white:   '#eceff4'
+    black:   '#585b70'
+    red:     '#f38ba8'
+    green:   '#a6e3a1'
+    yellow:  '#f9e2af'
+    blue:    '#89b4fa'
+    magenta: '#f5c2e7'
+    cyan:    '#94e2d5'
+    white:   '#a6adc8'
 
 hints:
   alphabet: "jfkdls;ahgurieowpq"

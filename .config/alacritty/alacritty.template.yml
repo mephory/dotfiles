@@ -2,11 +2,12 @@ window:
   padding:
     x: 10
     y: 10
+  opacity: 0.96
 
 font:
   normal:
-    family: JetBrains Mono
-  size: 14
+    family: MonoLisa
+  size: 13
 
 colors:
   primary:

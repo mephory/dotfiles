@@ -1,16 +1,16 @@
-vim.highlight.create('MyHighlight1', {guifg="#000000", ctermfg=16, guibg="#ffa724", ctermbg=208}, false)
-vim.highlight.create('MyHighlight2', {guifg="#000000", ctermfg=16, guibg="#aeee00", ctermbg=040}, false)
-vim.highlight.create('MyHighlight3', {guifg="#000000", ctermfg=16, guibg="#8cffba", ctermbg=087}, false)
-vim.highlight.create('MyHighlight4', {guifg="#000000", ctermfg=16, guibg="#b88853", ctermbg=137}, false)
-vim.highlight.create('MyHighlight5', {guifg="#000000", ctermfg=16, guibg="#ff9eb8", ctermbg=211}, false)
-vim.highlight.create('MyHighlight6', {guifg="#000000", ctermfg=16, guibg="#ff2c4b", ctermbg=195}, false)
+vim.api.nvim_set_hl(0, 'MyHilight1', {fg="#000000", ctermfg=16, bg="#ffa724", ctermbg=208})
+vim.api.nvim_set_hl(0, 'MyHilight2', {fg="#000000", ctermfg=16, bg="#aeee00", ctermbg=040})
+vim.api.nvim_set_hl(0, 'MyHilight3', {fg="#000000", ctermfg=16, bg="#8cffba", ctermbg=087})
+vim.api.nvim_set_hl(0, 'MyHilight4', {fg="#000000", ctermfg=16, bg="#b88853", ctermbg=137})
+vim.api.nvim_set_hl(0, 'MyHilight5', {fg="#000000", ctermfg=16, bg="#ff9eb8", ctermbg=211})
+vim.api.nvim_set_hl(0, 'MyHilight6', {fg="#000000", ctermfg=16, bg="#ff2c4b", ctermbg=195})
 
 function HilightCWord(n)
   local pattern = vim.fn.expand('<cword>')
   local mid = 86750 + n
 
   if not pcall(vim.fn.matchdelete, mid) then
-    vim.fn.matchadd("MyHighlight" .. n, pattern, 1, mid)
+    vim.fn.matchadd("MyHilight" .. n, pattern, 1, mid)
   end
 end
 
@@ -19,7 +19,7 @@ function HilightPattern(n)
 
   if not pcall(vim.fn.matchdelete, mid) then
     local pattern = vim.fn.input('Pattern: ')
-    vim.fn.matchadd("MyHighlight" .. n, pattern, 1, mid)
+    vim.fn.matchadd("MyHilight" .. n, pattern, 1, mid)
   end
 end
 

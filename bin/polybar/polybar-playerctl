@@ -17,6 +17,7 @@ PLAYER_ICONS = {
   'spotify' => '',
   'chrome' => '',
   'chromium' => '',
+  'firefox' => '',
   'qutebrowser' => ''
 }.freeze
 
@@ -45,7 +46,7 @@ class Player
 
   def format(active: false)
     status_icon = STATUS_ICONS[status]
-    player_icon = PLAYER_ICONS[name] || '?'
+    player_icon = PLAYER_ICONS[name] || ''
 
     if active
       actions = [

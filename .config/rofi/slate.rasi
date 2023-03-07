@@ -3,7 +3,7 @@
   text-color: env(WISP_FOREGROUND, "#ffffff");
   spacing: 0;
   width: 40%;
-  font: "Inconsolata Bold 12";
+  font: "MonoLisa Bold 10";
 }
 
 window {
@@ -11,7 +11,7 @@ window {
   border: 1px;
   border-radius: 0.25em;
   border-color: env(WISP_BACKGROUND_SECONDARY, "#444444");
-  background-color: env(WISP_BACKGROUND_ALPHA, "#222222");
+  background-color: env(WISP_BACKGROUND_RGBA, "#222222");
 }
 
 inputbar {

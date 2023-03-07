@@ -67,7 +67,7 @@
     # The width can be negative.  In this case the actual width is the
     # screen width minus the width defined in within the geometry option.
     width = 425
-    offset = 0x30
+    offset = 0x58
     origin = top-center
 
     # Shrink window if it's smaller than the width.  Will be ignored if
@@ -77,7 +77,7 @@
     # The transparency of the window.  Range: [0; 100].
     # This option will only work if a compositing windowmanager is
     # present (e.g. xcompmgr, compiz, etc.).
-    transparency = 2
+    transparency = 3
 
     # Don't remove messages, if the user is idle (no mouse or keyboard input)
     # for longer than idle_threshold seconds.
@@ -151,7 +151,7 @@
     # Paths to default icons.
     icon_folders = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
 
-    corner_radius = 3
+    corner_radius = 0
 
     max_icon_size = 48
 

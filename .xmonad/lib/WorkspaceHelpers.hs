@@ -1,7 +1,6 @@
 module WorkspaceHelpers (
         WS (..)
     ) where
-
 import Foreign.C.Types
 import Graphics.X11.Xlib.Extras
 import Graphics.X11.Types
@@ -19,3 +18,4 @@ data WS = WS { wsName :: String
              , wsKey :: Maybe KeySym
              , wsVisible :: Bool
              }
+            deriving (Eq)
