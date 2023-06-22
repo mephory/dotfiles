@@ -7,12 +7,11 @@ if [[ -e ~/.Xmodmap ]]; then
     xmodmap ~/.Xmodmap
 fi
 
-# xrandr --output HDMI-0 --auto --left-of DP-2 --scale-from 2560x1440 --pos 0x0
 xrandr \
   --fb 7440x2560 \
-  --output DP-0 --auto --primary --pos 2560x560 --mode 3440x1440 --rate 143.92 \
-  --output DP-2 --auto --pos 6000x0 --rotate right \
-  --output DP-4 --auto --pos 0x560
+  --output DP-4 --auto --primary --pos 2560x560 --mode 3440x1440 --rate 143.92 \
+  --output HDMI-0 --auto --pos 6000x0 --rotate right \
+  --output DP-2 --auto --pos 0x560
 
 if [[ -f ~/.background.1.jpg ]]; then
   feh --bg-fill ~/.background.2.jpg ~/.background.3.jpg ~/.background.1.jpg
@@ -37,7 +36,5 @@ export GTK_IM_MODULE='ibus'
 export QT_IM_MODULE='ibus'
 export XMODIFIERS='@im=ibus'
 ibus-daemon -drx
-
-# pywal -R -s -t
 
 exec xmonad

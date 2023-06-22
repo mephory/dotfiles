@@ -51,13 +51,6 @@ for f in ~/.zsh-env/*(@,.N); do
 done
 
 # hash dirs
-hash -d acc="$HOME/data/account"
-hash -d vid="$HOME/data/video"
-hash -d img="$HOME/data/images"
-hash -d cam="$HOME/data/images/webcam"
-hash -d ext="/mnt/external"
-hash -d eimg="/mnt/external/image"
-hash -d evid="/mnt/external/video"
 hash -d poe="/home/mephory/.local/share/Steam/steamapps/compatdata/238960/pfx/drive_c/users/steamuser/My Documents/My Games/Path of Exile"
 hash -d wow="/home/mephory/.local/share/bottles/bottles/bnet/drive_c/Program Files (x86)/World of Warcraft/_classic_/Interface/AddOns"
 
@@ -170,4 +163,5 @@ zstyle ':completion:tmux-pane-words-anywhere:*' matcher-list 'b:=* m:{A-Za-z}={a
 
 source ~/.alias
 
+[[ -r "/usr/share/z/z.sh" ]] && source /usr/share/z/z.sh
 eval "$(starship init zsh)"

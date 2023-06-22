@@ -74,10 +74,10 @@ lxappearance
 xmonad
 xmonad-contrib
 gcolor3
-picom-animations-git
+aur/picom-animations-git
 rofi
 pavucontrol
-aur/polybar-git
+polybar
 discord
 qutebrowser
 lutris
@@ -114,9 +114,11 @@ xclip
 polkit-gnome
 ttf-jetbrains-mono
 nvidia-settings
-qrencode
 rofi-pass
 python-pip
 scrot
-obsidian
 ripgrep
+z
+unzip
+npm
+go

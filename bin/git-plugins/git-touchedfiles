@@ -1,4 +1,0 @@
-#!/bin/sh
-# git-touchedfiles - display files that were changed in any commit of the given commit range
-
-git log $@ --oneline --stat | grep ' | ' | cut -d' ' -f2 | sort | uniq

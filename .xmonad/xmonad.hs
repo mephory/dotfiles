@@ -7,6 +7,8 @@ import XMonad.Actions.FloatSnap
 import XMonad.Actions.DynamicProjects
 import XMonad.Actions.OnScreen
 import XMonad.Actions.WindowBringer
+import qualified XMonad.Layout.Groups as G
+import qualified XMonad.Layout.Groups.Examples as GE
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.BoringWindows
 import XMonad.Layout.Simplest
@@ -23,9 +25,12 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.FloatNext
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.Place
+import XMonad.Hooks.ServerMode (serverModeEventHookF)
 import XMonad.Util.NamedScratchpad
 import XMonad.Util.Run (safeSpawn)
 import XMonad.Prompt
+import Data.Aeson
+import Data.ByteString.Lazy.UTF8 (fromString)
 import Data.List (elemIndex, isPrefixOf, isInfixOf, find)
 import Data.Maybe (fromMaybe)
 import System.Exit
@@ -41,6 +46,7 @@ import DynamicScratchpads (spawnDynamicSP, makeDynamicSP)
 import FloatCenterWindow (centerFloatingWindow, makeFloatingCenterWindow)
 import Opacity (changeOpacity)
 import LowerDocks (addDock, delDock)
+-- import Commands (commandHandler)
 import qualified Wisp as WSP
 -- import Wal
 
@@ -107,7 +113,9 @@ main = do
                              <+> namedScratchpadManageHook myScratchpads
                              <+> floatPlacement
                              <+> floatNextHook
-      , handleEventHook    = delDock <+> myEventHook
+      , handleEventHook    = delDock
+                             <+> myEventHook
+                             -- <+> serverModeEventHookF "XMONAD_COMMAND" (flip whenJust commandHandler . decode . fromString)
       , logHook            = myLogHook homeDir
       , startupHook        = myStartupHook homeDir
       , clientMask         = focusChangeMask .|. visibilityChangeMask .|. clientMask def
@@ -207,7 +215,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_Print ), spawn "imgs -d screenshots -n -t all")
     , ((modm              , xK_0     ), spawn "upload-screenshot -u")
     , ((modm .|. shiftMask, xK_0     ), spawn "upload-screenshot -s")
-    , ((modm .|. shiftMask, xK_v     ), spawn "screenshot-google-image-search")
 
     -- Scratchpads
     , ((modm              , xK_v        ), namedScratchpadAction myScratchpads "terminal"      )
@@ -224,7 +231,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_d        ), spawnDynamicSP "dyn3"                               )
     , ((modm .|. shiftMask, xK_d        ), withFocused $ makeDynamicSP "dyn3"                  )
     , ((altModm           , xK_f        ), namedScratchpadAction myScratchpads "obsidian"      )
-    , ((modm              , xK_b        ), namedScratchpadAction myScratchpads "obsidian"      )
+    , ((modm              , xK_b        ), namedScratchpadAction myScratchpads "icloud"        )
 
     -- Media Keys
     , ((0, xF86XK_AudioMute), spawn "amixer sset Master toggle")
@@ -279,7 +286,8 @@ myLayout = smartBorders $ boringWindows $
     onWorkspace "5"  (noBorders $ fullscreen) $
     onWorkspace "7"  (avoidStruts $ spaced $ Tall 1 (3/100) (1/4)) $
     onWorkspace "'1" (avoidStruts $ verticalLayout) $
-    onWorkspace "'2" (avoidStruts $ verticalLayout) $
+    -- onWorkspace "'2" (avoidStruts $ verticalLayout) $
+    onWorkspace "'2" (avoidStruts $ GE.tallTabs def) $
     onWorkspace "'3" (avoidStruts $ verticalLayout) $
     onWorkspace "'4" (avoidStruts $ verticalLayout) $
     onWorkspace "'5" (avoidStruts $ verticalLayout) $
@@ -291,7 +299,9 @@ myLayout = smartBorders $ boringWindows $
         full       = avoidStruts $ spaced $ Full
         fullscreen = Full
         defaultConf = tiled ||| mtiled ||| full
-        verticalLayout = spaced (BinaryColumn 0.0 32 ||| BinaryColumn 1.0 32 ||| BinaryColumn 2.0 32)
+        -- defaultConf = horizontalLayout ||| verticalLayout ||| full
+        horizontalLayout = spaced $ avoidStruts $ Mirror (BinaryColumn 0.0 32)
+        verticalLayout = spaced $ avoidStruts (BinaryColumn 0.0 32 ||| BinaryColumn 1.0 32 ||| BinaryColumn 2.0 32)
 
         -- The default number of windows in the master pane
         nmaster = 1
@@ -308,6 +318,7 @@ myManageHook = composeAll
     , className =? "qutebrowser"         --> doShift "1"
     , className =? "explorer.exe"        --> doShift "9"
     , title     =? "Wine System Tray"    --> doShift "9"
+    , title     =? "poboverlay"          --> doFloat
     , className =? "dota2"               --> doShift "5" <+> (doF . W.sink =<< ask)
     , resource  =? "polybar-pavucontrol" --> placeHook (fixed (0.5, 0.5)) <+> doFloat
     , title     =? "vselect"             --> placeHook (fixed (0.5, 0.5)) <+> doFloat
@@ -321,7 +332,7 @@ myManageHook = composeAll
     , className =? "feh-float"           --> doF W.shiftMaster <+> placeHook (fixed (0.5, 0.5)) <+> doFloat
     , title     =? "Microsoft Teams Notification" --> placeHook (fixed (1, 1)) <+> doFloat
     , title     =? "Picture-in-Picture"  --> (customFloating $ W.RationalRect 0.65 0.65 0.3 0.3)
-    , className =? "Steam"               --> doShift "7"
+    , className =? "steam"               --> doShift "7"
     , className =? "discord"             --> doShift "'1"
     ]
     where
@@ -334,9 +345,9 @@ myEventHook = mempty
 myStartupHook homeDir = do
     WSP.activateWispConfig myWispConfig
     safeSpawn (joinPath [homeDir, ".config", "alacritty", "build_config.sh"]) []
-    safeSpawn "restart-polybar" []
-    safeSpawn "restart-dunst" []
-    safeSpawn "restart-picom" []
+    safeSpawn (joinPath [homeDir, ".xmonad", "scripts", "restart-polybar"]) []
+    safeSpawn (joinPath [homeDir, ".xmonad", "scripts", "restart-dunst"]) []
+    safeSpawn (joinPath [homeDir, ".xmonad", "scripts", "restart-picom"]) []
 
 myScratchpads = [ NS "terminal"
                      "alacritty --class scratchpad --title 'Alacritty (v)'"
@@ -373,6 +384,10 @@ myScratchpads = [ NS "terminal"
                 , NS "obsidian"
                      "obsidian"
                      (resource =? "obsidian")
+                     obsidianGeometry
+                , NS "icloud"
+                     "icloud"
+                     (className =? "icloud")
                      obsidianGeometry
                 ]
     where

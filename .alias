@@ -1,11 +1,6 @@
 alias config='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
 
 alias -g ,,b='$(git curbranch)'
-alias -g ,,s='$(echo ~/data/screenshots/*(om[1]))'
-alias -g ,,s2='$(echo ~/data/screenshots/*(om[2]))'
-alias -g ,,s3='$(echo ~/data/screenshots/*(om[3]))'
-alias -g ,,s4='$(echo ~/data/screenshots/*(om[4]))'
-alias -g ,,s5='$(echo ~/data/screenshots/*(om[5]))'
 
 alias vim="nvim"
 
@@ -20,35 +15,20 @@ alias paru="paru --color=auto"
 # Shortcuts                                                                  {{{
 alias l="ls -l"
 alias la="l -a"
-alias py="python"
-alias k="setxkbmap"
-alias todo="cat ~/.todo"
-alias vitodo="$EDITOR ~/.todo"
 alias tm="tmux"
-alias ..="cd .."
-alias 2..="cd ../.."
-alias 3..="cd ../../.."
-alias 4..="cd ../../../.."
-alias 5..="cd ../../../../.."
-alias h="head"
-alias d="drop"
-alias g="grep"
 alias j="jobs"
-alias mshare="sshfs mephory:shared ~/shared"
 alias psg="ps aux | grep -i"
 alias pgr="pgrep -a -f"
 alias ]="git diff --color"
 alias ]]="git diff --staged --color"
 alias s="git st"
-alias mupen="mupen64plus --fullscreen"
-alias oot="mupen $HOME/data/rom/*Ocarina*"
 alias s.="du -hs"
-alias grepip="grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'"
-alias cd-="cd -"
-alias e="exa"
-alias el="exa -l"
-alias D="devour"
-alias czf='cd "$(find ~ -type d 2>/dev/null | fzf)"'
+alias ..="cd .."
+alias 2..="cd ../.."
+alias 3..="cd ../../.."
+alias 4..="cd ../../../.."
+alias 5..="cd ../../../../.."
+alias mshare="sshfs mephory:shared ~/shared"
 
 #                                                                            }}}
 # dice                                                                       {{{
@@ -78,18 +58,10 @@ alias sl="ls"
 alias Grep="grep"
 alias les="less"
 alias Less="less"
-alias gt="git"
 
 #                                                                            }}}
 # Other                                                                      {{{
-alias p="xsel -b"
-alias record="ffmpeg -f x11grab -s 1920x1080 -r 25 -i :0"
-alias wocs="tr -cs A-Za-z '\n' | tr A-Z a-z | sort | uniq -c | sort -rn" # Prints number of occurences of words
-alias histat="cat ~/.history | sed 's/^[0-9 ]*//' | sed 's/ *| */\n/g' | sort | uniq -c | sort -rn | head -n 100"
-# Trailing space causes first argument to also be checked
-# for alias substition
 alias watch="watch "
-alias -g GH=" | git-split-diffs --color | less -RFX"
 
 #                                                                            }}}
 # Extensions                                                                 {{{
@@ -145,27 +117,6 @@ function NN() {
         push -sclassical -p1 "$1 failed"
 }
 
-# Shorten a url via google url shortener
-function shorturl() {
-    if [[ -z $1 ]]; then
-        print "USAGE: $0 <URL>"
-        return 1
-    fi
-
-    url=$1
-
-    # Prepend 'http://' to given URL where necessary for later output.
-    if [[ ${url} != http(s|)://* ]]; then
-        url='http://'${url}
-    fi
-
-    api="https://www.googleapis.com/urlshortener/v1/url?key=$GOOGLE_API_KEY"
-    contenttype="Content-Type: application/json"
-    json="{\"longUrl\": \"${url}\"}"
-    data=(${"$(curl --silent -H ${contenttype} -d ${json} $api)"})
-    echo $data | grep "id" | cut -d\" -f4
-}
-
 # Backup a file
 function backup() {
     cp $1 $1.$(date +"%Y-%m-%d_%H-%M-%S")
@@ -173,27 +124,6 @@ function backup() {
 
 function backup-mv() {
     mv $1 $1.$(date +"%Y-%m-%d_%H-%M-%S")
-}
-
-function rec() {
-    record "/home/mephory/data/video/recorded/$(uuidgen).mkv"
-}
-
-function mwatch() {
-    if [ $# -eq 1 ]
-    then
-        mpv --script $HOME/.config/mpv/watch_later.lua $1/*
-    else
-        mpv --script $HOME/.config/mpv/watch_later.lua ./*
-    fi
-}
-
-
-# total [-F<sep>] [FIELDNUM] - sum up numbers in a column
-total() {
-  local F
-  expr "$1" : -F >/dev/null && F=$1 && shift
-  awk $F -v f=${1:-1} '{s+=$f} END{print s}'
 }
 
 # up [|N|pat] -- go up 1, N or until basename matches pat many directories
@@ -236,6 +166,11 @@ timer() {
 function cdc() { cd ~/code/$1; }
 function _cdc() { _files -W ~/code -/; }
 compdef _cdc cdc
+
+# Directly cd into ~/code with cdd. It even has tab completion! :-)
+function cdd() { cd ~/code/dvelop/$1; }
+function _cdd() { _files -W ~/code/dvelop -/; }
+compdef _cdd cdd
 
 #                                                                            }}}
 

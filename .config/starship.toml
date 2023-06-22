@@ -15,12 +15,12 @@ format = "[$duration](yellow) "
 
 [ruby]
 format = '[\[$symbol$version\]]($style) '
-symbol = ' '
+symbol = '💎'
 style = 'green'
 
 [python]
 format = '[\[$symbol$version\]]($style) '
-symbol = " "
+symbol = "🐍"
 style = 'green'
 
 [git_branch]

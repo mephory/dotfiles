@@ -34,8 +34,4 @@ echo "Setting qutebrowser as default browser..."
 xdg-mime default org.qutebrowser.qutebrowser.desktop x-scheme-handler/http
 xdg-mime default org.qutebrowser.qutebrowser.desktop x-scheme-handler/https
 
-echo "Installing wisp session..."
-sudo cp ./wisp.desktop /usr/share/xsessions/wisp.desktop
-sudo cp ./bin/wisp-xinit /usr/bin/wisp-xinit
-
 ln -s /usr/bin/feh ~/bin/feh-float

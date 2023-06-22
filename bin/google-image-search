@@ -1,2 +1,0 @@
-#!/bin/sh
-firefox "http://www.google.com/searchbyimage?image_url=$1"

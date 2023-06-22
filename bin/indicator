@@ -2,7 +2,7 @@
 
 require 'json'
 
-FIFO = '/tmp/wisp-indicator'
+FIFO = '/tmp/indicator'
 Q = Queue.new
 
 def run_command(command, indicators)

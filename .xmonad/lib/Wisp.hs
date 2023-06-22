@@ -121,10 +121,10 @@ nord :: WispConfig
 nord = WispConfig
        { configName           = "nord"
        , alpha                = 0.97
-       , bgColor              = "#292e39"
+       , bgColor              = "#2e3440"
        , bgSecondary          = "#4c566a"
        , fgColor              = "#d8dee9"
-       , fgSecondary          = "#4c566a"
+       , fgSecondary          = "#a5abb6"
        , unfocusedColor       = "#3b4252"
        , focusedColor         = "#4c566a"
        , color0               = "#3b4252"
