@@ -4,6 +4,7 @@
 require 'open3'
 
 FIFO = '/tmp/polybar-playerctl'
+BIN = __FILE__
 
 PLAYERCTL_FORMAT = '{{playerInstance}}|||{{playerName}}|||{{uc(status)}}|||{{title}}'
 
@@ -50,16 +51,16 @@ class Player
 
     if active
       actions = [
-        [1, 'polybar-playerctl toggle'],
-        [2, 'polybar-playerctl switch'],
-        [3, 'polybar-playerctl next']
+        [1, "#{BIN} toggle"],
+        [2, "#{BIN} switch"],
+        [3, "#{BIN} next"]
       ]
       click_actions(actions, "#{player_icon} #{status_icon} #{title&.truncate(40, omission: '…') || 'No title'}".strip)
     else
       actions = [
-        [1, "polybar-playerctl activate #{id}"],
-        [2, 'polybar-playerctl switch'],
-        [3, 'polybar-playerctl next']
+        [1, "#{BIN} activate #{id}"],
+        [2, "#{BIN} switch"],
+        [3, "#{BIN} next"]
       ]
 
       click_actions(actions, "%{F#{ENV['WISP_FOREGROUND_SECONDARY']}} #{player_icon} %{F-}".strip)

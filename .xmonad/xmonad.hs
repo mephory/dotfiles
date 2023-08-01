@@ -231,7 +231,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_d        ), spawnDynamicSP "dyn3"                               )
     , ((modm .|. shiftMask, xK_d        ), withFocused $ makeDynamicSP "dyn3"                  )
     , ((altModm           , xK_f        ), namedScratchpadAction myScratchpads "obsidian"      )
-    , ((modm              , xK_b        ), namedScratchpadAction myScratchpads "icloud"        )
+    , ((modm              , xK_b        ), namedScratchpadAction myScratchpads "excalidraw"        )
 
     -- Media Keys
     , ((0, xF86XK_AudioMute), spawn "amixer sset Master toggle")
@@ -385,9 +385,9 @@ myScratchpads = [ NS "terminal"
                      "obsidian"
                      (resource =? "obsidian")
                      obsidianGeometry
-                , NS "icloud"
-                     "icloud"
-                     (className =? "icloud")
+                , NS "excalidraw"
+                     "google-chrome-stable --new-window --class=excalidraw --start-fullscreen --user-data-dir=/home/mephory/.config/google-chrome-excalidraw --app=https://excalidraw.com/"
+                     (className =? "excalidraw")
                      obsidianGeometry
                 ]
     where

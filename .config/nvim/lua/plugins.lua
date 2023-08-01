@@ -7,7 +7,7 @@ return {
       'williamboman/mason-lspconfig.nvim',
 
       -- Useful status updates for LSP
-      'j-hui/fidget.nvim',
+      { 'j-hui/fidget.nvim', branch = 'legacy' }
     },
   },
 
@@ -49,5 +49,17 @@ return {
   { 'justinmk/vim-sneak' },
   { 'morhetz/gruvbox' },
   { 'catppuccin/nvim' },
-  { 'nordtheme/vim' }
+  { 'nordtheme/vim' },
+  { 'jose-elias-alvarez/null-ls.nvim' },
+  {
+    "jay-babu/mason-null-ls.nvim",
+    event = { "BufReadPre", "BufNewFile" },
+    dependencies = {
+      "williamboman/mason.nvim",
+      "jose-elias-alvarez/null-ls.nvim",
+    }
+  },
+  { 'hrsh7th/cmp-nvim-lsp-signature-help' },
+  { 'github/copilot.vim' }
+
 }
