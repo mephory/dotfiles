@@ -1,4 +1,0 @@
-#!/bin/sh
-
-killall dunst
-dunst -config <(envsubst < ~/.config/dunst/dunstrc_env)
