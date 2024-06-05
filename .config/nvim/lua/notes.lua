@@ -1,34 +1,13 @@
 -- Notes
-vim.keymap.set('n', ',n', ':Telescope find_files cwd=~/data/notes<cr>')
-vim.keymap.set('n', ',N', ':Telescope live_grep cwd=~/data/notes<cr>')
-vim.keymap.set('n', ',e', ':e ~/data/notes/')
-vim.keymap.set('n', ',w', ':w ~/data/notes/')
-vim.keymap.set('n', ',m', ':Mkdir ~/data/notes/')
-vim.keymap.set('n', ',d', ':e ~/data/notes/daily/<c-r>=strftime("%Y-%m-%d")<cr>.md<cr>')
-vim.keymap.set('n', ',g', ':e ~/data/notes/todo.md<cr>')
+vim.keymap.set('n', ',n', ':Telescope find_files cwd=~/Documents/Notes<cr>')
+vim.keymap.set('n', ',N', ':Telescope live_grep cwd=~/Documents/Notes<cr>')
+vim.keymap.set('n', ',e', ':e ~/Documents/Notes/')
+vim.keymap.set('n', ',w', ':w ~/Documents/Notes/')
+vim.keymap.set('n', ',m', ':Mkdir ~/Documents/Notes/')
+vim.keymap.set('n', ',d', ':e ~/Documents/Notes/daily/<c-r>=strftime("%Y-%m-%d")<cr>.md<cr>')
+vim.keymap.set('n', ',g', ':e ~/Documents/Notes/todo.md<cr>')
 vim.keymap.set('n', ',f', ':e %:h/<cfile><cr>')
 
 vim.keymap.set('i', '<F2>', '<c-r>=strftime("%Y-%m-%d %H:%M")<cr>')
 vim.keymap.set('i', '<F3>', '<c-r>=strftime("%Y-%m-%d")<cr>')
 vim.keymap.set('i', '<F4>', '<c-r>=strftime("%H:%M")<cr>')
-
--- local notes_group = vim.api.nvim_create_augroup('Notes', { clear = true })
--- vim.api.nvim_create_autocmd('BufWritePost', {
---   command = 'silent! !notes postprocess',
---   group = notes_group,
---   pattern = '/home/mephory/data/notes/*.md'
--- })
---
--- function NotesPreWrite()
---     local line, col = unpack(vim.api.nvim_win_get_cursor(0))
---     vim.api.nvim_command("silent! %!notes preprocess")
---     vim.api.nvim_win_set_cursor(0, { line, col })
--- end
---
--- vim.api.nvim_create_autocmd('BufWritePre', {
---   -- command = 'silent! %!~/data/notes/.prewrite.sh',
---   callback = NotesPreWrite,
---   group = notes_group,
---   pattern = '/home/mephory/data/notes/*.md',
--- })
---

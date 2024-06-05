@@ -1,10 +1,7 @@
 local M = {}
 
 function M.setup(user_data)
-  -- [[ Configure Treesitter ]]
-  -- See `:help nvim-treesitter`
   require('nvim-treesitter.configs').setup {
-    -- Add languages to be installed here that you want installed for treesitter
     ensure_installed = user_data.ensure_installed,
 
     highlight = { enable = true },

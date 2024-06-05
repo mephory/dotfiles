@@ -1,9 +1,11 @@
-vim.api.nvim_set_hl(0, 'MyHilight1', {fg="#000000", ctermfg=16, bg="#ffa724", ctermbg=208})
-vim.api.nvim_set_hl(0, 'MyHilight2', {fg="#000000", ctermfg=16, bg="#aeee00", ctermbg=040})
-vim.api.nvim_set_hl(0, 'MyHilight3', {fg="#000000", ctermfg=16, bg="#8cffba", ctermbg=087})
-vim.api.nvim_set_hl(0, 'MyHilight4', {fg="#000000", ctermfg=16, bg="#b88853", ctermbg=137})
-vim.api.nvim_set_hl(0, 'MyHilight5', {fg="#000000", ctermfg=16, bg="#ff9eb8", ctermbg=211})
-vim.api.nvim_set_hl(0, 'MyHilight6', {fg="#000000", ctermfg=16, bg="#ff2c4b", ctermbg=195})
+function SetupHilights()
+  vim.api.nvim_set_hl(0, 'MyHilight1', {fg="#000000", ctermfg=16, bg="#ffa724", ctermbg=208})
+  vim.api.nvim_set_hl(0, 'MyHilight2', {fg="#000000", ctermfg=16, bg="#aeee00", ctermbg=040})
+  vim.api.nvim_set_hl(0, 'MyHilight3', {fg="#000000", ctermfg=16, bg="#8cffba", ctermbg=087})
+  vim.api.nvim_set_hl(0, 'MyHilight4', {fg="#000000", ctermfg=16, bg="#b88853", ctermbg=137})
+  vim.api.nvim_set_hl(0, 'MyHilight5', {fg="#000000", ctermfg=16, bg="#ff9eb8", ctermbg=211})
+  vim.api.nvim_set_hl(0, 'MyHilight6', {fg="#000000", ctermfg=16, bg="#ff2c4b", ctermbg=195})
+end
 
 function HilightCWord(n)
   local pattern = vim.fn.expand('<cword>')
@@ -22,6 +24,15 @@ function HilightPattern(n)
     vim.fn.matchadd("MyHilight" .. n, pattern, 1, mid)
   end
 end
+
+vim.api.nvim_create_autocmd({"OptionSet"}, {
+  pattern = {"background"},
+  callback = function(ev)
+    SetupHilights()
+  end
+})
+
+SetupHilights()
 
 vim.keymap.set('n', ',1', function() HilightCWord(1) end)
 vim.keymap.set('n', ',2', function() HilightCWord(2) end)
