@@ -7,7 +7,7 @@ window:
 font:
   normal:
     family: MonoLisa
-  size: 13
+  size: 15
 
 colors:
   primary:
@@ -50,7 +50,7 @@ hints:
       |(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})\
       |([A-f0-9:]+:+[A-f0-9:]+[%\\w\\d])+\
       )"
-    command: xdg-open
+    command: open
     post_processing: true
     mouse:
       enabled: false

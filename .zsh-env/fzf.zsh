@@ -2,9 +2,9 @@ FZF_TMUX_OPTS="-p"
 
 # Auto-completion
 # ---------------
-if [[ -f /usr/share/fzf/completion.zsh ]]; then
-  source /usr/share/fzf/completion.zsh
-fi
+# if [[ -f /usr/share/fzf/completion.zsh ]]; then
+#   source /usr/share/fzf/completion.zsh
+# fi
 
 # Key bindings
 # ------------

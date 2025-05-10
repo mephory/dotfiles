@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DIR="$(find ~ -type d 2>/dev/null | fzf)"
+DIR="$(find ~/code ~/src -type d 2>/dev/null | fzf)"
 
 if [ $? -ne 0 ]; then
   exit

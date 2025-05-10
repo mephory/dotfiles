@@ -22,33 +22,24 @@ export SAVEHIST=1000000
 
 export TERM="xterm-256color"
 
-export PATH="$PATH:$HOME/.gem/ruby/2.2.0/bin"
-export PATH="$PATH:$HOME/.gem/ruby/2.3.0/bin"
-export PATH="$PATH:$HOME/.gem/ruby/2.4.0/bin"
-export PATH="$PATH:$HOME/.gem/ruby/2.5.0/bin"
-export PATH="$PATH:$HOME/.gem/ruby/2.6.0/bin"
-export PATH="$PATH:$HOME/.gem/ruby/2.7.0/bin"
-export PATH="$PATH:$HOME/.gem/ruby/3.0.0/bin"
+export PATH="$PATH:$HOME/.rbenv/versions/3.4.1/bin/"
 export PATH="$PATH:$HOME/.local/share/gem/ruby/3.0.0/bin"
 export PATH="$PATH:$HOME/.cabal/bin"
 export PATH="$PATH:$HOME/.npm-global/bin"
 export PATH="$PATH:$HOME/.local/bin"
 export PATH="$PATH:$HOME/bin"
-export PATH="$PATH:$HOME/.config/polybar/scripts"
-export PATH="$PATH:$HOME/.dotnet/tools"
+export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
 
 export GOPATH="$HOME/.go"
 export PATH="$PATH:$GOPATH/bin"
-
 export FZF_COMPLETION_TRIGGER="~~"
-
-for f in ~/.zsh-env/*(@,.N); do
-    source $f;
-done
 
 # hash dirs
 hash -d poe="/home/mephory/.local/share/Steam/steamapps/compatdata/238960/pfx/drive_c/users/steamuser/My Documents/My Games/Path of Exile"
 hash -d wow="/home/mephory/.local/share/bottles/bottles/bnet/drive_c/Program Files (x86)/World of Warcraft/_classic_/Interface/AddOns"
+hash -d cloud="/Users/mephory/Library/Mobile Documents/com~apple~CloudDocs"
+hash -d c="/Users/mephory/Library/Mobile Documents/com~apple~CloudDocs"
+hash -d vault="/Users/mephory/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian"
 
 
 # kill word but have / as word separator
@@ -128,10 +119,8 @@ _tmux_pane_words() {
     _wanted values expl 'words from current tmux pane' compadd -a w
 }
 
-zle -C tmux-pane-words-prefix   complete-word _generic
 zle -C tmux-pane-words-anywhere complete-word _generic
 bindkey '^ ' tmux-pane-words-anywhere
-# bindkey '^t' tmux-pane-words-prefix
 
 
 # Move cursor after the first word
@@ -157,7 +146,12 @@ zstyle ':completion:tmux-pane-words-(prefix|anywhere):*' completer _tmux_pane_wo
 zstyle ':completion:tmux-pane-words-(prefix|anywhere):*' ignore-line current
 zstyle ':completion:tmux-pane-words-anywhere:*' matcher-list 'b:=* m:{A-Za-z}={a-zA-Z}'
 
+for f in ~/.zsh-env/*(@,.N); do
+    source $f;
+done
+
 source ~/.alias
 
 [[ -r "/usr/share/z/z.sh" ]] && source /usr/share/z/z.sh
 eval "$(starship init zsh)"
+eval "$(zoxide init zsh)"

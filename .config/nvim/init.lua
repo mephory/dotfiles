@@ -32,8 +32,8 @@ vim.o.showbreak = '«'
 vim.wo.number = true
 vim.wo.signcolumn = 'yes'
 vim.o.termguicolors = true
-vim.cmd [[colorscheme catppuccin-mocha]]
-vim.cmd [[set splitright splitbelow]]
+vim.o.splitright = true
+vim.o.splitbelow = true
 
 -- Other
 vim.o.undofile = true
@@ -47,7 +47,7 @@ vim.filetype.add({ extension = { templ = "templ" } })
 vim.g.ftplugin_sql_omni_key = '<C-j>'
 
 
--- Load in custom modules
+-- Load custom modules
 require('keymaps')
 require('highlights')
 require('notes')
@@ -58,6 +58,7 @@ require('treesitter').setup {
     'go',
     'lua',
     'python',
+    'ruby',
     'rust',
     'typescript'
   }
@@ -68,7 +69,7 @@ require('lsp').setup {
     'clangd',
     'rust_analyzer',
     'pyright',
-    'tsserver',
+    'ts_ls',
     'gopls',
     'solargraph',
     'terraformls',
@@ -76,7 +77,26 @@ require('lsp').setup {
   }
 }
 
+-- require('supermaven-nvim').setup({
+--   keymaps = {
+--     accept_suggestion = "<C-j>",
+--     clear_suggestion = "<C-]>",
+--     accept_word = "<C-l>",
+--   },
+--   ignore_filetypes = {},
+--   color = {
+--     suggestion_color = "gray",
+--     cterm = 244,
+--   },
+--   disable_inline_completion = false, -- disables inline completion for use with cmp
+--   disable_keymaps = false -- disables built in keymaps for more manual control
+-- })
+
 -- Configure plugins
+require("catppuccin").setup({
+  transparent_background = true,
+})
+
 require('lualine').setup {
   options = {
     icons_enabled = true,
@@ -112,6 +132,9 @@ require('telescope').setup {
         ['<C-d>'] = false,
       },
     },
+    file_ignore_patterns = {
+      '^node_modules/',
+    },
   },
 }
 pcall(require('telescope').load_extension, 'fzf')
@@ -124,3 +147,5 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   group = highlight_group,
   pattern = '*',
 })
+
+vim.cmd [[colorscheme catppuccin-mocha]]

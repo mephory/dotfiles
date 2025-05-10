@@ -76,8 +76,7 @@ fi
 
 if [ -n "$ARG_COPY" ]; then
     URL="$(head -$ARG_COPY $HOME/.uploads | tail -1 | awk '{ print $3 }')"
-    echo $URL | xsel -pi
-    echo $URL | xsel -bi
+    echo $URL | pbcopy
     exit 0;
 fi
 
@@ -107,7 +106,7 @@ if [ -n "$ARG_NAME" ]; then
         $ONESHOT_FLAG \
         -F "key=$UPLOAD_KEY" \
         -F "file=@\"$ARG_FILE\";filename=\"$ARG_NAME\"" \
-        "http://upload.mephory.com/")" || exit
+        "https://upload.mephory.com/")" || exit
 else
     URL="$(curl \
         --fail -# \
@@ -116,13 +115,12 @@ else
         $ONESHOT_FLAG \
         -F "key=$UPLOAD_KEY" \
         -F "file=@\"$ARG_FILE\"" \
-        "http://upload.mephory.com/")" || exit
+        "https://upload.mephory.com/")" || exit
 fi
 
 echo "$ARG_FILE | $URL" >> $HOME/.uploads
 echo $URL
-echo $URL | xsel -pi 2>/dev/null
-echo $URL | xsel -bi 2>/dev/null
+echo $URL | pbcopy 2>/dev/null
 
 if [ -n "$ARG_NOTIFY" ]; then
     notify-send "Upload finished" "URL copied to clipboard"

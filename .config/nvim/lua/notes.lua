@@ -11,3 +11,15 @@ vim.keymap.set('n', ',f', ':e %:h/<cfile><cr>')
 vim.keymap.set('i', '<F2>', '<c-r>=strftime("%Y-%m-%d %H:%M")<cr>')
 vim.keymap.set('i', '<F3>', '<c-r>=strftime("%Y-%m-%d")<cr>')
 vim.keymap.set('i', '<F4>', '<c-r>=strftime("%H:%M")<cr>')
+
+-- vim.keymap.set('n', ',1', function() dailyNote(0) end)
+-- vim.keymap.set('n', ',2', function() dailyNote(1) end)
+-- vim.keymap.set('n', ',3', function() dailyNote(2) end)
+-- vim.keymap.set('n', ',4', function() dailyNote(3) end)
+-- vim.keymap.set('n', ',5', function() dailyNote(4) end)
+-- vim.keymap.set('n', ',6', function() dailyNote(5) end)
+
+function dailyNote(daysAgo)
+    local prevDay = vim.fn.strftime("%Y-%m-%d", vim.fn.localtime() - daysAgo * 86400)
+    vim.cmd.edit("~/Documents/Notes/daily/" .. prevDay .. ".md")
+end

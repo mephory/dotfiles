@@ -1,7 +1,7 @@
 [user]
 name = mephory
 email = mephory@mephory.com
-signingkey = BE8FC1ACDFA55026
+signingkey = ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCuQ7g/qJ0T5ZCWVhLp0nnhgjXhGwemx/tZkUyGJKO8S2vddicsC+VRVk3g4BvyUqyKlsCm9aWQn2FdQ25t9ZqlUirbeLvomIogXRk6ejhpbU89+qpCAsDl/BcriMmS8OsVwH4iU2oA/mJUuRRSfBRjBfO9+xK7M/swHKdbS9SshK9eM5mtdRxtDtsREUTZilSZGJdsSrF2SoJYnyqzblcXWqRbRv5uHhVH5V43ba0rEi335iSIqIqtcarhg9ihSa1w6Y7owXnXrpk7gJwEUWvTG8DNlFZFel0qd7xG3LGLHkVNzDtHuGZOLQzTJ3pJWW3V3MjKuHBhfxgW7CiSzLs9sKHAERPXivOr7HYhOCqUynYj5IDvmMa+BRdDt8aFfpLizyW5rg/ZJoG47FD/DsYVBvnJedls5MeXY/CRTqzShR/I4xCdveXQAmwVGGVuvO3w4UttoDRK7mRfHj2DdMV4oLfgW4EGLqHHxnlKYf/9WJVBnSJE7M+zazcU6kx1Hb0=
 
 [alias]
 st = status -sb
@@ -46,8 +46,20 @@ rebase = true
 autocrlf = input
 pager = "diff-so-fancy | less --tabs=1,5 -R"
 
+[rerere]
+enabled = true
+
+[branch]
+sort = -committerdate
+
 [credential]
-helper = /usr/lib/git-core/git-credential-libsecret
+	helper = osxkeychain
 
 [gpg]
 program = gpg2
+format = ssh
+
+[gpg "ssh"]
+program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+[url "git@github.com:"]
+	insteadOf = https://github.com/

@@ -7,15 +7,6 @@ return {
       { 'j-hui/fidget.nvim', branch = 'legacy' }
     },
   },
-  { 'jose-elias-alvarez/null-ls.nvim' },
-  {
-    "jay-babu/mason-null-ls.nvim",
-    event = { "BufReadPre", "BufNewFile" },
-    dependencies = {
-      "williamboman/mason.nvim",
-      "jose-elias-alvarez/null-ls.nvim",
-    }
-  },
 
   { -- Autocompletion
     'hrsh7th/nvim-cmp',
@@ -41,6 +32,7 @@ return {
   { 'justinmk/vim-sneak' },
   { 'catppuccin/nvim' },
   { 'github/copilot.vim' },
+  -- { "supermaven-inc/supermaven-nvim" },
   { 'nvim-lualine/lualine.nvim' }, -- Fancier statusline
   { 'numToStr/Comment.nvim' }, -- "gc" to comment visual regions/lines
   { 'rrethy/vim-hexokinase', build = 'make hexokinase' },
@@ -59,10 +51,21 @@ return {
       update_interval = 1000,
       set_dark_mode = function()
         vim.api.nvim_set_option("background", "dark")
+        vim.cmd("hi Normal guibg=NONE ctermbg=NONE")
       end,
       set_light_mode = function()
         vim.api.nvim_set_option("background", "light")
+        vim.cmd("hi Normal guibg=NONE ctermbg=NONE")
       end,
     }
+  },
+
+  {
+    "joshuavial/aider.nvim",
+    opts = {
+      auto_manage_context = true, -- automatically manage buffer context
+      default_bindings = true,    -- use default <leader>A keybindings
+      debug = false,              -- enable debug logging
+    },
   }
 }

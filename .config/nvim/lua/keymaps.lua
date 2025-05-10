@@ -13,6 +13,13 @@ vim.keymap.set('n', ';', ':')
 vim.keymap.set('n', 'q;', 'q:')
 vim.keymap.set('n', ',,', '<C-^>')
 vim.keymap.set('n', '<space>e', ':silent! .w !bash<cr>')
+vim.keymap.set('n', '<leader>gs', ':Gitsigns preview_hunk<cr>')
+vim.keymap.set('n', '<leader>gn', ':Gitsigns next_hunk<cr>')
+vim.keymap.set('n', '<leader>gp', ':Gitsigns prev_hunk<cr>')
+vim.keymap.set('n', '<leader>ga', ':Gitsigns stage_hunk<cr>')
+vim.keymap.set('n', '<leader>gd', ':Gitsigns undo_stage_hunk<cr>')
+vim.keymap.set('n', '<leader>gb', ':Git blame<cr>')
+vim.keymap.set('n', '<leader>gB', ':Gitsigns toggle_current_line_blame<cr>')
 vim.api.nvim_create_user_command('Q', 'q', {bang = true})
 
 -- Diagnostic keymaps
@@ -79,6 +86,7 @@ vim.keymap.set('n', '<S-Tab>', '<Plug>Sneak_,')
 vim.keymap.set('i', '<C-j>', 'copilot#Accept("")', {expr=true, silent=true, replace_keycodes=false})
 vim.keymap.set('i', '<C-l>', '<Plug>(copilot-next)')
 vim.keymap.set('i', '<C-h>', '<Plug>(copilot-next)')
+vim.g.copilot_no_tab_map = true
 
 -- Telescope
 vim.keymap.set('n', '<C-p>', require('telescope.builtin').find_files)
@@ -87,6 +95,8 @@ vim.keymap.set('n', 'tp', require('telescope.builtin').buffers)
 vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers)
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles)
 vim.keymap.set('n', '<leader>j', require('telescope.builtin').jumplist)
+vim.keymap.set('n', '<leader>n', require('telescope.builtin').grep_string)
+vim.keymap.set('n', '<leader>t', require('telescope.builtin').treesitter)
 vim.keymap.set('n', '<leader>/', function()
   require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
     winblend = 10,
@@ -94,5 +104,7 @@ vim.keymap.set('n', '<leader>/', function()
   })
 end)
 
+-- vim.api.nvim_set_keymap('n', '<leader>a', ':AiderOpen --watch<cr>', { noremap = true, silent = true })
+vim.keymap.set('n', '<leader>,', ':AiderOpen --watch<cr>')
 
 -- vim.keymap.set('n', '<space>d', ':exec &bg=="light"? "set bg=dark" : "set bg=light"<CR>', {noremap = true, silent = true})

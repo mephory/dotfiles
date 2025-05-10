@@ -16,12 +16,10 @@ alias paru="paru --color=auto"
 alias l="ls -l"
 alias la="l -a"
 alias tm="tmux"
-alias j="jobs"
 alias psg="ps aux | grep -i"
-alias pgr="pgrep -a -f"
 alias ]="git diff --color"
 alias ]]="git diff --staged --color"
-alias s="git st"
+alias s="git status --short"
 alias s.="du -hs"
 alias ..="cd .."
 alias 2..="cd ../.."
@@ -29,6 +27,8 @@ alias 3..="cd ../../.."
 alias 4..="cd ../../../.."
 alias 5..="cd ../../../../.."
 alias mshare="sshfs mephory:shared ~/shared"
+alias c="cd"
+alias delemp="find . -maxdepth 1 -type d -empty -delete"
 
 #                                                                            }}}
 # dice                                                                       {{{
@@ -76,7 +76,6 @@ alias -s mp3="mplayer"
 alias -s wav="mplayer"
 alias -s ogg="mplayer"
 alias -s pdf="firefox"
-alias -s exe="wine"
 alias -s txt="$EDITOR"
 
 #                                                                            }}}
@@ -154,12 +153,16 @@ function cdt() {
     cd $(mktemp -d)
 }
 
-timer() {
-    date1=`date +%s`; 
-    while true; do 
-        echo -ne "\r$(date -u --date @$((`date +%s` - $date1)) +%H:%M:%S)";
-        sleep 0.1
-    done
+function zt() {
+    cd $(mktemp -d -p ~/temp)
+}
+
+function sshtun1() {
+    ssh -R :19101:localhost:$1 mephory
+}
+
+function sshtun2() {
+    ssh -R :19102:localhost:$1 mephory
 }
 
 # Directly cd into ~/code with cdc. It even has tab completion! :-)
@@ -167,10 +170,10 @@ function cdc() { cd ~/code/$1; }
 function _cdc() { _files -W ~/code -/; }
 compdef _cdc cdc
 
-# Directly cd into ~/code with cdd. It even has tab completion! :-)
-function cdd() { cd ~/code/dvelop/$1; }
-function _cdd() { _files -W ~/code/dvelop -/; }
-compdef _cdd cdd
+# Directly cd into ~/code with cdc. It even has tab completion! :-)
+function cvc() { cd ~/code/$1; }
+function _cvc() { _files -W ~/code -/; }
+compdef _cvc cvc
 
 #                                                                            }}}
 

@@ -17,9 +17,10 @@ format = "[$duration](yellow) "
 format = '[\[$symbol$version\]]($style) '
 symbol = '💎'
 style = 'green'
+disabled = true
 
 [python]
-format = '[\[$symbol$version\]]($style) '
+format = '[\[$symbol$version( $virtualenv)\]]($style) '
 symbol = "🐍"
 style = 'green'
 

@@ -22,7 +22,8 @@ fi;
 while read f; do
     if [ -e "$HOME/$f" ]; then
         echo "$HOME/$f does already exist. Backing up to $HOME/$f.bak"
-        mv "$HOME/$f" "$HOME/$f.bak"
+        # mv "$HOME/$f" "$HOME/$f.bak"
+        rm "$HOME/$f"
     fi
     mkdir -p "$(dirname $HOME/$f)"
     echo "ln -s $PWD/$f $HOME/$f"
